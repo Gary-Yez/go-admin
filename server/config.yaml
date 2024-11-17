@@ -1,0 +1,14 @@
+mysql:
+  host: "150.158.111.154"
+  port: 3306
+  username: "myadmin"
+  password: "myadmin"
+  database: "myadmin"
+redis:
+  host: "127.0.0.1"
+  port: 6379
+  username: ""
+  password: ""
+  db: 0
+jwt:
+  secret: "jwtTokens"

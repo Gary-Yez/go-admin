@@ -1,0 +1,60 @@
+package {{.ModuleName}}
+
+import (
+    "errors"
+    "gorm.io/gorm/clause"
+	"gitee.com/mxcker/go-admin/server/global"
+	"gitee.com/mxcker/go-admin/server/models"
+	"gitee.com/mxcker/go-admin/server/models/request"
+)
+
+type Service struct {
+}
+
+func (s *Service) Get(id uint) (data *models.{{.ModelName}}, err error) {
+	data = &models.{{.ModelName}}{}
+	err = global.DB.Model(models.{{.ModelName}}{}).Where("id = ?", id).Find(data).Error
+	return
+}
+
+func (s *Service) List(req *request.ReqList) (list []*models.{{.ModelName}}, total int64, err error) {
+	db := global.DB.Model(models.{{.ModelName}}{})
+	err = db.Count(&total).Error
+	if err != nil {
+		return nil, 0, err
+	}
+	req.SetDB(db)
+	err = db.Find(&list).Error
+	return
+}
+
+func (s *Service) Create(data *models.{{.ModelName}}) (err error) {
+	err = global.DB.
+	    Omit(clause.Associations).
+	    {{- range .Fields}}
+	    {{- if eq .Editable false}}
+        Omit("{{.Key}}").
+	    {{- end}}
+	    {{- end}}
+	    Create(data).Error
+	return
+}
+
+func (s *Service) Update(data *models.{{.ModelName}}) (err error) {
+	if data.Id == 0 {
+		return errors.New("id不能为空")
+	}
+	return global.DB.Select("*").
+    		Omit(clause.Associations).
+    		Omit("Id", "CreatedAt", "UpdatedAt").
+    		{{- range .Fields}}
+            {{- if eq .Editable false}}
+            Omit("{{.Key}}").
+            {{- end}}
+            {{- end}}
+    		Where("id = ?", data.Id).Updates(data).Error
+}
+
+func (s *Service) DeleteByIds(ids []uint) (err error) {
+	return global.DB.Delete(&models.{{.ModelName}}{}, ids).Error
+}

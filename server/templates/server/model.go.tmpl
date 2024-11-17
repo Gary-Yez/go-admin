@@ -1,0 +1,13 @@
+package models
+
+type {{.ModelName}} struct {
+	{{- if .UseSoftDelete}}
+	DbBaseModelWidthDelete
+	{{- else if .UseCommon}}
+	DbBaseModel
+	{{- end}}
+	{{- range .Fields}}
+	{{.Key}} {{.Type}} `json:"{{if .Hidden}}-{{else}}{{.Name}}{{end}}" form:"{{if .Hidden}}-{{else}}{{.Name}}{{end}}" gorm:"{{- if .IndexType -}}{{.IndexType}};{{- end -}}"{{if .Required }} binding:"required"{{end}}`
+	{{- end}}
+}
+
