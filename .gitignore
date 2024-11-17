@@ -1,0 +1,12 @@
+.idea
+/server/.idea
+/web/.idea
+# server
+/server/dist
+# web
+/web/node_modules
+/web/npm-debug.log*
+/web/yarn-debug.log*
+/web/yarn-error.log*
+/web/pnpm-debug.log*
+/web/lerna-debug.log*
