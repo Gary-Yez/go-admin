@@ -7,12 +7,18 @@
     <el-table :data="tableData">
       <el-table-column label="编号" prop="id" :width="100"></el-table-column>
       <el-table-column label="名称" prop="name"></el-table-column>
+      <el-table-column label="类型" prop="default">
+        <template #default="{ row }">
+          <el-tag v-if="row.default" type="primary">系统管理员</el-tag>
+          <el-tag v-else type="success">自定义</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" :width="260">
         <template #default="{ row }">
           <el-button-group class="table-btn-group">
-            <el-button type="primary" icon="Setting" text @click="()=>handleAdd({id:row.id,editMenu:row.menus})">权限管理</el-button>
-            <el-button type="primary" icon="Edit" text @click="()=>handleAdd(row)">修改</el-button>
-            <el-button type="danger" icon="Delete" text @click="()=>handleDelete([row.id])">删除</el-button>
+            <el-button type="primary" icon="Setting" :disabled="row.default" text @click="()=>handleAdd({id:row.id,editMenu:row.menus})">权限管理</el-button>
+            <el-button type="primary" icon="Edit" text :disabled="row.default" @click="()=>handleAdd(row)">修改</el-button>
+            <el-button type="danger" icon="Delete" text :disabled="row.default" @click="()=>handleDelete([row.id])">删除</el-button>
           </el-button-group>
         </template>
       </el-table-column>
@@ -31,24 +37,25 @@
 
 <script setup lang="ts">
 import {nextTick, onMounted, ref} from "vue";
-import {SysRole} from "../../apis/sys_role.ts";
-import {SysMenu} from "../../apis/sys_menu.ts";
+import {SysRoleApi} from "../../apis/sys_role.ts";
+import {SysMenuApi} from "../../apis/sys_menu.ts";
+import { ElMessage,ElMessageBox } from "element-plus";
 import FormDialog from "../../components/common/FormDialog.vue";
 const treeRef = ref()
 const pageLoading = ref(true)
 const menus = ref([])
 const tableData = ref([])
 const dialogOpen = ref(false)
-const submitForm = ref({})
+const submitForm:any = ref({})
 
 const getMenus = async ()=>{
-  const response = await SysMenu.List()
+  const response = await SysMenuApi.List()
   menus.value = response.data.list
 }
 
 const getPageData = async () => {
   pageLoading.value = true
-  const response = await SysRole.List()
+  const response = await SysRoleApi.List()
   tableData.value = response.data.list
   pageLoading.value = false
 }
@@ -60,7 +67,7 @@ const handleAdd = (defaultForm:any)=>{
   dialogOpen.value = true
   if (defaultForm.editMenu){
     nextTick(()=>{
-      treeRef.value.setCheckedKeys(defaultForm.editMenu.map(item=>item.id))
+      treeRef.value.setCheckedKeys(defaultForm.editMenu.map((item:any)=>item.id))
     })
   }
 }
@@ -73,19 +80,15 @@ onMounted(()=>{
 const handleSubmit = async () => {
   if (submitForm.value.editMenu){
     let menus = treeRef.value.getCheckedKeys()
-    console.log(menus)
-    const response = await SysRole.UpdatePermission(submitForm.value.id,menus)
-    console.log(response)
+    await SysRoleApi.UpdatePermission(submitForm.value.id,menus)
     ElMessage.success("权限修改成功")
   }else if (!submitForm.value.id){
-    const response = await SysRole.Create({
+    await SysRoleApi.Create({
       ...submitForm.value,
     })
     ElMessage.success("创建成功")
-    console.log(response)
   }else{
-    const response = await SysRole.Edit(submitForm.value)
-    console.log(response)
+    await SysRoleApi.Edit(submitForm.value)
     ElMessage.success("修改成功")
   }
   getPageData()
@@ -98,7 +101,7 @@ const handleDelete = (ids:Array<any>) => {
       if (action === "confirm") {
         instance.confirmButtonLoading = true
         try {
-          const response = await SysRole.Delete(ids)
+          await SysRoleApi.Delete(ids)
           ElMessage.success("删除成功")
           getPageData()
         }catch (e){

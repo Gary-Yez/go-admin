@@ -10,15 +10,19 @@ type Route struct {
 func (receiver *Route) Register(adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) {
 	Group := adminAuthGroup.Group("/{{.ModuleName}}")
 	{
+	    {{- if .CreateCURD}}
 		Group.GET("get", controller.Get)
 		Group.GET("list", controller.List)
 		Group.POST("create", controller.Create)
 		Group.POST("delete", controller.Delete)
 		Group.POST("edit", controller.Edit)
+		{{- else}}
+		_ = Group
+		{{- end}}
 	}
 	// 无需鉴权的路由
-	// Public := publicGroup.Group("/{{.ModuleName}}")
-	// {
-	//     
-	// }
+    Public := publicGroup.Group("/{{.ModuleName}}")
+    {
+        _ = Public
+    }
 }

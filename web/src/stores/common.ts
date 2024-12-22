@@ -1,9 +1,10 @@
 import {defineStore} from "pinia";
 import { formatTime } from "../utils/formatTime.ts";
+import {ElMessage} from "element-plus";
 
 export const useCommonStore = defineStore("commonStore", {
     state: () => ({
-        siteName:"",
+        isDev:import.meta.env.MODE === 'development',
         currentTime:"",
         theme:localStorage.getItem("theme") || "light",
     }),

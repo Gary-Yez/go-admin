@@ -42,9 +42,10 @@
 
 <script setup lang="ts">
   import {ref} from "vue";
-  import {SysAuth} from "../apis/sys_auth.ts";
+  import { SysAuthApi } from "../apis/sys_auth.ts";
   import {useUserStore} from "../stores/user.ts";
   import {useRouter} from "vue-router";
+
   const userStore = useUserStore()
   const router = useRouter()
   const formRef = ref()
@@ -54,11 +55,11 @@
     password:""
   })
   const isRemember = ref(!!rememberData)
-  
-  
+
+
   const handleSubmit = async () => {
     await formRef.value.validate()
-    const response = await SysAuth.Login(submitForm.value)
+    const response = await SysAuthApi.Login(submitForm.value)
     userStore.setAccessToken(response.data.token)
     if (isRemember.value){
       localStorage.setItem("remember",JSON.stringify(submitForm.value))
@@ -82,7 +83,6 @@
       justify-content: center;
       background: #ffffff;
       border-radius: 20px;
-      //width: 500px;
       .img-box{
         width: 480px;
         display: flex;

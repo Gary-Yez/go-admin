@@ -43,9 +43,10 @@
 
 <script setup lang="ts">
   import {onMounted, ref} from "vue";
-  import {SysAutocode} from "../../apis/sys_autocode.ts";
+  import {SysAutocodeApi} from "../apis/sys_autocode.ts";
   import {useRouter} from "vue-router";
-  import {formatTime} from "../../utils/formatTime.ts";
+  import {formatTime} from "../utils/formatTime.ts";
+  import { ElMessage,ElMessageBox } from "element-plus"
   const router = useRouter()
   const pageLoading = ref(true)
   const queryForm = ref({
@@ -54,12 +55,11 @@
   })
   const tableData = ref([])
   const total = ref(0)
-  
+
   const getPageData = async () => {
     pageLoading.value = true
     try {
-      const response = await SysAutocode.History(queryForm.value)
-      console.log(response)
+      const response = await SysAutocodeApi.History(queryForm.value)
       tableData.value = response.data.list
       total.value = response.data.total
     }catch(err) {
@@ -67,7 +67,7 @@
     }
     pageLoading.value = false
   }
-  
+
   const handleGoAdd = () => {
     router.push("/dashboard/sys_autocode")
   }
@@ -77,13 +77,12 @@
   })
 
   const handleEdit = (row: any) => {
-    console.log(row)
     router.push({
       path:"/dashboard/sys_autocode",
       query:{id:row.id}
     })
   }
-  
+
   const handleDelete = (ids:Array<any>) => {
     ElMessageBox.confirm("删除生成记录并不会删除已生成的文件，您确认要删除该记录吗？","删除提示",{
       type:"error",
@@ -91,8 +90,7 @@
         if (action === "confirm") {
           instance.confirmButtonLoading = true
           try {
-            const response = await SysAutocode.Delete(ids)
-            console.log(response)
+            await SysAutocode.Delete(ids)
             ElMessage.success("删除成功")
             getPageData().then()
           }catch (e){

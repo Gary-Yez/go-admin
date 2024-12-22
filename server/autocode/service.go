@@ -1,4 +1,4 @@
-package sys_autocode
+package autocode
 
 import (
 	"encoding/json"
@@ -17,6 +17,9 @@ type Service struct {
 func (s *Service) GetTemplates(data *GenerateBody) ([]WriteItem, error) {
 	var templateList []WriteItem
 	for _, templateItem := range ServerTemplatesPath {
+		if !data.CreateCURD && templateItem.Name == "model" {
+			continue
+		}
 		content, err := getTemplateContent(templateItem.Path, data)
 		if err != nil {
 			return nil, err
@@ -40,30 +43,34 @@ func (s *Service) GetTemplates(data *GenerateBody) ([]WriteItem, error) {
 		Path:    routerPath,
 		Content: routerContent,
 	})
-	initializationContent, initPath, err := getInitializationContent(data.ModelName)
-	if err != nil {
-		return nil, err
-	}
-	templateList = append(templateList, WriteItem{
-		Path:    initPath,
-		Content: initializationContent,
-	})
-	for _, templateItem := range WebTemplatesPath {
-		content, err := getTemplateContent(templateItem.Path, data)
+	if data.CreateCURD {
+		initializationContent, initPath, err := getInitializationContent(data.ModelName)
 		if err != nil {
 			return nil, err
 		}
-		var filePosition string
-		if templateItem.Name == "api" {
-			filePosition = filepath.Join(WebPath, "./apis", data.ModuleName+".ts")
-		} else {
-			filePosition = filepath.Join(WebPath, "./views", data.ModuleName, "index.vue")
-		}
 		templateList = append(templateList, WriteItem{
-			Path:    filePosition,
-			Content: content,
+			Path:    initPath,
+			Content: initializationContent,
 		})
-		//templates[filePosition] = content
+	}
+	if data.CreateCURD {
+		for _, templateItem := range WebTemplatesPath {
+			content, err := getTemplateContent(templateItem.Path, data)
+			if err != nil {
+				return nil, err
+			}
+			var filePosition string
+			if templateItem.Name == "api" {
+				filePosition = filepath.Join(WebPath, "./apis", data.ModuleName+".ts")
+			} else {
+				filePosition = filepath.Join(WebPath, "./views", data.ModuleName, "index.vue")
+			}
+			templateList = append(templateList, WriteItem{
+				Path:    filePosition,
+				Content: content,
+			})
+			//templates[filePosition] = content
+		}
 	}
 	return templateList, nil
 }
@@ -74,7 +81,7 @@ func (s *Service) Generate(data *GenerateBody) error {
 		return err
 	}
 	for _, templateItem := range templateMap {
-		err = writeFile(filepath.Join(RootPath, templateItem.Path), templateItem.Content)
+		err = writeFile(filepath.Join(global.RootPath, templateItem.Path), templateItem.Content)
 		if err != nil {
 			fmt.Println(templateItem.Path, err.Error())
 			return err

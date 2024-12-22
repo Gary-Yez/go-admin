@@ -1,26 +1,26 @@
 import {request} from "../utils/request.ts";
 
-export const SysAutocode = {
+export const SysAutocodeApi = {
     Preview(formData:any){
-        return request.post("/sys_autocode/preview", formData)
+        return request.post("/autocode/preview", formData)
     },
     Generate(formData:any){
-        return request.post("/sys_autocode/generate", formData)
+        return request.post("/autocode/generate", formData)
     },
     History(query:any){
-        return request.get("/sys_autocode/history", {
+        return request.get("/autocode/history", {
             params:query
         })
     },
     GetHistory(id:any){
-        return request.get("/sys_autocode/get_history", {
+        return request.get("/autocode/get_history", {
             params: {
                 id
             }
         })
     },
     Delete(ids:Array<any>){
-        return request.post("/sys_autocode/delete_history", {
+        return request.post("/autocode/delete_history", {
             ids
         })
     }

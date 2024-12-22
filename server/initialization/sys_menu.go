@@ -43,28 +43,6 @@ func InitSysMenu() {
 				},
 			},
 		},
-		{
-			Name:      "开发工具",
-			Icon:      "EditPen",
-			Path:      "sys_dev_tools",
-			Component: "../views/sys_home/index.vue",
-			Sort:      2,
-			Children: []*models.SysMenu{
-				{
-					Name:      "代码生成",
-					Icon:      "Cpu",
-					Path:      "sys_autocode",
-					Component: "../views/sys_autocode/index.vue",
-					Sort:      0,
-				}, {
-					Name:      "生成历史",
-					Icon:      "Document",
-					Path:      "sys_autocode_history",
-					Component: "../views/sys_autocode/history.vue",
-					Sort:      1,
-				},
-			},
-		},
 	}
 	db := global.DB.Model(&models.SysMenu{})
 	count := int64(0)

@@ -73,9 +73,11 @@
 </template>
 
 <script setup lang="ts">
-  import { SysAdmin } from "../../apis/sys_admin.ts";
-  import { SysRole } from "../../apis/sys_role.ts";
+  import { SysAdminApi } from "../../apis/sys_admin.ts";
+  import { SysRoleApi } from "../../apis/sys_role.ts";
   import {computed, onMounted, ref} from "vue";
+  import { ElMessage,ElMessageBox } from "element-plus";
+  import FormDialog from "../../components/common/FormDialog.vue";
 
   const dialogOpen = ref(false)
   const roles:any = ref([])
@@ -98,15 +100,14 @@
   })
 
   const getRoles = async ()=>{
-    const response = await SysRole.List()
+    const response = await SysRoleApi.List()
     roles.value = response.data.list
   }
 
   const getPageData = async () => {
     pageLoading.value = true
     try {
-      const response = await SysAdmin.List(queryForm.value)
-      console.log(response)
+      const response = await SysAdminApi.List(queryForm.value)
       tableData.value = response.data.list
       total.value = response.data.total
     }catch (e) {
@@ -127,8 +128,7 @@
         if (action === "confirm") {
           instance.confirmButtonLoading = true
           try {
-            const response = await SysAdmin.Delete(ids)
-            console.log(response)
+            await SysAdminApi.Delete(ids)
             ElMessage.success("删除成功")
             getPageData().then()
           }catch (e){
@@ -144,7 +144,7 @@
   const handleChangeSwitch = async (row:any,key:string) => {
     row.loading = true
     try {
-      await SysAdmin.Edit({
+      await SysAdminApi.Edit({
         ...row,
         [key]:row[key] ? 0 : 1,
       })
@@ -159,12 +159,10 @@
 
   const handleSubmit = async ()=>{
     if (!submitForm.value.id){
-      const response = await SysAdmin.Create(submitForm.value)
-      console.log(response.data)
+      await SysAdminApi.Create(submitForm.value)
       ElMessage.success("创建成功")
     }else{
-      const response = await SysAdmin.Edit(submitForm.value)
-      console.log(response.data)
+      await SysAdminApi.Edit(submitForm.value)
       ElMessage.success("修改成功")
     }
     getPageData()

@@ -2,18 +2,21 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import {createPinia} from "pinia";
 import router from "./routes";
+import ElementPlus from "element-plus";
+import {ElementPlusIcons,Icons} from "./utils/icons.ts";
 import "./assets/css/tailwind.less"
 import "nprogress/nprogress.css"
+import "element-plus/dist/index.css"
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import "./assets/css/global.less"
 import "./assets/css/theme.less"
+
 const pinia = createPinia()
 const app = createApp(App)
 
-import * as ElementPlusIconsVue from '@element-plus/icons-vue'
-window.icons = []
-for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+
+for (const [key, component] of Object.entries(ElementPlusIcons)) {
     app.component(key, component)
-    window.icons.push(key)
+    Icons.push(key)
 }
-app.use(pinia).use(router).mount('#app')
+app.use(ElementPlus).use(pinia).use(router).mount('#app')

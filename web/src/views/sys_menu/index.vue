@@ -99,21 +99,22 @@
 
 <script setup lang="ts">
 import {computed, onMounted, ref} from "vue";
-import { SysMenu } from "../../apis/sys_menu.ts";
+import { SysMenuApi } from "../../apis/sys_menu.ts";
 import FormDialog from "../../components/common/FormDialog.vue";
 import {SyncComponents} from "../../routes/syncMenu.ts";
+import { ElMessage,ElMessageBox } from "element-plus";
+import {Icons} from "../../utils/icons.ts";
 
 const pageLoading = ref(true)
 const dialogOpen = ref(false);
 const tableData = ref([])
 
-const submitForm = ref({})
-const icons = window.icons
+const submitForm:any = ref({})
+const icons = Icons
 
 const getPageData = async ()=>{
   pageLoading.value = true
-  const response = await SysMenu.List()
-  console.log(response)
+  const response = await SysMenuApi.List()
   tableData.value = response.data.list
   pageLoading.value = false
 }
@@ -147,7 +148,7 @@ const handleDelete = (ids:Array<any>) => {
       if (action === "confirm") {
         instance.confirmButtonLoading = true
         try {
-          const response = await SysMenu.Delete(ids)
+          await SysMenuApi.Delete(ids)
           ElMessage.success("删除成功")
           getPageData()
         }catch (e){
@@ -163,7 +164,7 @@ const handleDelete = (ids:Array<any>) => {
 const handleChangeSwitch = async (row:any,key:string) => {
   row.loading = true
   try {
-    await SysMenu.Edit({
+    await SysMenuApi.Edit({
       ...row,
       [key]:!row[key],
     })
@@ -179,10 +180,10 @@ const handleChangeSwitch = async (row:any,key:string) => {
 const handleSubmit = async () => {
   submitForm.value.parent_id = submitForm.value.parent_id || null
   if (!submitForm.value.id){
-    const response = await SysMenu.Create(submitForm.value)
+    await SysMenuApi.Create(submitForm.value)
     ElMessage.success("创建成功")
   }else{
-    const response = await SysMenu.Edit(submitForm.value)
+    await SysMenuApi.Edit(submitForm.value)
     ElMessage.success("修改成功")
   }
   getPageData()

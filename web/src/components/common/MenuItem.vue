@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps({
+const props:any = defineProps({
   menus:{
     type:Array,
     default:()=>{

@@ -1,16 +1,18 @@
 package {{.ModuleName}}
 
 import (
+	{{- if .CreateCURD}}
     "errors"
     "gorm.io/gorm/clause"
 	"gitee.com/mxcker/go-admin/server/global"
 	"gitee.com/mxcker/go-admin/server/models"
 	"gitee.com/mxcker/go-admin/server/models/request"
+	{{end}}
 )
 
 type Service struct {
 }
-
+{{- if .CreateCURD}}
 func (s *Service) Get(id uint) (data *models.{{.ModelName}}, err error) {
 	data = &models.{{.ModelName}}{}
 	err = global.DB.Model(models.{{.ModelName}}{}).Where("id = ?", id).Find(data).Error
@@ -58,3 +60,4 @@ func (s *Service) Update(data *models.{{.ModelName}}) (err error) {
 func (s *Service) DeleteByIds(ids []uint) (err error) {
 	return global.DB.Delete(&models.{{.ModelName}}{}, ids).Error
 }
+{{end}}

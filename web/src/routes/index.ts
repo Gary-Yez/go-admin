@@ -1,27 +1,29 @@
-import {createRouter,createWebHistory} from 'vue-router';
+import {createRouter, createWebHashHistory} from 'vue-router';
 import {useUserStore} from "../stores/user.ts";
-import { SysAuth } from "../apis/sys_auth.ts";
-import {addSyncRouter, getBaseRouter} from "./syncMenu.ts";
+import { SysAuthApi } from "../apis/sys_auth.ts";
+import {addSyncRouter, getBaseRouter, layoutsModules} from "./syncMenu.ts";
+//@ts-ignore
 import NProgress from "nprogress"
+
 const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHashHistory(),
     routes:[{
         path:"/",
         redirect:"/login"
     },{
         path:"/login",
         name:'login',
-        component:()=>import("../views/Login.vue"),
+        component:layoutsModules["../layouts/login.vue"],
     },getBaseRouter()],
 })
 
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, _, next) => {
     NProgress.start();
     const userStore = useUserStore()
     if (userStore.AccessToken && !userStore.IsLogin){
         try {
-            const response = await SysAuth.GetMe()
+            const response = await SysAuthApi.GetMe()
             userStore.setUserData(response.data)
             addSyncRouter(userStore.UserMenu)
             return next(to.path)
@@ -38,7 +40,7 @@ router.beforeEach(async (to, from, next) => {
     next()
 })
 
-router.afterEach((to, from) => {
+router.afterEach(() => {
     NProgress.done();
 })
 

@@ -7,7 +7,7 @@ type {{.ModelName}} struct {
 	DbBaseModel
 	{{- end}}
 	{{- range .Fields}}
-	{{.Key}} {{.Type}} `json:"{{if .Hidden}}-{{else}}{{.Name}}{{end}}" form:"{{if .Hidden}}-{{else}}{{.Name}}{{end}}" gorm:"{{- if .IndexType -}}{{.IndexType}};{{- end -}}"{{if .Required }} binding:"required"{{end}}`
+	{{.Key}} {{.Type}} `json:"{{if .Hidden}}-{{else}}{{.Name}}{{end}}"{{if .IndexType}} gorm:"{{.IndexType}};"{{end}}{{if .Required }} binding:"required"{{end}}`
 	{{- end}}
 }
 

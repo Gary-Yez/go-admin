@@ -46,7 +46,9 @@
 </template>
 
 <script setup lang="ts">
-import { {{.ModelName}} } from "../../apis/{{.ModuleName}}.ts";
+import { {{.ModelName}}Api } from "../../apis/{{.ModuleName}}.ts";
+import { ElMessage,ElMessageBox } from "element-plus";
+import FormDialog from "../../components/common/FormDialog.vue";
 import {onMounted, ref} from "vue";
 
 const dialogOpen = ref(false)
@@ -56,16 +58,15 @@ const queryForm = ref({
 })
 const pageLoading = ref(true)
 const total = ref(0)
-const multipleSelection = ref([])
+const multipleSelection:any = ref([])
 const tableData = ref([])
-const submitForm = ref({})
+const submitForm:any = ref({})
 
 const getPageData = async () => {
   pageLoading.value = true
   multipleSelection.value = []
   try {
     const response = await {{.ModelName}}.List(queryForm.value)
-    console.log(response)
     tableData.value = response.data.list
     total.value = response.data.total
   }catch (e) {
@@ -93,7 +94,7 @@ const handleDelete = (ids:Array<any>) => {
       if (action === "confirm") {
         instance.confirmButtonLoading = true
         try {
-          const response = await {{.ModelName}}.Delete(ids)
+          await {{.ModelName}}.Delete(ids)
           ElMessage.success("删除成功")
           getPageData()
         }catch (e){
@@ -108,10 +109,10 @@ const handleDelete = (ids:Array<any>) => {
 
 const handleSubmit = async ()=>{
   if (!submitForm.value.id){
-    const response = await {{.ModelName}}.Create(submitForm.value)
+    await {{.ModelName}}.Create(submitForm.value)
     ElMessage.success("创建成功")
   }else{
-    const response = await {{.ModelName}}.Edit(submitForm.value)
+    await {{.ModelName}}.Edit(submitForm.value)
     ElMessage.success("修改成功")
   }
   getPageData()

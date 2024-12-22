@@ -1,5 +1,6 @@
 import axios from "axios"
 import {useUserStore} from "../stores/user.ts";
+import {ElMessage} from "element-plus";
 
 
 const request = axios.create({
@@ -20,8 +21,10 @@ request.interceptors.response.use(response=>{
     }
     return response.data
 },(error)=>{
-
+    ElMessage.error(error.message)
+    return Promise.reject(error)
 })
 
-
-export { request}
+export {
+    request
+}

@@ -8,6 +8,7 @@
         </div>
         <el-menu class="main-slider-menu" router :default-active="$route.path">
           <MenuItem :menus="menus"></MenuItem>
+          <MenuItem v-if="commonStore.isDev" :menus="DevMenu"></MenuItem>
         </el-menu>
       </div>
     </el-aside>
@@ -67,9 +68,10 @@
   import {useUserStore} from "../stores/user.ts";
   import MenuItem from "../components/common/MenuItem.vue";
   import {useCommonStore} from "../stores/common.ts";
+  import {DevMenu} from "../routes/syncMenu.ts";
   const commonStore = useCommonStore()
   const userStore = useUserStore()
-  const menus = ref([])
+  const menus:any = ref([])
 
   commonStore.setTheme()
   commonStore.setTime()
@@ -81,7 +83,7 @@
   onMounted(()=>{
     menus.value = userStore.UserMenu
   })
-  
+
   const handleCommand = (command:string) => {
     switch (command) {
       case "userinfo":
@@ -152,11 +154,12 @@
   }
   .content-layout{
     height: 100%;
-    padding: 15px;
+    //padding: 15px;
     .content-header{
       background: var(--main-bg-color);
       padding: 0 15px;
       border-radius: 15px;
+      margin: 15px;
       .theme-btn{
         margin-right: 15px;
         --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / .1), 0 1px 2px -1px rgb(0 0 0 / .1) !important;
@@ -173,7 +176,11 @@
     }
     .content-content{
       overflow: hidden;
-      padding: 15px 0 0 0;
+      overflow-y: auto;
+      //padding: 15px 0 0 0;
+      //margin: 0 15px 15px;
+      padding: 0 15px 0;
+      margin-bottom: 15px;
       .dashboard-page{
         height: 100%;
         //padding: 15px 15px 15px 0;

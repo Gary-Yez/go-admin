@@ -9,14 +9,25 @@ import (
 	"gorm.io/gorm/logger"
 	"log"
 	"os"
+	"path/filepath"
 	"time"
 )
 
 var (
-	DB     *gorm.DB
-	Redis  string
-	Config *configs.Config
+	StartTime = time.Now()
+	RootPath  string
+	DB        *gorm.DB
+	Redis     string
+	Config    *configs.Config
 )
+
+func init() {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return
+	}
+	RootPath = filepath.Join(cwd, "../")
+}
 
 func Init() {
 	InitConfig()

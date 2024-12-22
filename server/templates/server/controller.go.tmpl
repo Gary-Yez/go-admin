@@ -2,7 +2,9 @@ package {{.ModuleName}}
 
 import (
 	"github.com/gin-gonic/gin"
+	{{- if .CreateCURD}}
 	"gitee.com/mxcker/go-admin/server/models"
+	{{end}}
 	"gitee.com/mxcker/go-admin/server/models/request"
 	"gitee.com/mxcker/go-admin/server/utils/response"
 )
@@ -10,7 +12,7 @@ import (
 var service = new(Service)
 
 type Controller struct{}
-
+{{if .CreateCURD}}
 func (_ *Controller) Get(ctx *gin.Context) {
 	req := new(request.Req)
 	err := ctx.ShouldBindQuery(req)
@@ -84,3 +86,8 @@ func (_ *Controller) Edit(ctx *gin.Context) {
 	}
 	response.Success(ctx, data)
 }
+{{else}}
+func (c *Controller) Test(ctx *gin.Context) {
+	response.Success(ctx, "test")
+}
+{{end}}

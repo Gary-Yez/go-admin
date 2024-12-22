@@ -1,4 +1,4 @@
-package sys_autocode
+package autocode
 
 type Filed struct {
 	Id          int    `json:"id" binding:"required"`
@@ -19,7 +19,7 @@ type GenerateBody struct {
 	ModelName         string  `json:"model_name" binding:"required"`
 	UseCommon         bool    `json:"use_common"`
 	UseSoftDelete     bool    `json:"use_soft_delete"`
-	AutoCreateMenu    bool    `json:"auto_create_menu"`
+	CreateCURD        bool    `json:"create_curd"`
 	Fields            []Filed `json:"fields" binding:"required"`
 }
 

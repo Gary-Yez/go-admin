@@ -1,8 +1,9 @@
-package sys_autocode
+package autocode
 
 import (
 	"bytes"
 	"fmt"
+	"gitee.com/mxcker/go-admin/server/global"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -10,21 +11,14 @@ import (
 	"text/template"
 )
 
-var RootPath string
 var ServerPath string
 var WebPath string
 var ServerTemplatesPath []TemplateItem
 var WebTemplatesPath []TemplateItem
 
 func init() {
-	cwd, err := os.Getwd()
-	if err != nil {
-		return
-	}
-	RootPath = filepath.Join(cwd, "../")
-	fmt.Println(RootPath)
-	ServerPath = "admin-server"
-	WebPath = "admin-web/src"
+	ServerPath = "server"
+	WebPath = "web/src"
 	// 服务端模板
 	serverTemplateNames := []string{
 		"model",
@@ -35,17 +29,17 @@ func init() {
 	for _, name := range serverTemplateNames {
 		ServerTemplatesPath = append(ServerTemplatesPath, TemplateItem{
 			Name: name,
-			Path: filepath.Join(RootPath, ServerPath, "./templates/server", name+".go.tmpl"),
+			Path: filepath.Join(global.RootPath, ServerPath, "./templates/server", name+".go.tmpl"),
 		})
 	}
 	// Web端模板
 	WebTemplatesPath = append(WebTemplatesPath, TemplateItem{
 		Name: "api",
-		Path: filepath.Join(RootPath, ServerPath, "./templates/web/api.ts.tmpl"),
+		Path: filepath.Join(global.RootPath, ServerPath, "./templates/web/api.ts.tmpl"),
 	})
 	WebTemplatesPath = append(WebTemplatesPath, TemplateItem{
 		Name: "view",
-		Path: filepath.Join(RootPath, ServerPath, "./templates/web/view.vue.tmpl"),
+		Path: filepath.Join(global.RootPath, ServerPath, "./templates/web/view.vue.tmpl"),
 	})
 }
 
@@ -68,7 +62,10 @@ func getTemplateContent(templatePath string, data *GenerateBody) (string, error)
 	// 打开模板文件
 	var buffer bytes.Buffer
 	tmpl, err := template.ParseFiles(templatePath)
-	err = tmpl.Execute(&buffer, data)
+	if err != nil {
+		return "", err
+	}
+	err = tmpl.Execute(&buffer, *data)
 	if err != nil {
 		return "", err
 	}
@@ -77,7 +74,7 @@ func getTemplateContent(templatePath string, data *GenerateBody) (string, error)
 
 func getRouterContent(moduleName string) (string, string, error) {
 	routerPath := filepath.Join(ServerPath, "./router/enter.go")
-	routerEnterContent, err := os.ReadFile(filepath.Join(RootPath, routerPath))
+	routerEnterContent, err := os.ReadFile(filepath.Join(global.RootPath, routerPath))
 	if err != nil {
 		return "", "", err
 	}
@@ -120,7 +117,7 @@ func getRouterContent(moduleName string) (string, string, error) {
 
 func getInitializationContent(modelName string) (string, string, error) {
 	initializationPath := filepath.Join(ServerPath, "./initialization/enter.go")
-	routerEnterContent, err := os.ReadFile(filepath.Join(RootPath, initializationPath))
+	routerEnterContent, err := os.ReadFile(filepath.Join(global.RootPath, initializationPath))
 	if err != nil {
 		return "", "", err
 	}
@@ -143,7 +140,6 @@ func getInitializationContent(modelName string) (string, string, error) {
 		return regexp.MustCompile(`\)`).ReplaceAllString(match, fmt.Sprintf("\t%s\n\t)", newLine))
 	})
 	//// 使用正则替换原始的 routes 部分
-	//updatedContent := re.ReplaceAllString(string(routerEnterContent), updatedImport)
 	return updatedContent, initializationPath, nil
 }
 

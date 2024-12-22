@@ -14,14 +14,10 @@ func InitSysRole() {
 		panic(err)
 	}
 	if count == 0 {
-		var menuList []*models.SysMenu
-		if err := global.DB.Model(&models.SysMenu{}).Find(&menuList).Error; err != nil {
-			panic(err)
-		}
 		data := []models.SysRole{
 			{
-				Name:  "默认管理员",
-				Menus: menuList,
+				Name:    "超级管理员",
+				Default: true,
 			},
 		}
 		if err := db.Create(&data).Error; err != nil {

@@ -1,7 +1,7 @@
 import {request} from "../utils/request.ts";
 
-export const SysAuth = {
-    Login(form){
+export const SysAuthApi = {
+    Login(form:Object){
         return request.post("/sys_auth/login",form);
     },
     GetMe(){

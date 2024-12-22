@@ -70,6 +70,6 @@ func (s *Service) Update(data *models.SysAdmin) (err error) {
 }
 
 func (s *Service) DeleteByIds(ids []uint) (err error) {
-	err = global.DB.Delete(&models.SysAdmin{}, ids).Error
+	err = global.DB.Debug().Model(&models.SysAdmin{}).Where("`default` = ?", false).Delete(&models.SysAdmin{}, ids).Error
 	return
 }

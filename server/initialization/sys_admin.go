@@ -26,6 +26,7 @@ func InitSysAdmin() {
 				Phone:        "18888888888",
 				Avatar:       "https://qmplusimg.henrongyi.top/gva_header.jpg",
 				PasswordHash: "$2a$10$PVIcAuZXvnP4sHLzGe/7se7F9Sakeu99ZwGqtlanUbFXgDHrxImQe",
+				Default:      true,
 				Role:         defaultRole,
 				RoleId:       defaultRole.Id,
 			},

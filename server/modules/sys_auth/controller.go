@@ -58,6 +58,7 @@ func (_ *Controller) GetMe(ctx *gin.Context) {
 		response.Error(ctx, err.Error())
 		return
 	}
+	//
 	// 根据 Sort 字段对切片进行排序
 	sort.Slice(user.Role.Menus, func(i, j int) bool {
 		return user.Role.Menus[i].Sort < user.Role.Menus[j].Sort // 按照 Sort 字段升序排序

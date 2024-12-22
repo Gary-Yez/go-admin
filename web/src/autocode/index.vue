@@ -23,17 +23,17 @@
         </el-form>
         <div>
           <el-checkbox v-model="submitForm.use_common" disabled>使用标准数据结构</el-checkbox>
-          <el-checkbox v-model="submitForm.auto_create_menu">自动生成菜单</el-checkbox>
-          <el-checkbox v-model="submitForm.use_soft_delete">使用软删除</el-checkbox>
+          <el-checkbox v-model="submitForm.create_curd" @change="handleChangeCURD">生成CURD</el-checkbox>
+          <el-checkbox v-model="submitForm.use_soft_delete" :disabled="!submitForm.create_curd">使用软删除</el-checkbox>
         </div>
       </el-card>
-      <el-card class="mt-[15px]" header="结构体字段" shadow="never">
+      <el-card v-if="submitForm.create_curd" class="mt-[15px]" header="结构体字段" shadow="never">
         <el-form ref="fieldFormRef" :model="submitForm">
           <el-table :data="submitForm.fields">
             <el-table-column label="字段名称">
               <template #default="{ row,$index }">
                 <el-form-item :prop="`fields.${$index}.name`" :rules="[{required:true,message:'请输入字段名称'}]">
-                  <el-input v-model="row.name" placeholder="请输入字段名称" @input="val=>handleChangeFieldName(row,val)"></el-input>
+                  <el-input v-model="row.name" placeholder="请输入字段名称" @input="(val:any)=>handleChangeFieldName(row,val)"></el-input>
                 </el-form-item>
               </template>
             </el-table-column>
@@ -88,7 +88,7 @@
             <el-table-column label="隐藏" :width="80">
               <template #default="{ row,$index }">
                 <el-form-item :prop="`fields.${$index}.hidden`">
-                  <el-switch v-model="row.hidden" @change="val=>{ row.table_show = !val;row.editable = !val;row.required = !val }"></el-switch>
+                  <el-switch v-model="row.hidden" @change="(val:any)=>{ row.table_show = !val;row.editable = !val;row.required = !val }"></el-switch>
                 </el-form-item>
               </template>
             </el-table-column>
@@ -112,12 +112,13 @@
             </template>
           </el-table>
         </el-form>
-        <el-divider></el-divider>
+      </el-card>
+      <el-card  class="mt-[15px]" shadow="never">
         <div class="text-right">
           <el-button type="primary" @click="handlePreview">预览代码</el-button>
         </div>
       </el-card>
-      <el-dialog title="代码预览" class="preview-dialog" v-model="previewShow" :before-close="(done)=>!submitLoading && done()">
+      <el-dialog title="代码预览" class="preview-dialog" v-model="previewShow" :before-close="(done:any)=>!submitLoading && done()">
         <el-alert type="error" show-icon :closable="false">若待生成的文件已存在，则会覆盖文件内的所有内容并无法找回！</el-alert>
         <el-tabs class="mt-[10px]" tab-position="left">
           <el-tab-pane v-for="item in previewList" :label="item.path">
@@ -142,8 +143,9 @@
 
 <script setup lang="ts">
   import {onMounted, ref} from "vue";
-  import {SysAutocode} from "../../apis/sys_autocode.ts";
+  import {SysAutocodeApi} from "../apis/sys_autocode.ts";
   import {useRoute} from "vue-router";
+  import { ElMessage } from "element-plus";
 
   const isDev = import.meta.env.MODE === 'development';
   const route = useRoute()
@@ -161,43 +163,51 @@
   const pageLoading = ref(true)
   const submitForm = ref({
     use_common:true,
-    use_soft_delete:true,
-    auto_create_menu:true,
+    create_curd:true,
+    use_soft_delete:false,
     chinese_module_name:"",
     module_name:"",
     model_name:"",
     fields:[initForm()]
   })
   const previewShow = ref(false)
-  const previewList = ref([])
+  const previewList:any = ref([])
   const submitLoading = ref(false)
 
 
-  function snakeToCamel(str) {
-    return str.replace(/_([a-z])/g, (match, letter) => letter.toUpperCase())
-        .replace(/^[a-z]/, (match) => match.toUpperCase());;
+  function snakeToCamel(str:string) {
+    return str.replace(/_([a-z])/g, (_:string, letter:string) => letter.toUpperCase())
+        .replace(/^[a-z]/, (match:string) => match.toUpperCase());
   }
 
   const handleChangeFieldName = (row:any,val:string) => {
     row.key = snakeToCamel(val)
     row.json_name = val
   }
+
+  const handleChangeCURD = () => {
+    submitForm.value.fields = [initForm()]
+    submitForm.value.use_soft_delete = false
+  }
+
   const handleAddFiled = () => {
     submitForm.value.fields.push(initForm())
   }
-  
+
   const handleDeleteField = (id:number) => {
     submitForm.value.fields = submitForm.value.fields.filter((item:any)=>{
       return item.id !== id
     })
   }
-  
+
   const handlePreview = async () => {
     pageLoading.value = true
     try {
       await formRef.value.validate()
-      await fieldFormRef.value.validate()
-      const response = await SysAutocode.Preview(submitForm.value)
+      if (fieldFormRef.value){
+        await fieldFormRef.value.validate()
+      }
+      const response = await SysAutocodeApi.Preview(submitForm.value)
       previewList.value = response.data
       previewShow.value = true
     }catch (e) {
@@ -205,12 +215,11 @@
     }
     pageLoading.value = false
   }
-  
+
   const handleConfirm = async () => {
     submitLoading.value = true
     try {
-      const response = await SysAutocode.Generate(submitForm.value)
-      console.log(response)
+      await SysAutocodeApi.Generate(submitForm.value)
       previewShow.value = false
       ElMessage.success("生成成功")
     }catch (e) {
@@ -224,7 +233,7 @@
     if (route.query.id){
       isEdit.value = true
       pageLoading.value = true
-      const response = await SysAutocode.GetHistory(route.query.id)
+      const response = await SysAutocodeApi.GetHistory(route.query.id)
       submitForm.value = JSON.parse(response.data.form)
       pageLoading.value = false
     }else{

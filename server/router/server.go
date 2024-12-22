@@ -3,6 +3,7 @@ package router
 import (
 	"gitee.com/mxcker/go-admin/server/middlewares"
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,6 +15,7 @@ func init() {
 	corsConfig.AllowAllOrigins = true
 	corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, "Authorization")
 	Server.Use(cors.New(corsConfig))
+	Server.Use(static.Serve("/admin", static.LocalFile("./dist", true)))
 }
 
 func Start() {

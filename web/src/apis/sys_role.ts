@@ -1,6 +1,6 @@
 import {request} from "../utils/request.ts";
 
-export const SysRole  = {
+export const SysRoleApi  = {
     List(){
         return request.get("/sys_role/list");
     },

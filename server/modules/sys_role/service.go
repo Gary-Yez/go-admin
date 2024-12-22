@@ -40,7 +40,7 @@ func (s *Service) Update(data *models.SysRole) (err error) {
 
 func (s *Service) DeleteByIds(ids []uint) (err error) {
 	fmt.Println(ids)
-	err = global.DB.Delete(&models.SysRole{}, ids).Error
+	err = global.DB.Where("`default` = ?", false).Delete(&models.SysRole{}, ids).Error
 	return
 }
 

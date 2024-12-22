@@ -1,7 +1,7 @@
 import {request} from "../utils/request.ts";
 
-export const {{.ModelName}} = {
-    List(query){
+export const {{.ModelName}}Api = {
+    List(query:Object){
         return request.get("/{{.ModuleName}}/list",{
             params:query
         });
@@ -13,7 +13,7 @@ export const {{.ModelName}} = {
             }
         });
     },
-    Create(form:any){
+    Create(form:Object){
         return request.post("/{{.ModuleName}}/create",form);
     },
     Delete(ids:Array<number>){
@@ -21,7 +21,7 @@ export const {{.ModelName}} = {
             ids:ids
         });
     },
-    Edit(form:any){
+    Edit(form:Object){
         return request.post("/{{.ModuleName}}/edit", form);
     }
 }

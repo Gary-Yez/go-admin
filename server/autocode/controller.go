@@ -1,4 +1,4 @@
-package sys_autocode
+package autocode
 
 import (
 	"gitee.com/mxcker/go-admin/server/models/request"
@@ -22,11 +22,11 @@ func (_ *Controller) Generate(ctx *gin.Context) {
 		response.Error(ctx, err.Error())
 		return
 	}
-	//err = service.Generate(data)
-	//if err != nil {
-	//	response.Error(ctx, err.Error())
-	//	return
-	//}
+	err = service.Generate(data)
+	if err != nil {
+		response.Error(ctx, err.Error())
+		return
+	}
 	response.Success(ctx, "success")
 }
 

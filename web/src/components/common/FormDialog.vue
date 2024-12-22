@@ -39,7 +39,7 @@ const props = defineProps({
 
 const confirmLoading = ref(false)
 
-const handleClose = (done) => {
+const handleClose = (done:any) => {
   if (confirmLoading.value) {
     return
   }
