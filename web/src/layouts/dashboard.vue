@@ -54,7 +54,7 @@
         <div class="dashboard-page">
           <router-view v-slot="{ Component }">
             <transition name="fade-transform" mode="out-in" enter-from-class="fade-transform-enter">
-              <component :is="Component"></component>
+              <component :is="Component" />
             </transition>
           </router-view>
         </div>
@@ -72,7 +72,6 @@
   const commonStore = useCommonStore()
   const userStore = useUserStore()
   const menus:any = ref([])
-
   commonStore.setTheme()
   commonStore.setTime()
 
@@ -103,7 +102,7 @@
   background: var(--main-bg-light-color);
   .main-aside{
     overflow: hidden;
-    flex: unset !important;
+    //flex: unset !important;
     width: 276px !important;
     max-width: 276px !important;
     height: 100%;
