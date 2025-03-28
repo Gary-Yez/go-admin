@@ -2,13 +2,11 @@ package {{.ModuleName}}
 
 import "github.com/gin-gonic/gin"
 
-var controller = new(Controller)
+var controller = new(controllerStruct)
+var Service = new(serviceStruct)
 
-type Route struct {
-}
-
-func (receiver *Route) Register(adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) {
-	Group := adminAuthGroup.Group("/{{.ModuleName}}")
+func Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) {
+	Group := adminAuthGroup.Group(path)
 	{
 	    {{- if .CreateCURD}}
 		Group.GET("get", controller.Get)
@@ -21,7 +19,7 @@ func (receiver *Route) Register(adminAuthGroup *gin.RouterGroup, publicGroup *gi
 		{{- end}}
 	}
 	// 无需鉴权的路由
-    Public := publicGroup.Group("/{{.ModuleName}}")
+    Public := publicGroup.Group(path)
     {
         _ = Public
     }

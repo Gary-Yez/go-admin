@@ -10,20 +10,17 @@ import (
 	"sort"
 )
 
-var menuService = new(sys_menu.Service)
-var controller = new(Controller)
-
-type Controller struct {
+type controllerStruct struct {
 }
 
-func (_ *Controller) Login(ctx *gin.Context) {
+func (_ *controllerStruct) Login(ctx *gin.Context) {
 	body := new(loginJson)
 	err := ctx.ShouldBindJSON(body)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
 	}
-	admin, err := service.GetAdminByUsername(body.Username)
+	admin, err := Service.GetAdminByUsername(body.Username)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
@@ -47,13 +44,13 @@ func (_ *Controller) Login(ctx *gin.Context) {
 	}
 }
 
-func (_ *Controller) GetMe(ctx *gin.Context) {
+func (_ *controllerStruct) GetMe(ctx *gin.Context) {
 	authUser, ok := ctx.MustGet("AuthUser").(common.AuthUser)
 	if !ok {
 		response.Error(ctx, "登录失效")
 		return
 	}
-	user, err := service.GetUser(authUser.UserId)
+	user, err := Service.GetUser(authUser.UserId)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
@@ -63,6 +60,6 @@ func (_ *Controller) GetMe(ctx *gin.Context) {
 	sort.Slice(user.Role.Menus, func(i, j int) bool {
 		return user.Role.Menus[i].Sort < user.Role.Menus[j].Sort // 按照 Sort 字段升序排序
 	})
-	user.Role.Menus = menuService.ListToTree(user.Role.Menus)
+	user.Role.Menus = sys_menu.Service.ListToTree(user.Role.Menus)
 	response.Success(ctx, user)
 }

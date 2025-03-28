@@ -5,14 +5,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var Controller = new(controllerStruct)
+var Service = new(serviceStruct)
+
 func Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) {
 	Group := adminAuthGroup.Group(path)
 	{
-		Group.GET("me", middlewares.SysAuth, controller.GetMe)
+		Group.GET("me", middlewares.SysAuth, Controller.GetMe)
 	}
 	Public := publicGroup.Group(path)
 	{
-		Public.POST("login", controller.Login)
+		Public.POST("login", Controller.Login)
 	}
 
 }

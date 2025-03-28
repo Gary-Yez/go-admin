@@ -4,23 +4,23 @@ import (
 	{{- if .CreateCURD}}
     "errors"
     "gorm.io/gorm/clause"
-	"gitee.com/mxcker/go-admin/server/global"
-	"gitee.com/mxcker/go-admin/server/models"
-	"gitee.com/mxcker/go-admin/server/models/request"
+	"gitee.com/mxcker/go-admin/server/core/global"
+	"gitee.com/mxcker/go-admin/server/core/request"
 	{{end}}
 )
 
-type Service struct {
+type serviceStruct struct {
 }
+
 {{- if .CreateCURD}}
-func (s *Service) Get(id uint) (data *models.{{.ModelName}}, err error) {
-	data = &models.{{.ModelName}}{}
-	err = global.DB.Model(models.{{.ModelName}}{}).Where("id = ?", id).Find(data).Error
+func (s *serviceStruct) Get(id uint) (data *{{.ModelName}}, err error) {
+	data = &{{.ModelName}}{}
+	err = global.DB.Model({{.ModelName}}{}).Where("id = ?", id).Find(data).Error
 	return
 }
 
-func (s *Service) List(req *request.ReqList) (list []*models.{{.ModelName}}, total int64, err error) {
-	db := global.DB.Model(models.{{.ModelName}}{})
+func (s *serviceStruct) List(req *request.ReqList) (list []*{{.ModelName}}, total int64, err error) {
+	db := global.DB.Model({{.ModelName}}{})
 	err = db.Count(&total).Error
 	if err != nil {
 		return nil, 0, err
@@ -30,7 +30,7 @@ func (s *Service) List(req *request.ReqList) (list []*models.{{.ModelName}}, tot
 	return
 }
 
-func (s *Service) Create(data *models.{{.ModelName}}) (err error) {
+func (s *serviceStruct) Create(data *{{.ModelName}}) (err error) {
 	err = global.DB.
 	    Omit(clause.Associations).
 	    {{- range .Fields}}
@@ -42,7 +42,7 @@ func (s *Service) Create(data *models.{{.ModelName}}) (err error) {
 	return
 }
 
-func (s *Service) Update(data *models.{{.ModelName}}) (err error) {
+func (s *serviceStruct) Update(data *{{.ModelName}}) (err error) {
 	if data.Id == 0 {
 		return errors.New("id不能为空")
 	}
@@ -57,7 +57,7 @@ func (s *Service) Update(data *models.{{.ModelName}}) (err error) {
     		Where("id = ?", data.Id).Updates(data).Error
 }
 
-func (s *Service) DeleteByIds(ids []uint) (err error) {
-	return global.DB.Delete(&models.{{.ModelName}}{}, ids).Error
+func (s *serviceStruct) DeleteByIds(ids []uint) (err error) {
+	return global.DB.Delete(&{{.ModelName}}{}, ids).Error
 }
 {{end}}

@@ -6,8 +6,7 @@ import (
 )
 
 var (
-	RootPath string
-	Config   *configs.Config
-	DB       *gorm.DB
-	Redis    string
+	Config *configs.Config
+	DB     *gorm.DB
+	Redis  string
 )

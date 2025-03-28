@@ -8,12 +8,10 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-var service = new(Service)
-
-type Service struct {
+type serviceStruct struct {
 }
 
-func (s *Service) GeneratePassHash(data *SysAdmin) error {
+func (s *serviceStruct) GeneratePassHash(data *SysAdmin) error {
 	password, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
@@ -22,13 +20,13 @@ func (s *Service) GeneratePassHash(data *SysAdmin) error {
 	return nil
 }
 
-func (s *Service) Get(id uint) (data *SysAdmin, err error) {
+func (s *serviceStruct) Get(id uint) (data *SysAdmin, err error) {
 	data = &SysAdmin{}
 	err = global.DB.Model(SysAdmin{}).Where("id = ?", id).Find(data).Error
 	return
 }
 
-func (s *Service) List(req *request.ReqList) (list []*SysAdmin, total int64, err error) {
+func (s *serviceStruct) List(req *request.ReqList) (list []*SysAdmin, total int64, err error) {
 	db := global.DB.Model(SysAdmin{})
 	err = db.Count(&total).Error
 	if err != nil {
@@ -39,7 +37,7 @@ func (s *Service) List(req *request.ReqList) (list []*SysAdmin, total int64, err
 	return
 }
 
-func (s *Service) Create(data *SysAdmin) (err error) {
+func (s *serviceStruct) Create(data *SysAdmin) (err error) {
 	if data.Password == "" {
 		data.Password = "123456"
 	}
@@ -51,7 +49,7 @@ func (s *Service) Create(data *SysAdmin) (err error) {
 	return
 }
 
-func (s *Service) Update(data *SysAdmin) (err error) {
+func (s *serviceStruct) Update(data *SysAdmin) (err error) {
 	if data.Id == 0 {
 		return errors.New("id不能为空")
 	}
@@ -70,7 +68,7 @@ func (s *Service) Update(data *SysAdmin) (err error) {
 		Where("id = ?", data.Id).Updates(data).Error
 }
 
-func (s *Service) DeleteByIds(ids []uint) (err error) {
+func (s *serviceStruct) DeleteByIds(ids []uint) (err error) {
 	err = global.DB.Debug().Model(&SysAdmin{}).Where("`default` = ?", false).Delete(&SysAdmin{}, ids).Error
 	return
 }

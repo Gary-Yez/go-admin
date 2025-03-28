@@ -9,12 +9,10 @@ import (
 	"gorm.io/gorm"
 )
 
-var service = new(Service)
-
-type Service struct {
+type serviceStruct struct {
 }
 
-func (_ *Service) GetAdminByUsername(username string) (admin *sys_admin.SysAdmin, err error) {
+func (_ *serviceStruct) GetAdminByUsername(username string) (admin *sys_admin.SysAdmin, err error) {
 	admin = &sys_admin.SysAdmin{}
 	err = global.DB.Model(sys_admin.SysAdmin{}).Where("username = ?", username).First(admin).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -23,7 +21,7 @@ func (_ *Service) GetAdminByUsername(username string) (admin *sys_admin.SysAdmin
 	return admin, err
 }
 
-func (_ *Service) GetUser(id uint) (user *sys_admin.SysAdmin, err error) {
+func (_ *serviceStruct) GetUser(id uint) (user *sys_admin.SysAdmin, err error) {
 	user = &sys_admin.SysAdmin{}
 	err = global.DB.Preload("Role").Where("id = ?", id).First(user).Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {

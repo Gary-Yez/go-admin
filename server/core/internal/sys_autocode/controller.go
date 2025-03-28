@@ -6,23 +6,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var controller = new(Controller)
+type controllerStruct struct{}
 
-type Controller struct{}
-
-func (_ *Controller) Generate(ctx *gin.Context) {
+func (_ *controllerStruct) Generate(ctx *gin.Context) {
 	data := new(GenerateBody)
 	err := ctx.ShouldBindJSON(data)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
 	}
-	err = service.SaveHistory(data)
+	err = Service.SaveHistory(data)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
 	}
-	err = service.Generate(data)
+	err = Service.Generate(data)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
@@ -30,14 +28,14 @@ func (_ *Controller) Generate(ctx *gin.Context) {
 	response.Success(ctx, "success")
 }
 
-func (_ *Controller) Preview(ctx *gin.Context) {
+func (_ *controllerStruct) Preview(ctx *gin.Context) {
 	data := new(GenerateBody)
 	err := ctx.ShouldBindJSON(data)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
 	}
-	preview, err := service.GetTemplates(data)
+	preview, err := Service.GetTemplates(data)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
@@ -45,13 +43,13 @@ func (_ *Controller) Preview(ctx *gin.Context) {
 	response.Success(ctx, preview)
 }
 
-func (_ *Controller) History(ctx *gin.Context) {
+func (_ *controllerStruct) History(ctx *gin.Context) {
 	req := new(request.ReqList)
 	if err := ctx.ShouldBindQuery(req); err != nil {
 		response.Error(ctx, err.Error())
 		return
 	}
-	list, total, err := service.History(req)
+	list, total, err := Service.History(req)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
@@ -59,14 +57,14 @@ func (_ *Controller) History(ctx *gin.Context) {
 	response.List(ctx, list, total)
 }
 
-func (_ *Controller) GetHistory(ctx *gin.Context) {
+func (_ *controllerStruct) GetHistory(ctx *gin.Context) {
 	req := new(request.Req)
 	err := ctx.ShouldBindQuery(req)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
 	}
-	get, err := service.Get(req.Id)
+	get, err := Service.Get(req.Id)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
@@ -74,14 +72,14 @@ func (_ *Controller) GetHistory(ctx *gin.Context) {
 	response.Success(ctx, get)
 }
 
-func (_ *Controller) DeleteHistory(ctx *gin.Context) {
+func (_ *controllerStruct) DeleteHistory(ctx *gin.Context) {
 	req := new(request.ReqIds)
 	err := ctx.ShouldBindJSON(req)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
 	}
-	err = service.DeleteByIds(req.Ids)
+	err = Service.DeleteByIds(req.Ids)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return

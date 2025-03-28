@@ -6,12 +6,10 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-var service = new(Service)
-
-type Service struct {
+type serviceStruct struct {
 }
 
-func (s *Service) ListToTree(allList []*SysMenu) (list []*SysMenu) {
+func (s *serviceStruct) ListToTree(allList []*SysMenu) (list []*SysMenu) {
 	idMap := make(map[uint]*SysMenu)
 	for _, v := range allList {
 		idMap[v.Id] = v
@@ -29,25 +27,25 @@ func (s *Service) ListToTree(allList []*SysMenu) (list []*SysMenu) {
 	return list
 }
 
-func (s *Service) Get(id uint) (data *SysMenu, err error) {
+func (s *serviceStruct) Get(id uint) (data *SysMenu, err error) {
 	data = &SysMenu{}
 	err = global.DB.Model(SysMenu{}).Where("id = ?", id).Find(data).Error
 	return
 }
 
-func (s *Service) List() (list []*SysMenu, total int64, err error) {
+func (s *serviceStruct) List() (list []*SysMenu, total int64, err error) {
 	db := global.DB.Model(SysMenu{})
 	err = db.Find(&list).Error
 	total = int64(len(list))
 	return
 }
 
-func (s *Service) Create(menu *SysMenu) (err error) {
+func (s *serviceStruct) Create(menu *SysMenu) (err error) {
 	err = global.DB.Omit(clause.Associations).Create(menu).Error
 	return
 }
 
-func (s *Service) Update(data *SysMenu) (err error) {
+func (s *serviceStruct) Update(data *SysMenu) (err error) {
 	if data.Id == 0 {
 		return errors.New("id不能为空")
 	}
@@ -57,7 +55,7 @@ func (s *Service) Update(data *SysMenu) (err error) {
 		Where("id = ?", data.Id).Updates(data).Error
 }
 
-func (s *Service) DeleteByIds(ids []uint) (err error) {
+func (s *serviceStruct) DeleteByIds(ids []uint) (err error) {
 	err = global.DB.Delete(&SysMenu{}, ids).Error
 	return
 }

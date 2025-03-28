@@ -9,16 +9,11 @@ import (
 	"github.com/shirou/gopsutil/v4/mem"
 	"github.com/shirou/gopsutil/v4/net"
 	"runtime"
-	"time"
 )
 
-var StartTime = time.Now()
+type controllerStruct struct{}
 
-var controller = new(Controller)
-
-type Controller struct{}
-
-func (c *Controller) Statistic(ctx *gin.Context) {
+func (c *controllerStruct) Statistic(ctx *gin.Context) {
 	var memStats runtime.MemStats
 	runtime.ReadMemStats(&memStats)
 	cpuInfo, err := cpu.Info()

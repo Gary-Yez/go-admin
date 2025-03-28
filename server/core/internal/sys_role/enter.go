@@ -4,6 +4,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var controller = new(controllerStruct)
+var Service = new(serviceStruck)
+
 func Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) {
 	Group := adminAuthGroup.Group(path)
 	{

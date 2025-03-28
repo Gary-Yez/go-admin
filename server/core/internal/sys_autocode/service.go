@@ -10,12 +10,10 @@ import (
 	"path/filepath"
 )
 
-var service = new(Service)
-
-type Service struct {
+type serviceStruct struct {
 }
 
-func (s *Service) GetTemplates(data *GenerateBody) ([]WriteItem, error) {
+func (s *serviceStruct) GetTemplates(data *GenerateBody) ([]WriteItem, error) {
 	var templateList []WriteItem
 	for _, templateItem := range ServerTemplatesPath {
 		if !data.CreateCURD && templateItem.Name == "model" {
@@ -26,11 +24,11 @@ func (s *Service) GetTemplates(data *GenerateBody) ([]WriteItem, error) {
 			return nil, err
 		}
 		var filePosition string
-		if templateItem.Name == "model" {
-			filePosition = filepath.Join(ServerPath, "./models", data.ModuleName+".go")
-		} else {
-			filePosition = filepath.Join(ServerPath, "./modules", data.ModuleName, templateItem.Name+".go")
-		}
+		//if templateItem.Name == "model" {
+		//	filePosition = filepath.Join(ServerPath, "./models", data.ModuleName+".go")
+		//} else {
+		filePosition = filepath.Join(ServerPath, "./modules", data.ModuleName, templateItem.Name+".go")
+		//}
 		templateList = append(templateList, WriteItem{
 			Path:    filePosition,
 			Content: content,
@@ -45,7 +43,7 @@ func (s *Service) GetTemplates(data *GenerateBody) ([]WriteItem, error) {
 		Content: routerContent,
 	})
 	if data.CreateCURD {
-		initializationContent, initPath, err := getInitializationContent(data.ModelName)
+		initializationContent, initPath, err := getInitializationContent(data.ModuleName, data.ModelName)
 		if err != nil {
 			return nil, err
 		}
@@ -76,13 +74,13 @@ func (s *Service) GetTemplates(data *GenerateBody) ([]WriteItem, error) {
 	return templateList, nil
 }
 
-func (s *Service) Generate(data *GenerateBody) error {
+func (s *serviceStruct) Generate(data *GenerateBody) error {
 	templateMap, err := s.GetTemplates(data)
 	if err != nil {
 		return err
 	}
 	for _, templateItem := range templateMap {
-		err = writeFile(filepath.Join(global.RootPath, templateItem.Path), templateItem.Content)
+		err = writeFile(filepath.Join(templateItem.Path), templateItem.Content)
 		if err != nil {
 			fmt.Println(templateItem.Path, err.Error())
 			return err
@@ -91,7 +89,7 @@ func (s *Service) Generate(data *GenerateBody) error {
 	return err
 }
 
-func (s *Service) History(req *request.ReqList) (list []*SysAutoCode, total int64, err error) {
+func (s *serviceStruct) History(req *request.ReqList) (list []*SysAutoCode, total int64, err error) {
 	db := global.DB.Model(SysAutoCode{})
 	err = db.Count(&total).Error
 	if err != nil {
@@ -102,13 +100,13 @@ func (s *Service) History(req *request.ReqList) (list []*SysAutoCode, total int6
 	return
 }
 
-func (s *Service) Get(id uint) (data *SysAutoCode, err error) {
+func (s *serviceStruct) Get(id uint) (data *SysAutoCode, err error) {
 	data = &SysAutoCode{}
 	err = global.DB.Model(SysAutoCode{}).Where("id = ?", id).Find(data).Error
 	return
 }
 
-func (s *Service) SaveHistory(data *GenerateBody) error {
+func (s *serviceStruct) SaveHistory(data *GenerateBody) error {
 	history := SysAutoCode{
 		ModuleName: data.ModuleName,
 	}
@@ -126,7 +124,7 @@ func (s *Service) SaveHistory(data *GenerateBody) error {
 	return global.DB.Save(&history).Error
 }
 
-func (s *Service) DeleteByIds(ids []uint) (err error) {
+func (s *serviceStruct) DeleteByIds(ids []uint) (err error) {
 	err = global.DB.Delete(&SysAutoCode{}, ids).Error
 	return
 }

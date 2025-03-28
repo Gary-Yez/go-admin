@@ -5,13 +5,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var Controller = new(controllerStruct)
+var Service = new(serviceStruct)
+
 func Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) {
 	Group := adminAuthGroup.Group(path, middlewares.SysAuth)
 	{
-		Group.POST("generate", controller.Generate)
-		Group.POST("preview", controller.Preview)
-		Group.GET("history", controller.History)
-		Group.GET("get_history", controller.GetHistory)
-		Group.POST("delete_history", controller.DeleteHistory)
+		Group.POST("generate", Controller.Generate)
+		Group.POST("preview", Controller.Preview)
+		Group.GET("history", Controller.History)
+		Group.GET("get_history", Controller.GetHistory)
+		Group.POST("delete_history", Controller.DeleteHistory)
 	}
 }

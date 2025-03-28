@@ -4,7 +4,7 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"gitee.com/mxcker/go-admin/server/router"
+	"gitee.com/mxcker/go-admin/server/core"
 	"github.com/spf13/cobra"
 )
 
@@ -15,7 +15,7 @@ var serverCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		// 初始化全局变量
-		router.Start()
+		core.Start()
 	},
 }
 
