@@ -1,7 +1,8 @@
 package router
 
 import (
-	"gitee.com/mxcker/go-admin/server/middlewares"
+	"gitee.com/mxcker/go-admin/server/core"
+	"gitee.com/mxcker/go-admin/server/core/middlewares"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
@@ -19,14 +20,17 @@ func init() {
 }
 
 func Start() {
+	//创建API路由
 	AdminAuthGroup := Server.Group("/api", middlewares.SysAuth)
 	PublicGroup := Server.Group("/api")
-	for _, route := range routes {
-		route.Register(AdminAuthGroup, PublicGroup)
+	//注册系统组件
+	err := core.Register(AdminAuthGroup.Group("sys"), PublicGroup.Group("sys"))
+	if err != nil {
+		panic(err)
 	}
 	// 监听并在 0.0.0.0:8080 上启动服务
-	err := Server.Run("0.0.0.0:9000")
+	err = Server.Run("0.0.0.0:9000")
 	if err != nil {
-		return
+		panic(err)
 	}
 }
