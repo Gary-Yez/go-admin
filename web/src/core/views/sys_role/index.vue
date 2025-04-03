@@ -37,10 +37,10 @@
 
 <script setup lang="ts">
 import {nextTick, onMounted, ref} from "vue";
-import {SysRoleApi} from "../../apis/sys_role.ts";
-import {SysMenuApi} from "../../apis/sys_menu.ts";
+import {SysRoleApi} from "../../../apis/core/sys_role.ts";
+import {SysMenuApi} from "../../../apis/core/sys_menu.ts";
 import { ElMessage,ElMessageBox } from "element-plus";
-import FormDialog from "../../components/common/FormDialog.vue";
+import FormDialog from "../../../components/common/FormDialog.vue";
 const treeRef = ref()
 const pageLoading = ref(true)
 const menus = ref([])

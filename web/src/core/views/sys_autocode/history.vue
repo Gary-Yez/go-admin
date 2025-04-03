@@ -43,9 +43,9 @@
 
 <script setup lang="ts">
   import {onMounted, ref} from "vue";
-  import {SysAutocodeApi} from "../apis/sys_autocode.ts";
+  import {SysAutocodeApi} from "../../../apis/core/sys_autocode.ts";
   import {useRouter} from "vue-router";
-  import {formatTime} from "../utils/formatTime.ts";
+  import {formatTime} from "../../../utils/formatTime.ts";
   import { ElMessage,ElMessageBox } from "element-plus"
   const router = useRouter()
   const pageLoading = ref(true)

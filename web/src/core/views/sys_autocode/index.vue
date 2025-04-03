@@ -143,7 +143,7 @@
 
 <script setup lang="ts">
   import {onMounted, ref} from "vue";
-  import {SysAutocodeApi} from "../apis/sys_autocode.ts";
+  import {SysAutocodeApi} from "../../../apis/core/sys_autocode.ts";
   import {useRoute} from "vue-router";
   import { ElMessage } from "element-plus";
 

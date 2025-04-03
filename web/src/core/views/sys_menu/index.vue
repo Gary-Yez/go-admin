@@ -99,11 +99,11 @@
 
 <script setup lang="ts">
 import {computed, onMounted, ref} from "vue";
-import { SysMenuApi } from "../../apis/sys_menu.ts";
-import FormDialog from "../../components/common/FormDialog.vue";
-import {SyncComponents} from "../../routes/syncMenu.ts";
+import { SysMenuApi } from "../../../apis/core/sys_menu.ts";
+import FormDialog from "../../../components/common/FormDialog.vue";
+import {SyncComponents} from "../../../routes/syncMenu.ts";
 import { ElMessage,ElMessageBox } from "element-plus";
-import {Icons} from "../../utils/icons.ts";
+import {Icons} from "../../../utils/icons.ts";
 
 const pageLoading = ref(true)
 const dialogOpen = ref(false);

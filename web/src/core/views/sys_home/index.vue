@@ -186,9 +186,9 @@
 
 <script setup lang="ts">
   import * as echarts from 'echarts';
-  import {SysHomeApi} from "../../apis/sys_home.ts";
+  import {SysHomeApi} from "../../../apis/core/sys_home.ts";
   import {computed, onBeforeUnmount, onMounted, ref} from "vue";
-  import {formatTime} from "../../utils/formatTime.ts";
+  import {formatTime} from "../../../utils/formatTime.ts";
   const pageData:any = ref({})
   const oldData:any = ref([])
   let jsq:any

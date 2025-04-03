@@ -73,11 +73,11 @@
 </template>
 
 <script setup lang="ts">
-  import { SysAdminApi } from "../../apis/sys_admin.ts";
-  import { SysRoleApi } from "../../apis/sys_role.ts";
+  import { SysAdminApi } from "../../../apis/core/sys_admin.ts";
+  import { SysRoleApi } from "../../../apis/core/sys_role.ts";
   import {computed, onMounted, ref} from "vue";
   import { ElMessage,ElMessageBox } from "element-plus";
-  import FormDialog from "../../components/common/FormDialog.vue";
+  import FormDialog from "../../../components/common/FormDialog.vue";
 
   const dialogOpen = ref(false)
   const roles:any = ref([])

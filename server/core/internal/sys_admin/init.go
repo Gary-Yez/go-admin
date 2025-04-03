@@ -6,12 +6,12 @@ import (
 	"gitee.com/mxcker/go-admin/server/core/internal/sys_role"
 )
 
-func Init() {
+func InitData() error {
 	fmt.Println("初始化默认管理员")
 	db := global.DB.Model(&SysAdmin{})
 	count := int64(0)
 	if err := db.Count(&count).Error; err != nil {
-		panic(err)
+		return err
 	}
 	if count == 0 {
 		defaultRole := &sys_role.SysRole{}
@@ -32,7 +32,8 @@ func Init() {
 			},
 		}
 		if err := db.Create(&data).Error; err != nil {
-			panic(err)
+			return err
 		}
 	}
+	return nil
 }

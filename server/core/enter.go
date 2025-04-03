@@ -40,6 +40,15 @@ func registerSystem(adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGrou
 	if err != nil {
 		return err
 	}
+	if err = sys_menu.InitData(); err != nil {
+		return err
+	}
+	if err = sys_role.InitData(); err != nil {
+		return err
+	}
+	if err = sys_admin.InitData(); err != nil {
+		return err
+	}
 	sys_autocode.Register("/autocode", adminAuthGroup, publicGroup)
 	sys_auth.Register("/auth", adminAuthGroup, publicGroup)
 	sys_admin.Register("/admin", adminAuthGroup, publicGroup)
