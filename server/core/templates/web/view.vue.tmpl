@@ -46,9 +46,9 @@
 </template>
 
 <script setup lang="ts">
-import { {{.ModelName}}Api } from "../../apis/{{.ModuleName}}.ts";
+import { {{.ModelName}}Api } from "../../apis/{{.ModuleName}}";
 import { ElMessage,ElMessageBox } from "element-plus";
-import FormDialog from "../../components/common/FormDialog.vue";
+import FormDialog from "../../components/core/FormDialog.vue";
 import {onMounted, ref} from "vue";
 
 const dialogOpen = ref(false)
@@ -66,7 +66,7 @@ const getPageData = async () => {
   pageLoading.value = true
   multipleSelection.value = []
   try {
-    const response = await {{.ModelName}}.List(queryForm.value)
+    const response = await {{.ModelName}}Api.List(queryForm.value)
     tableData.value = response.data.list
     total.value = response.data.total
   }catch (e) {
@@ -94,7 +94,7 @@ const handleDelete = (ids:Array<any>) => {
       if (action === "confirm") {
         instance.confirmButtonLoading = true
         try {
-          await {{.ModelName}}.Delete(ids)
+          await {{.ModelName}}Api.Delete(ids)
           ElMessage.success("删除成功")
           getPageData()
         }catch (e){
@@ -109,10 +109,10 @@ const handleDelete = (ids:Array<any>) => {
 
 const handleSubmit = async ()=>{
   if (!submitForm.value.id){
-    await {{.ModelName}}.Create(submitForm.value)
+    await {{.ModelName}}Api.Create(submitForm.value)
     ElMessage.success("创建成功")
   }else{
-    await {{.ModelName}}.Edit(submitForm.value)
+    await {{.ModelName}}Api.Edit(submitForm.value)
     ElMessage.success("修改成功")
   }
   getPageData()
