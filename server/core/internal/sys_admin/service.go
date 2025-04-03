@@ -20,20 +20,19 @@ func (s *serviceStruct) GeneratePassHash(data *SysAdmin) error {
 	return nil
 }
 
-func (s *serviceStruct) Get(id uint) (data *SysAdmin, err error) {
+func (s *serviceStruct) Get(req *request.Req) (data *SysAdmin, err error) {
 	data = &SysAdmin{}
-	err = global.DB.Model(SysAdmin{}).Where("id = ?", id).Find(data).Error
+	err = req.BuildQuery(global.DB.Model(SysAdmin{})).First(data).Error
 	return
 }
 
 func (s *serviceStruct) List(req *request.ReqList) (list []*SysAdmin, total int64, err error) {
 	db := global.DB.Model(SysAdmin{})
-	err = db.Count(&total).Error
+	err = req.BuildWhere(db).Count(&total).Error
 	if err != nil {
 		return nil, 0, err
 	}
-	req.SetDB(db)
-	err = db.Find(&list).Error
+	err = req.BuildQuery(db).Find(&list).Error
 	return
 }
 
@@ -68,7 +67,7 @@ func (s *serviceStruct) Update(data *SysAdmin) (err error) {
 		Where("id = ?", data.Id).Updates(data).Error
 }
 
-func (s *serviceStruct) DeleteByIds(ids []uint) (err error) {
-	err = global.DB.Debug().Model(&SysAdmin{}).Where("`default` = ?", false).Delete(&SysAdmin{}, ids).Error
+func (s *serviceStruct) DeleteByIds(req *request.ReqIds) (err error) {
+	err = req.BuildQuery(global.DB.Model(&SysAdmin{}).Debug()).Where("`default` = ?", false).Delete(&SysAdmin{}).Error
 	return
 }

@@ -1,6 +1,7 @@
 package sys_admin
 
 import (
+	"errors"
 	"gitee.com/mxcker/go-admin/server/core/common"
 	"gitee.com/mxcker/go-admin/server/core/request"
 	"gitee.com/mxcker/go-admin/server/core/response"
@@ -17,7 +18,7 @@ func (_ *controllerStruct) Get(ctx *gin.Context) {
 		response.Error(ctx, err.Error())
 		return
 	}
-	get, err := Service.Get(req.Id)
+	get, err := Service.Get(req)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
@@ -68,10 +69,10 @@ func (_ *controllerStruct) Delete(ctx *gin.Context) {
 		return
 	}
 	if slices.Contains(req.Ids, authUser.UserId) {
-		//response.Error(ctx, errors.New("不可以自己删除自己"))
-		//return
+		response.Error(ctx, errors.New("不可以自己删除自己"))
+		return
 	}
-	err = Service.DeleteByIds(req.Ids)
+	err = Service.DeleteByIds(req)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return

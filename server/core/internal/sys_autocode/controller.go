@@ -64,7 +64,7 @@ func (_ *controllerStruct) GetHistory(ctx *gin.Context) {
 		response.Error(ctx, err.Error())
 		return
 	}
-	get, err := Service.Get(req.Id)
+	get, err := Service.Get(req)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
@@ -79,7 +79,7 @@ func (_ *controllerStruct) DeleteHistory(ctx *gin.Context) {
 		response.Error(ctx, err.Error())
 		return
 	}
-	err = Service.DeleteByIds(req.Ids)
+	err = Service.DeleteByIds(req)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return

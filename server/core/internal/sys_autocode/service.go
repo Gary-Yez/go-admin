@@ -91,18 +91,17 @@ func (s *serviceStruct) Generate(data *GenerateBody) error {
 
 func (s *serviceStruct) History(req *request.ReqList) (list []*SysAutoCode, total int64, err error) {
 	db := global.DB.Model(SysAutoCode{})
-	err = db.Count(&total).Error
+	err = req.BuildWhere(db).Count(&total).Error
 	if err != nil {
 		return nil, 0, err
 	}
-	req.SetDB(db)
-	err = db.Find(&list).Error
+	err = req.BuildQuery(db).Find(&list).Error
 	return
 }
 
-func (s *serviceStruct) Get(id uint) (data *SysAutoCode, err error) {
+func (s *serviceStruct) Get(req *request.Req) (data *SysAutoCode, err error) {
 	data = &SysAutoCode{}
-	err = global.DB.Model(SysAutoCode{}).Where("id = ?", id).Find(data).Error
+	err = req.BuildQuery(global.DB.Model(SysAutoCode{})).First(data).Error
 	return
 }
 
@@ -124,7 +123,7 @@ func (s *serviceStruct) SaveHistory(data *GenerateBody) error {
 	return global.DB.Save(&history).Error
 }
 
-func (s *serviceStruct) DeleteByIds(ids []uint) (err error) {
-	err = global.DB.Delete(&SysAutoCode{}, ids).Error
+func (s *serviceStruct) DeleteByIds(req *request.ReqIds) (err error) {
+	err = req.BuildQuery(global.DB).Delete(&SysAutoCode{}).Error
 	return
 }

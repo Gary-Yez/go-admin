@@ -13,20 +13,19 @@ type serviceStruct struct {
 }
 
 {{- if .CreateCURD}}
-func (s *serviceStruct) Get(id uint) (data *{{.ModelName}}, err error) {
+func (s *serviceStruct) Get(req *request.Req) (data *{{.ModelName}}, err error) {
 	data = &{{.ModelName}}{}
-	err = global.DB.Model({{.ModelName}}{}).Where("id = ?", id).Find(data).Error
+	err = req.BuildQuery(global.DB.Model({{.ModelName}}{})).First(data).Error
 	return
 }
 
 func (s *serviceStruct) List(req *request.ReqList) (list []*{{.ModelName}}, total int64, err error) {
 	db := global.DB.Model({{.ModelName}}{})
-	err = db.Count(&total).Error
+	err = req.BuildWhere(db).Count(&total).Error
 	if err != nil {
 		return nil, 0, err
 	}
-	req.SetDB(db)
-	err = db.Find(&list).Error
+	err = req.BuildQuery(db).Find(&list).Error
 	return
 }
 
@@ -57,7 +56,7 @@ func (s *serviceStruct) Update(data *{{.ModelName}}) (err error) {
     		Where("id = ?", data.Id).Updates(data).Error
 }
 
-func (s *serviceStruct) DeleteByIds(ids []uint) (err error) {
-	return global.DB.Delete(&{{.ModelName}}{}, ids).Error
+func (s *serviceStruct) DeleteByIds(req *request.ReqIds) (err error) {
+	return req.BuildQuery(global.DB).Where("`default` = ?", false).Delete(&{{.ModelName}}{}).Error
 }
 {{end}}
