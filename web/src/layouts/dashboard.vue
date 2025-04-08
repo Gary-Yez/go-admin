@@ -8,7 +8,6 @@
         </div>
         <el-menu class="main-slider-menu" router :default-active="$route.path">
           <MenuItem :menus="menus"></MenuItem>
-          <MenuItem v-if="commonStore.isDev" :menus="DevMenu"></MenuItem>
         </el-menu>
       </div>
     </el-aside>
@@ -24,10 +23,10 @@
           <div class="flex items-center">
             <div class="theme-btn">
               <el-icon v-if="commonStore.theme === 'dark'" :size="18" @click="()=>commonStore.setTheme('light')">
-                <component is="Sunny"></component>
+                <iconify-icon icon="iconoir:sun-light"></iconify-icon>
               </el-icon>
               <el-icon v-else :size="18" @click="()=>commonStore.setTheme('dark')">
-                <component is="Moon"></component>
+                <iconify-icon icon="iconoir:half-moon"></iconify-icon>
               </el-icon>
             </div>
             <el-dropdown trigger="hover" @command="handleCommand">
@@ -35,7 +34,7 @@
                 <el-avatar class="mr-[5px]" :src="userStore.UserData?.avatar" :size="30"></el-avatar>
                 <span class="text-[14px]">{{ userStore.UserData?.nickname }}</span>
                 <el-icon class="el-icon--right">
-                  <component is="ArrowDown"></component>
+                  <iconify-icon icon="iconoir:nav-arrow-down-solid"></iconify-icon>
                 </el-icon>
               </div>
               <template #dropdown>
@@ -53,8 +52,8 @@
       <el-main class="content-content">
         <div class="dashboard-page">
           <router-view v-slot="{ Component }">
-            <transition name="fade-transform" mode="out-in" enter-from-class="fade-transform-enter">
-              <component :is="Component" />
+            <transition name="fade" mode="out-in" appear>
+              <component :is="Component" :key="$route.path" />
             </transition>
           </router-view>
         </div>
@@ -66,9 +65,8 @@
 <script setup lang="ts">
   import { onMounted, ref} from "vue";
   import {useUserStore} from "../stores/user.ts";
-  import MenuItem from "../components/common/MenuItem.vue";
+  import MenuItem from "../components/core/MenuItem.vue";
   import {useCommonStore} from "../stores/common.ts";
-  import {DevMenu} from "../routes/syncMenu.ts";
   const commonStore = useCommonStore()
   const userStore = useUserStore()
   const menus:any = ref([])

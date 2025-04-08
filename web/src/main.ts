@@ -3,7 +3,6 @@ import App from './App.vue'
 import {createPinia} from "pinia";
 import router from "./routes";
 import ElementPlus from "element-plus";
-import {ElementPlusIcons,Icons} from "./utils/icons.ts";
 import "./assets/css/tailwind.less"
 import "nprogress/nprogress.css"
 import "element-plus/dist/index.css"
@@ -15,8 +14,4 @@ const pinia = createPinia()
 const app = createApp(App)
 
 
-for (const [key, component] of Object.entries(ElementPlusIcons)) {
-    app.component(key, component)
-    Icons.push(key)
-}
 app.use(ElementPlus).use(pinia).use(router).mount('#app')

@@ -1,6 +1,6 @@
 import {createRouter, createWebHashHistory} from 'vue-router';
 import {useUserStore} from "../stores/user.ts";
-import { SysAuthApi } from "../apis/sys_auth.ts";
+import { SysAuthApi } from "../core/apis/sys_auth.ts";
 import {addSyncRouter, getBaseRouter, layoutsModules} from "./syncMenu.ts";
 //@ts-ignore
 import NProgress from "nprogress"

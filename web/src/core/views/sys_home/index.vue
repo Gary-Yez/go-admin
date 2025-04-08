@@ -7,7 +7,7 @@
             <template #title>
               <div class="flex items-center">
                 <el-icon class="mr-[5px]" size="20" color="#0099ff">
-                  <component is="Cpu"></component>
+                  <iconify-icon icon="iconoir:cpu"></iconify-icon>
                 </el-icon>
                 <strong class="text-[14px]">协程数量</strong>
               </div>
@@ -21,7 +21,7 @@
             <template #title>
               <div class="flex items-center">
                 <el-icon class="mr-[5px]" size="20" color="#0099ff">
-                  <component is="Coin"></component>
+                  <iconify-icon icon="iconoir:style-border"></iconify-icon>
                 </el-icon>
                 <strong class="text-[14px]">占用内存</strong>
               </div>
@@ -36,7 +36,7 @@
             <template #title>
               <div class="flex items-center">
                 <el-icon class="mr-[5px]" size="20" color="#0099ff">
-                  <component is="Timer"></component>
+                  <iconify-icon icon="iconoir:timer"></iconify-icon>
                 </el-icon>
                 <strong class="text-[14px]">运行时长</strong>
               </div>
@@ -50,7 +50,7 @@
             <template #title>
               <div class="flex items-center">
                 <el-icon class="mr-[5px]" size="20" color="#0099ff">
-                  <component is="Timer"></component>
+                  <iconify-icon icon="iconoir:timer"></iconify-icon>
                 </el-icon>
                 <strong class="text-[14px]">启动时间</strong>
               </div>
@@ -186,7 +186,7 @@
 
 <script setup lang="ts">
   import * as echarts from 'echarts';
-  import {SysHomeApi} from "../../../apis/core/sys_home.ts";
+  import {SysHomeApi} from "../../apis/sys_home.ts";
   import {computed, onBeforeUnmount, onMounted, ref} from "vue";
   import {formatTime} from "../../../utils/formatTime.ts";
   const pageData:any = ref({})

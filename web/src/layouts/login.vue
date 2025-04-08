@@ -14,7 +14,7 @@
            <el-input v-model="submitForm.username" placeholder="请输入用户名">
              <template #prefix>
                <el-icon>
-                 <component is="User"></component>
+                 <iconify-icon icon="iconoir:user"></iconify-icon>
                </el-icon>
              </template>
            </el-input>
@@ -23,7 +23,7 @@
            <el-input type="password" v-model="submitForm.password" placeholder="请输入密码">
              <template #prefix>
                <el-icon>
-                 <component is="Lock"></component>
+                 <iconify-icon icon="iconoir:lock"></iconify-icon>
                </el-icon>
              </template>
            </el-input>
@@ -42,7 +42,7 @@
 
 <script setup lang="ts">
   import {ref} from "vue";
-  import { SysAuthApi } from "../apis/sys_auth.ts";
+  import { SysAuthApi } from "../core/apis/sys_auth.ts";
   import {useUserStore} from "../stores/user.ts";
   import {useRouter} from "vue-router";
 

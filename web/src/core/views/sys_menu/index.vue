@@ -8,14 +8,20 @@
       <el-table-column label="ID" prop="id" :width="100" sortable></el-table-column>
       <el-table-column label="字体图标" prop="icon" :width="100">
         <template #default="{ row }">
-          <el-icon v-if="row.icon" :size="20">
-            <component :is="row.icon"></component>
-          </el-icon>
+          <iconify-icon class="text-[24px]" :icon="row.icon"></iconify-icon>
+<!--          <el-icon v-if="row.icon" :size="20">-->
+<!--            <component :is="row.icon"></component>-->
+<!--          </el-icon>-->
         </template>
       </el-table-column>
       <el-table-column label="菜单名称" prop="name"></el-table-column>
       <el-table-column label="路由地址" prop="path"></el-table-column>
-      <el-table-column label="组件路径" prop="component"></el-table-column>
+      <el-table-column label="组件路径" prop="component">
+        <template #default="{ row }">
+          <el-tag v-if="row.component" type="success">{{ row.component }}</el-tag>
+          <el-tag v-else type="primary">路由组件</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="父菜单ID" prop="parent_id" :width="100">
         <template #default="{ row }">
           <el-tag v-if="!row.parent_id" type="primary">根菜单</el-tag>
@@ -31,7 +37,7 @@
       <el-table-column label="操作" :width="280">
         <template #default="{ row }">
           <el-button-group class="table-btn-group">
-            <el-button type="primary" icon="Plus" text @click="()=>handleAdd({parent_id:row.id})">添加子菜单</el-button>
+            <el-button type="primary" icon="Plus" :disabled="!!row.component" text @click="()=>handleAdd({parent_id:row.id})">添加子菜单</el-button>
             <el-button type="primary" icon="Edit" text @click="()=>handleAdd(row)">修改</el-button>
             <el-button type="danger" icon="Delete" text @click="()=>handleDelete([row.id])">删除</el-button>
           </el-button-group>
@@ -40,26 +46,12 @@
     </el-table>
     <FormDialog v-model="dialogOpen" v-model:form="submitForm" :title="submitForm.id ? '修改菜单' : '新增菜单'" :on-confirm="handleSubmit">
       <el-form-item label="父菜单" prop="parent_id">
-        <el-cascader class="w-full" v-model="submitForm.parent_id" :options="parentMenu" :props="{ label:'name',value:'id',checkStrictly:true,emitPath:false}"></el-cascader>
+        <el-cascader class="w-full" v-model="submitForm.parent_id" :options="parentMenu" :props="{ label:'name',value:'id',checkStrictly:true,emitPath:false,disabled:'component'}"></el-cascader>
       </el-form-item>
       <el-row :gutter="15">
         <el-col :span="10">
-          <el-form-item label="字体图标" prop="icon">
-            <el-select v-model="submitForm.icon" placeholder="字体图标" filterable clearable>
-              <template v-if="submitForm.icon" #prefix>
-                <el-icon :size="16" class="mr-[5px]">
-                  <component :is="submitForm.icon"></component>
-                </el-icon>
-              </template>
-              <el-option v-for="icon in icons" :value="icon" :key="icon">
-                <div class="flex items-center">
-                  <el-icon :size="16" class="mr-[5px]">
-                    <component :is="icon"></component>
-                  </el-icon>
-                  <span>{{ icon }}</span>
-                </div>
-              </el-option>
-            </el-select>
+          <el-form-item label="字体图标" prop="icon" :rules="[{required:true,message:'请选择字体图标'}]">
+            <IconSelect v-model="submitForm.icon"></IconSelect>
           </el-form-item>
         </el-col>
         <el-col :span="14">
@@ -70,21 +62,21 @@
       </el-row>
       <el-form-item label="路由地址" prop="path" :rules="[{required:true,message:'请输入路由地址'}]">
         <el-input v-model="submitForm.path" placeholder="请输入路由地址">
-          <template #prepend>/dashboard/</template>
+          <template #prepend>{{ routePrefix }}</template>
         </el-input>
       </el-form-item>
       <el-row :gutter="12">
-        <el-col :span="10">
-          <el-form-item label="菜单类型">
+        <el-col :span="11">
+          <el-form-item label="组件类型">
             <el-radio-group v-model="submitForm.menu_type">
-              <el-radio-button :value="1" label="根菜单"></el-radio-button>
-              <el-radio-button :value="2" label="页面菜单"></el-radio-button>
+              <el-radio-button :value="1" label="路由组件"></el-radio-button>
+              <el-radio-button :value="2" label="页面组件"></el-radio-button>
             </el-radio-group>
           </el-form-item>
         </el-col>
-        <el-col :span="14" v-if="submitForm.menu_type === 2">
+        <el-col :span="13" v-if="submitForm.menu_type === 2">
           <el-form-item label="组件路径" prop="component" :rules="[{required:true,message:'请选择组件'}]">
-            <el-select  v-model="submitForm.component" placeholder="请选择组件" filterable>
+            <el-select v-model="submitForm.component" placeholder="请选择组件" filterable>
               <el-option v-for="item in SyncComponents" :value="item" :label="item"></el-option>
             </el-select>
           </el-form-item>
@@ -99,18 +91,18 @@
 
 <script setup lang="ts">
 import {computed, onMounted, ref} from "vue";
-import { SysMenuApi } from "../../../apis/core/sys_menu.ts";
-import FormDialog from "../../../components/common/FormDialog.vue";
+import { SysMenuApi } from "../../apis/sys_menu.ts";
+import FormDialog from "../../../components/core/FormDialog.vue";
 import {SyncComponents} from "../../../routes/syncMenu.ts";
 import { ElMessage,ElMessageBox } from "element-plus";
-import {Icons} from "../../../utils/icons.ts";
+import IconSelect from "../../../components/core/IconSelect.vue";
 
 const pageLoading = ref(true)
 const dialogOpen = ref(false);
 const tableData = ref([])
 
 const submitForm:any = ref({})
-const icons = Icons
+
 
 const getPageData = async ()=>{
   pageLoading.value = true
@@ -123,7 +115,8 @@ const parentMenu = computed(()=>{
   return [{
     name:'根菜单',
     id:0,
-    children:tableData.value
+    children:tableData.value,
+    path:"dashboard",
   }]
 })
 
@@ -131,12 +124,42 @@ onMounted(()=>{
   getPageData()
 })
 
+function findParentNodes(root:any, targetId:any) {
+  const result:any = [];
+  const traverse = (node:any, path:any) => {
+    if (node.id === targetId) {
+      // 找到目标节点，将路径中的父级存入结果
+      result.push(...[...path, node]);
+      return true;
+    }
+    if (node.children) {
+      // 继续遍历子节点，并传递当前路径（父级 + 当前节点）
+      for (const child of node.children) {
+        if (traverse(child, [...path, node])) {
+          return true; // 找到后提前终止遍历
+        }
+      }
+    }
+    return false;
+  };
+  traverse(root[0], []); // 初始路径为空
+  return result;
+}
+
+const routePrefix = computed(()=>{
+  console.log(parentMenu.value,submitForm.value.parent_id)
+  let treeNode = findParentNodes(parentMenu.value,submitForm.value.parent_id)
+  return treeNode.reduce((pre:string,cur:any)=>{
+    return pre + cur.path + "/";
+  },"/")
+})
+
 const handleAdd = (defaultForm:any)=>{
   submitForm.value = {
     ...defaultForm,
     sort:defaultForm.sort || 0,
     menu_type: defaultForm.component ? 2 : 1,
-    parent_id:defaultForm.parent_id || 0
+    parent_id:defaultForm.parent_id || 0,
   }
   dialogOpen.value = true
 }
@@ -178,12 +201,14 @@ const handleChangeSwitch = async (row:any,key:string) => {
 }
 
 const handleSubmit = async () => {
-  submitForm.value.parent_id = submitForm.value.parent_id || null
-  if (!submitForm.value.id){
-    await SysMenuApi.Create(submitForm.value)
+  let form = JSON.parse(JSON.stringify(submitForm.value))
+  form.parent_id = form.parent_id || null
+  delete form.parents
+  if (!form.id){
+    await SysMenuApi.Create(form)
     ElMessage.success("创建成功")
   }else{
-    await SysMenuApi.Edit(submitForm.value)
+    await SysMenuApi.Edit(form)
     ElMessage.success("修改成功")
   }
   getPageData()

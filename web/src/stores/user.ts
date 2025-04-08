@@ -36,7 +36,27 @@ export const useUserStore = defineStore("userStore", {
     },
     getters:{
         UserMenu(state):Array<any>{
-            return state.UserData?.role?.menus || []
+            let menus:any = state.UserData?.role?.menus || []
+            if (import.meta.env.MODE === 'development'){
+                menus.push({
+                    name: "开发工具",
+                    icon: "iconoir:laptop-dev-mode",
+                    path: "dev",
+                    children: [{
+                        name:      "代码生成",
+                        icon:      "iconoir:code",
+                        path:      "sys_autocode",
+                        component: "../core/views/sys_autocode/index.vue",
+                    }, {
+                        name:      "生成历史",
+                        icon:      "iconoir:code-brackets-square",
+                        path:      "sys_autocode_history",
+                        component: "../core/views/sys_autocode/history.vue",
+                    }],
+                })
+            }
+            console.log(menus)
+            return menus
         }
     }
 })

@@ -1,27 +1,8 @@
 import router from "./index.ts";
 
+const coreModules = import.meta.glob('../core/views/**/*.vue')
 export const layoutsModules = import.meta.glob('../layouts/**/*.vue')
-const autocodeModules = import.meta.glob('../autocode/**/*.vue')
 export const viewModules = import.meta.glob('../views/**/*.vue')
-
-const flatMenuTreeToRouter = (menus:Array<any>,routers:Array<any>)=>{
-    if (!routers){
-        routers = []
-    }
-    menus.forEach((item)=>{
-        routers.push({
-            path:`/dashboard/${item.path}`,
-            meta:{
-                name:item.name,
-            },
-            component:viewModules[item.component] || autocodeModules[item.component] || undefined,
-        })
-        if (item.children){
-            routers = flatMenuTreeToRouter(item.children,routers)
-        }
-    })
-    return routers
-}
 
 export const getBaseRouter = ()=>{
     return {
@@ -34,38 +15,36 @@ export const getBaseRouter = ()=>{
         children:[]
     }
 }
-export const DevMenu = [
-    {
-        name: "开发工具",
-        icon: "EditPen",
-        path: "dev",
-        children: [{
-            name:      "代码生成",
-            icon:      "Cpu",
-            path:      "autocode",
-            component: "../autocode/index.vue",
-        }, {
-            name:      "生成历史",
-            icon:      "Document",
-            path:      "sys_autocode_history",
-            component: "../autocode/history.vue",
-        }],
+
+const flatMenuTreeToRouter = (menus:Array<any>,routers:Array<any>)=>{
+    if (!routers){
+        routers = []
     }
-]
+    menus.forEach((item)=>{
+        let route:any = {
+            path:item.path,
+            meta:{
+                name:item.name,
+            },
+        }
+        if (viewModules[item.component] || coreModules[item.component]){
+            route.component = viewModules[item.component] || coreModules[item.component]
+        }
+        if (item.children){
+            route.children = flatMenuTreeToRouter(item.children,[])
+        }
+        routers.push(route)
+    })
+    return routers
+}
 
 export const addSyncRouter = (menus:Array<any>)=>{
     let routes:any = flatMenuTreeToRouter(menus,[])
-    routes = routes.filter((item:any)=>item.component)
     const dashboardRouter:any = getBaseRouter()
-    if (import.meta.env.MODE === 'development'){
-        routes = flatMenuTreeToRouter(DevMenu,routes)
-        console.log("ok")
-    }
     dashboardRouter.children = routes
     if (routes.length > 0){
-        dashboardRouter.redirect = routes[0].path
+        dashboardRouter.redirect = `/dashboard/${routes[0].path}`
     }
-
     router.addRoute(dashboardRouter)
 }
 

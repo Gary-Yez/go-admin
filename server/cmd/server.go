@@ -14,7 +14,7 @@ var serverCmd = &cobra.Command{
 	Short: "启动服务器",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		// 初始化全局变量
+		// 启动服务
 		core.Start()
 	},
 }

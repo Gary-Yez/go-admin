@@ -1,19 +1,19 @@
 <template>
   <template v-for="menu in props.menus">
-    <el-menu-item v-if="!menu.hidden && !menu.children" :index="getMenuPath(menu.path)">
+    <el-menu-item v-if="!menu.hidden && !menu.children" :index="BuildMenuPath(menu)">
       <el-icon v-if="menu.icon">
-        <component :is="menu.icon"></component>
+        <iconify-icon :icon="menu.icon"></iconify-icon>
       </el-icon>
       <span>{{ menu.name }}</span>
     </el-menu-item>
-    <el-sub-menu v-else-if="!menu.hidden" :index="getMenuPath(menu.path)">
+    <el-sub-menu v-else-if="!menu.hidden" :index="BuildMenuPath(menu)">
       <template #title>
-        <el-icon v-if="menu.icon">
-          <component :is="menu.icon"></component>
+        <el-icon>
+          <iconify-icon v-if="menu.icon" :icon="menu.icon"></iconify-icon>
         </el-icon>
         <span>{{ menu.name }}</span>
       </template>
-      <MenuItem :menus="menu.children"></MenuItem>
+      <MenuItem :prefix="BuildMenuPath(menu)" :menus="menu.children"></MenuItem>
     </el-sub-menu>
   </template>
 </template>
@@ -25,11 +25,16 @@ const props:any = defineProps({
     default:()=>{
       return []
     }
+  },
+  prefix:{
+    type:String,
+    default:()=>{
+      return "/dashboard"
+    }
   }
 })
-
-const getMenuPath = (path: string) => {
-  return `/dashboard/${path}`
+const BuildMenuPath = (menu:any) => {
+  return props.prefix + "/" + menu.path
 }
 </script>
 

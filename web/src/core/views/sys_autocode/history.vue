@@ -43,7 +43,7 @@
 
 <script setup lang="ts">
   import {onMounted, ref} from "vue";
-  import {SysAutocodeApi} from "../../../apis/core/sys_autocode.ts";
+  import {SysAutocodeApi} from "../../apis/sys_autocode.ts";
   import {useRouter} from "vue-router";
   import {formatTime} from "../../../utils/formatTime.ts";
   import { ElMessage,ElMessageBox } from "element-plus"
@@ -90,7 +90,7 @@
         if (action === "confirm") {
           instance.confirmButtonLoading = true
           try {
-            await SysAutocode.Delete(ids)
+            await SysAutocodeApi.Delete(ids)
             ElMessage.success("删除成功")
             getPageData().then()
           }catch (e){

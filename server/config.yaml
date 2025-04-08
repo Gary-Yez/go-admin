@@ -1,3 +1,6 @@
+Server:
+  Host: "0.0.0.0"
+  Port: 9000
 mysql:
   host: "150.158.111.154"
   port: 3306

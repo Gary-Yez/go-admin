@@ -10,35 +10,41 @@ func InitData() error {
 	data := []SysMenu{
 		{
 			Name:      "仪表盘",
-			Icon:      "Odometer",
+			Icon:      "iconoir:arc-3d-center-point",
 			Path:      "sys_home",
 			Component: "../core/views/sys_home/index.vue",
 			Sort:      0,
 		},
 		{
 			Name: "系统设置",
-			Icon: "Setting",
+			Icon: "iconoir:settings",
 			Path: "sys_setting",
 			Sort: 1,
 			Children: []*SysMenu{
 				{
 					Name:      "菜单管理",
-					Icon:      "Menu",
+					Icon:      "iconoir:menu",
 					Path:      "sys_menu",
 					Component: "../core/views/sys_menu/index.vue",
 					Sort:      0,
 				}, {
 					Name:      "角色管理",
-					Icon:      "UserFilled",
+					Icon:      "iconoir:user-badge-check",
 					Path:      "sys_role",
 					Component: "../core/views/sys_role/index.vue",
 					Sort:      1,
 				}, {
 					Name:      "管理员管理",
-					Icon:      "User",
+					Icon:      "iconoir:user-crown",
 					Path:      "sys_admin",
 					Component: "../core/views/sys_admin/index.vue",
 					Sort:      2,
+				}, {
+					Name:      "全局变量管理",
+					Icon:      "iconoir:folder-settings",
+					Path:      "sys_global_variable",
+					Component: "../core/views/sys_global_variable/index.vue",
+					Sort:      3,
 				},
 			},
 		},

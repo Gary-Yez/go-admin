@@ -5,6 +5,7 @@ import (
 	"gitee.com/mxcker/go-admin/server/core/internal/sys_admin"
 	"gitee.com/mxcker/go-admin/server/core/internal/sys_auth"
 	"gitee.com/mxcker/go-admin/server/core/internal/sys_autocode"
+	"gitee.com/mxcker/go-admin/server/core/internal/sys_global_variable"
 	"gitee.com/mxcker/go-admin/server/core/internal/sys_home"
 	"gitee.com/mxcker/go-admin/server/core/internal/sys_menu"
 	"gitee.com/mxcker/go-admin/server/core/internal/sys_role"
@@ -13,40 +14,16 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
+	"strconv"
 )
 
 var Server *gin.Engine
 
-func init() {
-	Server = gin.Default()
-	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowAllOrigins = true
-	corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, "Authorization")
-	Server.Use(cors.New(corsConfig))
-	Server.Use(static.Serve("/admin", static.LocalFile("./dist", true)))
-}
-
-func registerSystem(adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) error {
-	err := global.Init()
-	if err != nil {
+func registerSystemService(adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) error {
+	if err := initDB(); err != nil {
 		return err
 	}
-	err = global.DB.AutoMigrate(
-		sys_menu.SysMenu{},
-		sys_role.SysRole{},
-		sys_admin.SysAdmin{},
-		sys_autocode.SysAutoCode{},
-	)
-	if err != nil {
-		return err
-	}
-	if err = sys_menu.InitData(); err != nil {
-		return err
-	}
-	if err = sys_role.InitData(); err != nil {
-		return err
-	}
-	if err = sys_admin.InitData(); err != nil {
+	if err := initData(); err != nil {
 		return err
 	}
 	sys_autocode.Register("/autocode", adminAuthGroup, publicGroup)
@@ -55,15 +32,28 @@ func registerSystem(adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGrou
 	sys_home.Register("/home", adminAuthGroup, publicGroup)
 	sys_menu.Register("/menu", adminAuthGroup, publicGroup)
 	sys_role.Register("/role", adminAuthGroup, publicGroup)
+	sys_global_variable.Register("/global_variable", adminAuthGroup, publicGroup)
 	return nil
 }
 
 func Start() {
+	//创建服务器
+	Server = gin.Default()
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowAllOrigins = true
+	corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, "Authorization")
+	Server.Use(cors.New(corsConfig))
+	Server.Use(static.Serve("/admin", static.LocalFile("./dist", true)))
 	//创建API路由
 	AdminAuthGroup := Server.Group("/api", middlewares.SysAuth)
 	PublicGroup := Server.Group("/api")
+	//初始化全局变量
+	err := global.Init()
+	if err != nil {
+		panic(err)
+	}
 	//注册系统组件
-	err := registerSystem(AdminAuthGroup.Group("sys"), PublicGroup.Group("sys"))
+	err = registerSystemService(AdminAuthGroup.Group("sys"), PublicGroup.Group("sys"))
 	if err != nil {
 		panic(err)
 	}
@@ -78,7 +68,7 @@ func Start() {
 		panic(err)
 	}
 	// 监听并在 0.0.0.0:8080 上启动服务
-	err = Server.Run("0.0.0.0:9000")
+	err = Server.Run(global.Config.Server.Host + ":" + strconv.Itoa(global.Config.Server.Port))
 	if err != nil {
 		panic(err)
 	}
