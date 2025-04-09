@@ -6,16 +6,16 @@ import (
 )
 
 type Where struct {
-	Field string `json:"field" binding:"required"`
+	Field string `json:"field" form:"field" binding:"required"`
 	// 操作符字段
-	Operator string `json:"operator" binding:"required,oneof=eq ne gt lt like"`
-	Value    string `json:"value"`
+	Operator string `json:"operator" form:"operator" binding:"required,oneof=eq ne gt lt like"`
+	Value    string `json:"value" form:"value"`
 }
 
 type ReqList struct {
-	Page  int    `json:"page"`
-	Limit int    `json:"limit"`
-	Where *Where `json:"where"`
+	Page  int    `json:"page" form:"page"`
+	Limit int    `json:"limit" form:"limit"`
+	Where *Where `json:"where" form:"where"`
 }
 
 func (reqL *ReqList) BuildQuery(db *gorm.DB) *gorm.DB {
