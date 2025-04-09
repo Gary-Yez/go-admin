@@ -1,7 +1,6 @@
 package core
 
 import (
-	"gitee.com/mxcker/go-admin/server/core/global"
 	"gitee.com/mxcker/go-admin/server/core/internal/sys_admin"
 	"gitee.com/mxcker/go-admin/server/core/internal/sys_auth"
 	"gitee.com/mxcker/go-admin/server/core/internal/sys_autocode"
@@ -12,14 +11,10 @@ import (
 	"gitee.com/mxcker/go-admin/server/core/middlewares"
 	"gitee.com/mxcker/go-admin/server/core/models"
 	"gitee.com/mxcker/go-admin/server/modules"
-	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
-	"strconv"
 )
 
-func Start(Server *gin.Engine) {
-	Server.Use(static.Serve("/admin", static.LocalFile("./dist", true)))
-	//创建API路由
+func Load(Server *gin.Engine) {
 	AdminAuthGroup := Server.Group("/api", middlewares.SysAuth)
 	PublicGroup := Server.Group("/api")
 	//注册系统组件
@@ -37,11 +32,6 @@ func Start(Server *gin.Engine) {
 		panic(err)
 	}
 	err = moduleMap.RegisterAll(AdminAuthGroup, PublicGroup)
-	if err != nil {
-		panic(err)
-	}
-	// 监听并在 0.0.0.0:8080 上启动服务
-	err = Server.Run(global.Config.Server.Host + ":" + strconv.Itoa(global.Config.Server.Port))
 	if err != nil {
 		panic(err)
 	}

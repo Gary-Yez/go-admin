@@ -2,11 +2,11 @@ Server:
   Host: "0.0.0.0"
   Port: 9000
 mysql:
-  host: ""
-  port: 0
-  username: ""
-  password: ""
-  database: ""
+  host: "150.158.111.154"
+  port: 3306
+  username: "myadmin"
+  password: "myadmin"
+  database: "myadmin"
 redis:
   host: "127.0.0.1"
   port: 6379
@@ -14,4 +14,4 @@ redis:
   password: ""
   db: 0
 jwt:
-  secret: "DefaultJwtToken"
+  secret: "jwtTokens"

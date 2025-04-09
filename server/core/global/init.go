@@ -12,14 +12,19 @@ import (
 )
 
 var (
-	Config *configs.Config
-	DB     *gorm.DB
-	Redis  string
-	Vars   *variableMap
+	IsDevelopment = false
+	Config        *configs.Config
+	DB            *gorm.DB
+	Redis         string
+	Vars          *variableMap
 )
 
 func initConfig() error {
-	viper.SetConfigName("config")
+	if IsDevelopment {
+		viper.SetConfigName("config.dev")
+	} else {
+		viper.SetConfigName("config")
+	}
 	// 设置配置文件路径（这里设置为当前目录）
 	viper.AddConfigPath(".")
 	// 设置配置文件类型
@@ -61,6 +66,7 @@ func initDB() error {
 }
 
 func init() {
+	IsDevelopment = os.Getenv("APP_ENV") == "development"
 	err := initConfig()
 	if err != nil {
 		panic(err)
