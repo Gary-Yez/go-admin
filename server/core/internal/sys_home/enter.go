@@ -10,7 +10,13 @@ var StartTime = time.Now()
 var Controller = new(controllerStruct)
 var Service = new(serviceStruct)
 
-func Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) error {
+type Mounter struct {
+}
+
+func (_ *Mounter) Initialize() error {
+	return nil
+}
+func (_ *Mounter) Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) error {
 	Admin := adminAuthGroup.Group(path)
 	{
 		Admin.GET("statistic", Controller.Statistic)

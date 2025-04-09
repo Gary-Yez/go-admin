@@ -4,6 +4,6 @@ import (
 	"gitee.com/mxcker/go-admin/server/core/models"
 )
 
-func Load(moduleMap *models.ModuleMap) error {
+func Load(mounterMap *models.MounterMap) error {
 	return nil
 }

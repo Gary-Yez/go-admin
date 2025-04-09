@@ -8,7 +8,10 @@ import (
 var Controller = new(controllerStruct)
 var Service = new(serviceStruct)
 
-func Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) error {
+type Mounter struct {
+}
+
+func (_ *Mounter) Initialize() error {
 	err := global.DB.AutoMigrate(&SysAdmin{})
 	if err != nil {
 		return err
@@ -16,6 +19,10 @@ func Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.Rou
 	if err = InitData(); err != nil {
 		return err
 	}
+	return nil
+}
+
+func (_ *Mounter) Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) error {
 	Group := adminAuthGroup.Group(path)
 	{
 		Group.GET("get", Controller.Get)

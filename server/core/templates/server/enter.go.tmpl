@@ -10,15 +10,22 @@ import (
 var controller = new(controllerStruct)
 var Service = new(serviceStruct)
 
-func Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) error {
+type Mounter struct {
+}
+
+func (_ *Mounter) Initialize() error {
+    // 这里执行一些初始化操作
     {{- if .CreateCURD}}
     // 初始化数据库
-	err := global.DB.AutoMigrate(&{{.ModelName}}{})
-	if err != nil {
+    err := global.DB.AutoMigrate(&{{.ModelName}}{})
+    if err != nil {
     	return err
     }
-    // 如果需要初始化数据库内容，请在此处添加代码
     {{- end}}
+	return nil
+}
+
+func (_ *Mounter) Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) error {
     // 注册路由
     // 需要管理员权限的路由
 	Group := adminAuthGroup.Group(path)
