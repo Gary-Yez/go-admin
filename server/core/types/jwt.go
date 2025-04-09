@@ -1,9 +1,8 @@
-package models
+package types
 
 import (
 	"errors"
-	"gitee.com/mxcker/go-admin/server/core/global"
-	"gitee.com/mxcker/go-admin/server/core/models/common"
+	"gitee.com/mxcker/go-admin/server/core/types/configs"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
 )
@@ -14,11 +13,11 @@ type JWT struct {
 
 type AccessToken struct {
 	jwt.RegisteredClaims
-	common.AuthUser
+	AuthUser
 }
 
-func NewJwt() *JWT {
-	return &JWT{SigningKey: []byte(global.Config.Jwt.Secret)}
+func NewJwt(config *configs.JwtConfig) *JWT {
+	return &JWT{SigningKey: []byte(config.Secret)}
 }
 
 func (c *JWT) Generate(userId uint, roleId uint) (string, error) {
@@ -27,7 +26,7 @@ func (c *JWT) Generate(userId uint, roleId uint) (string, error) {
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			ExpiresAt: jwt.NewNumericDate(time.Now().AddDate(0, 0, 7)),
 		},
-		AuthUser: common.AuthUser{
+		AuthUser: AuthUser{
 			UserId: userId,
 			RoleId: roleId,
 		},

@@ -1,15 +1,17 @@
-package sys_admin
+package sys_task
 
 import (
-	"errors"
-	"gitee.com/mxcker/go-admin/server/core/types"
+	"gitee.com/mxcker/go-admin/server/core/global"
 	"gitee.com/mxcker/go-admin/server/core/types/request"
 	"gitee.com/mxcker/go-admin/server/core/types/response"
 	"github.com/gin-gonic/gin"
-	"slices"
 )
 
 type controllerStruct struct{}
+
+func (_ *controllerStruct) GetRegisteredTask(ctx *gin.Context) {
+	response.Success(ctx, global.TaskManager.GetHandlers())
+}
 
 func (_ *controllerStruct) Get(ctx *gin.Context) {
 	req := new(request.Req)
@@ -20,7 +22,6 @@ func (_ *controllerStruct) Get(ctx *gin.Context) {
 	}
 	get, err := Service.Get(req)
 	if err != nil {
-		response.Error(ctx, err.Error())
 		return
 	}
 	response.Success(ctx, get)
@@ -28,7 +29,7 @@ func (_ *controllerStruct) Get(ctx *gin.Context) {
 
 func (_ *controllerStruct) List(ctx *gin.Context) {
 	req := new(request.ReqList)
-	if err := ctx.ShouldBindQuery(req); err != nil {
+	if err := ctx.ShouldBindJSON(req); err != nil {
 		response.Error(ctx, err.Error())
 		return
 	}
@@ -42,7 +43,7 @@ func (_ *controllerStruct) List(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) Create(ctx *gin.Context) {
-	data := new(SysAdmin)
+	data := new(SysTask)
 	err := ctx.ShouldBindJSON(data)
 	if err != nil {
 		response.Error(ctx, err.Error())
@@ -63,15 +64,6 @@ func (_ *controllerStruct) Delete(ctx *gin.Context) {
 		response.Error(ctx, err.Error())
 		return
 	}
-	authUser, ok := ctx.MustGet("AuthUser").(types.AuthUser)
-	if !ok {
-		response.Error(ctx, "登录失效")
-		return
-	}
-	if slices.Contains(req.Ids, authUser.UserId) {
-		response.Error(ctx, errors.New("不可以自己删除自己"))
-		return
-	}
 	err = Service.DeleteByIds(req)
 	if err != nil {
 		response.Error(ctx, err.Error())
@@ -81,7 +73,7 @@ func (_ *controllerStruct) Delete(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) Edit(ctx *gin.Context) {
-	data := new(SysAdmin)
+	data := new(SysTask)
 	err := ctx.ShouldBindJSON(data)
 	if err != nil {
 		response.Error(ctx, err.Error())

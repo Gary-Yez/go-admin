@@ -1,11 +1,11 @@
 package sys_menu
 
 import (
-	"gitee.com/mxcker/go-admin/server/core/models/common"
+	"gitee.com/mxcker/go-admin/server/core/types"
 )
 
 type SysMenu struct {
-	common.DbBaseModel
+	types.DbBaseModel
 	Name      string     `json:"name"`
 	Icon      string     `json:"icon"`
 	Path      string     `json:"path" gorm:"unique"`

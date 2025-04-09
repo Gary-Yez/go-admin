@@ -1,10 +1,10 @@
 package sys_auth
 
 import (
+	"gitee.com/mxcker/go-admin/server/core/global"
 	"gitee.com/mxcker/go-admin/server/core/internal/sys_menu"
-	"gitee.com/mxcker/go-admin/server/core/models"
-	"gitee.com/mxcker/go-admin/server/core/models/common"
-	"gitee.com/mxcker/go-admin/server/core/models/response"
+	"gitee.com/mxcker/go-admin/server/core/types"
+	"gitee.com/mxcker/go-admin/server/core/types/response"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"sort"
@@ -32,7 +32,7 @@ func (_ *controllerStruct) Login(ctx *gin.Context) {
 	} else if admin.Status != 1 {
 		response.Error(ctx, "管理员被禁用")
 	} else {
-		jwt := models.NewJwt()
+		jwt := types.NewJwt(global.Config.Jwt)
 		tokenString, err := jwt.Generate(admin.Id, admin.RoleId)
 		if err != nil {
 			response.Error(ctx, err.Error())
@@ -45,7 +45,7 @@ func (_ *controllerStruct) Login(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) GetMe(ctx *gin.Context) {
-	authUser, ok := ctx.MustGet("AuthUser").(common.AuthUser)
+	authUser, ok := ctx.MustGet("AuthUser").(types.AuthUser)
 	if !ok {
 		response.Error(ctx, "登录失效")
 		return

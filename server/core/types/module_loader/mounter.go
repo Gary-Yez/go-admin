@@ -1,27 +1,19 @@
-package models
+package module_loader
 
 import (
 	"github.com/gin-gonic/gin"
 	"sync"
 )
 
-type Mounter interface {
-	Initialize() error
-	Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) error
-}
-
-type MounterMap struct {
+type defaultLoader struct {
 	sequence []string
 	mp       map[string]Mounter
 	lock     sync.Mutex
 }
 
-func (m *MounterMap) Add(moduleName string, mounter Mounter) {
+func (m *defaultLoader) Add(moduleName string, mounter Mounter) {
 	m.lock.Lock()
 	defer m.lock.Unlock()
-	if m.mp == nil {
-		m.mp = make(map[string]Mounter)
-	}
 	if _, ok := m.mp[moduleName]; ok {
 		panic("module: " + moduleName + " has been existed")
 	}
@@ -29,7 +21,7 @@ func (m *MounterMap) Add(moduleName string, mounter Mounter) {
 	m.mp[moduleName] = mounter
 }
 
-func (m *MounterMap) InitAll() error {
+func (m *defaultLoader) InitAll() error {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 	for _, moduleName := range m.sequence {
@@ -41,7 +33,7 @@ func (m *MounterMap) InitAll() error {
 	return nil
 }
 
-func (m *MounterMap) RegisterAll(adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) error {
+func (m *defaultLoader) RegisterAll(adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) error {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 	for _, moduleName := range m.sequence {

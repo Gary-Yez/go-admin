@@ -1,7 +1,7 @@
 package sys_home
 
 import (
-	"gitee.com/mxcker/go-admin/server/core/models/response"
+	"gitee.com/mxcker/go-admin/server/core/types/response"
 	"github.com/gin-gonic/gin"
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"

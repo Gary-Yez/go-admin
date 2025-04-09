@@ -1,8 +1,8 @@
 package sys_autocode
 
 import (
-	request2 "gitee.com/mxcker/go-admin/server/core/models/request"
-	"gitee.com/mxcker/go-admin/server/core/models/response"
+	request2 "gitee.com/mxcker/go-admin/server/core/types/request"
+	"gitee.com/mxcker/go-admin/server/core/types/response"
 	"github.com/gin-gonic/gin"
 )
 

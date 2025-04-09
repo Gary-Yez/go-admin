@@ -1,19 +1,19 @@
-package global
+package vars_cache
 
 import (
 	"strconv"
 	"sync"
 )
 
-type variableMap struct {
+type memoryCache struct {
 	data sync.Map
 }
 
-func (m *variableMap) Set(key string, value string) {
+func (m *memoryCache) Set(key string, value string) {
 	m.data.Store(key, value)
 }
 
-func (m *variableMap) GetString(key string) string {
+func (m *memoryCache) GetString(key string) string {
 	v, ok := m.data.Load(key)
 	if !ok {
 		return ""
@@ -21,7 +21,7 @@ func (m *variableMap) GetString(key string) string {
 	return v.(string)
 }
 
-func (m *variableMap) GetInt(key string) int {
+func (m *memoryCache) GetInt(key string) int {
 	v := m.GetString(key)
 	if v == "" {
 		return 0
@@ -34,7 +34,7 @@ func (m *variableMap) GetInt(key string) int {
 	}
 }
 
-func (m *variableMap) GetBool(key string) bool {
+func (m *memoryCache) GetBool(key string) bool {
 	v := m.GetString(key)
 	if v == "" {
 		return false

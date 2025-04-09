@@ -1,7 +1,9 @@
 package global
 
 import (
-	"gitee.com/mxcker/go-admin/server/core/models/configs"
+	"gitee.com/mxcker/go-admin/server/core/task_manager"
+	"gitee.com/mxcker/go-admin/server/core/types/configs"
+	"gitee.com/mxcker/go-admin/server/core/types/vars_cache"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -16,7 +18,8 @@ var (
 	Config        *configs.Config
 	DB            *gorm.DB
 	Redis         string
-	Vars          *variableMap
+	Vars          = vars_cache.NewCache()
+	TaskManager   = task_manager.NewManager()
 )
 
 func initConfig() error {
@@ -77,5 +80,4 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	Vars = new(variableMap)
 }

@@ -1,5 +1,5 @@
 package configs
 
-type jwtConfig struct {
+type JwtConfig struct {
 	Secret string `yaml:"secret"`
 }

@@ -2,11 +2,11 @@ package sys_admin
 
 import (
 	"gitee.com/mxcker/go-admin/server/core/internal/sys_role"
-	"gitee.com/mxcker/go-admin/server/core/models/common"
+	"gitee.com/mxcker/go-admin/server/core/types"
 )
 
 type SysAdmin struct {
-	common.DbBaseModel
+	types.DbBaseModel
 	Username     string            `json:"username" gorm:"unique;comment:用户名"`
 	Avatar       string            `json:"avatar" gorm:"comment:头像"`
 	Nickname     string            `json:"nickname" gorm:"comment:昵称"`

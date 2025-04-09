@@ -1,8 +1,9 @@
 package middlewares
 
 import (
-	"gitee.com/mxcker/go-admin/server/core/models"
-	"gitee.com/mxcker/go-admin/server/core/models/response"
+	"gitee.com/mxcker/go-admin/server/core/global"
+	"gitee.com/mxcker/go-admin/server/core/types"
+	"gitee.com/mxcker/go-admin/server/core/types/response"
 	"github.com/gin-gonic/gin"
 	"strings"
 )
@@ -15,7 +16,7 @@ func SysAuth(ctx *gin.Context) {
 	}
 	if strings.HasPrefix(authorization, "Bearer ") {
 		token := strings.Split(authorization, " ")[1]
-		jwt := models.NewJwt()
+		jwt := types.NewJwt(global.Config.Jwt)
 		accessToken, err := jwt.Parse(token)
 		if err != nil {
 			response.Error(ctx, err, 401)

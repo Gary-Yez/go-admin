@@ -136,7 +136,7 @@ func getModuleEnterContent(moduleName string) (string, string, error) {
 			// 构造要插入的表达式：otherModule.Register("/other", adminAuthGroup, publicGroup)
 			newCall := &ast.CallExpr{
 				Fun: &ast.SelectorExpr{
-					X:   ast.NewIdent("mounterMap"),
+					X:   ast.NewIdent("loader"),
 					Sel: ast.NewIdent("Add"),
 				},
 				Args: []ast.Expr{

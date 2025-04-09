@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"gitee.com/mxcker/go-admin/server/core/global"
-	request2 "gitee.com/mxcker/go-admin/server/core/models/request"
+	request2 "gitee.com/mxcker/go-admin/server/core/types/request"
 	"gorm.io/gorm"
 	"path/filepath"
 )
