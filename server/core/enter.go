@@ -15,7 +15,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Load(Server *gin.Engine) {
+func Load(Server *gin.Engine, needInit bool) {
 	AdminAuthGroup := Server.Group("/api", middlewares.SysAuth)
 	PublicGroup := Server.Group("/api")
 	// 注册系统组件
@@ -35,9 +35,11 @@ func Load(Server *gin.Engine) {
 	if err != nil {
 		panic(err)
 	}
-	err = mounterMap.InitAll()
-	if err != nil {
-		panic(err)
+	if needInit {
+		err = mounterMap.InitAll()
+		if err != nil {
+			panic(err)
+		}
 	}
 	err = mounterMap.RegisterAll(AdminAuthGroup, PublicGroup)
 	if err != nil {

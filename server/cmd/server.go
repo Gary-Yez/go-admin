@@ -30,7 +30,7 @@ var serverCmd = &cobra.Command{
 		Server.Use(cors.New(corsConfig))
 		Server.Use(static.Serve("/admin", static.LocalFile("./dist", true)))
 		//挂载核心组件
-		core.Load(Server)
+		core.Load(Server, true)
 		// 监听并在 0.0.0.0:8080 上启动服务
 		err := Server.Run(global.Config.Server.Host + ":" + strconv.Itoa(global.Config.Server.Port))
 		if err != nil {
