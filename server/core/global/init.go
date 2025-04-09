@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	IsDevelopment = false
+	IsDevelopment = true
 	Config        *configs.Config
 	DB            *gorm.DB
 	Redis         string
@@ -66,7 +66,9 @@ func initDB() error {
 }
 
 func init() {
-	IsDevelopment = os.Getenv("APP_ENV") == "development"
+	if os.Getenv("APP_ENV") == "production" {
+		IsDevelopment = false
+	}
 	err := initConfig()
 	if err != nil {
 		panic(err)
