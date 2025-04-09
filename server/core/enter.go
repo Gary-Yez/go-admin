@@ -10,60 +10,33 @@ import (
 	"gitee.com/mxcker/go-admin/server/core/internal/sys_menu"
 	"gitee.com/mxcker/go-admin/server/core/internal/sys_role"
 	"gitee.com/mxcker/go-admin/server/core/middlewares"
+	"gitee.com/mxcker/go-admin/server/core/models"
 	"gitee.com/mxcker/go-admin/server/modules"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"strconv"
 )
 
-var Server *gin.Engine
-
-func registerSystemService(adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) error {
-	if err := initDB(); err != nil {
-		return err
-	}
-	if err := initData(); err != nil {
-		return err
-	}
-	sys_autocode.Register("/autocode", adminAuthGroup, publicGroup)
-	sys_auth.Register("/auth", adminAuthGroup, publicGroup)
-	sys_admin.Register("/admin", adminAuthGroup, publicGroup)
-	sys_home.Register("/home", adminAuthGroup, publicGroup)
-	sys_menu.Register("/menu", adminAuthGroup, publicGroup)
-	sys_role.Register("/role", adminAuthGroup, publicGroup)
-	sys_global_variable.Register("/global_variable", adminAuthGroup, publicGroup)
-	return nil
-}
-
-func Start() {
-	//创建服务器
-	Server = gin.Default()
-	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowAllOrigins = true
-	corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, "Authorization")
-	Server.Use(cors.New(corsConfig))
+func Start(Server *gin.Engine) {
 	Server.Use(static.Serve("/admin", static.LocalFile("./dist", true)))
 	//创建API路由
 	AdminAuthGroup := Server.Group("/api", middlewares.SysAuth)
 	PublicGroup := Server.Group("/api")
-	//初始化全局变量
-	err := global.Init()
-	if err != nil {
-		panic(err)
-	}
 	//注册系统组件
-	err = registerSystemService(AdminAuthGroup.Group("sys"), PublicGroup.Group("sys"))
+	moduleMap := new(models.ModuleMap)
+	moduleMap.Add("sys/autocode", sys_autocode.Register)
+	moduleMap.Add("sys/global_variable", sys_global_variable.Register)
+	moduleMap.Add("sys/menu", sys_menu.Register)
+	moduleMap.Add("sys/role", sys_role.Register)
+	moduleMap.Add("sys/admin", sys_admin.Register)
+	moduleMap.Add("sys/auth", sys_auth.Register)
+	moduleMap.Add("sys/home", sys_home.Register)
+	//加载用户组件
+	err := modules.Load(moduleMap)
 	if err != nil {
 		panic(err)
 	}
-	//初始化用户组件的表
-	err = modules.Init()
-	if err != nil {
-		panic(err)
-	}
-	//注册用户组件
-	err = modules.Register(AdminAuthGroup, PublicGroup)
+	err = moduleMap.RegisterAll(AdminAuthGroup, PublicGroup)
 	if err != nil {
 		panic(err)
 	}

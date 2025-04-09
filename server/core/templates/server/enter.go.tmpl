@@ -1,16 +1,31 @@
 package {{.ModuleName}}
 
-import "github.com/gin-gonic/gin"
+import (
+    {{- if .CreateCURD}}
+    "gitee.com/mxcker/go-admin/server/core/global"
+    {{- end}}
+    "github.com/gin-gonic/gin"
+)
 
 var controller = new(controllerStruct)
 var Service = new(serviceStruct)
 
-func Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) {
+func Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) error {
+    {{- if .CreateCURD}}
+    // 初始化数据库
+	err := global.DB.AutoMigrate(&{{.ModelName}}{})
+	if err != nil {
+    	return err
+    }
+    // 如果需要初始化数据库内容，请在此处添加代码
+    {{- end}}
+    // 注册路由
+    // 需要管理员权限的路由
 	Group := adminAuthGroup.Group(path)
 	{
 	    {{- if .CreateCURD}}
 		Group.GET("get", controller.Get)
-		Group.GET("list", controller.List)
+		Group.POST("list", controller.List)
 		Group.POST("create", controller.Create)
 		Group.POST("delete", controller.Delete)
 		Group.POST("edit", controller.Edit)
@@ -23,4 +38,5 @@ func Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.Rou
     {
         _ = Public
     }
+    return nil
 }

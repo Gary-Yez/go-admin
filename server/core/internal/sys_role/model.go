@@ -1,8 +1,8 @@
 package sys_role
 
 import (
-	"gitee.com/mxcker/go-admin/server/core/common"
 	"gitee.com/mxcker/go-admin/server/core/internal/sys_menu"
+	"gitee.com/mxcker/go-admin/server/core/models/common"
 )
 
 type SysRole struct {

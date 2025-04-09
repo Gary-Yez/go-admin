@@ -1,6 +1,6 @@
 package configs
 
-type Server struct {
+type server struct {
 	Host string `yaml:"host"`
 	Port int    `yaml:"port"`
 }

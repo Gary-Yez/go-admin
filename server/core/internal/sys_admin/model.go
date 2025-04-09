@@ -1,8 +1,8 @@
 package sys_admin
 
 import (
-	"gitee.com/mxcker/go-admin/server/core/common"
 	"gitee.com/mxcker/go-admin/server/core/internal/sys_role"
+	"gitee.com/mxcker/go-admin/server/core/models/common"
 )
 
 type SysAdmin struct {

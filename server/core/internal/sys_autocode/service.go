@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"gitee.com/mxcker/go-admin/server/core/global"
-	"gitee.com/mxcker/go-admin/server/core/request"
+	request2 "gitee.com/mxcker/go-admin/server/core/models/request"
 	"gorm.io/gorm"
 	"path/filepath"
 )
@@ -24,17 +24,13 @@ func (s *serviceStruct) GetTemplates(data *GenerateBody) ([]WriteItem, error) {
 			return nil, err
 		}
 		var filePosition string
-		//if templateItem.Name == "model" {
-		//	filePosition = filepath.Join(ServerPath, "./models", data.ModuleName+".go")
-		//} else {
 		filePosition = filepath.Join(ServerPath, "./modules", data.ModuleName, templateItem.Name+".go")
-		//}
 		templateList = append(templateList, WriteItem{
 			Path:    filePosition,
 			Content: content,
 		})
 	}
-	routerContent, routerPath, err := getRouterContent(data.ModuleName)
+	routerContent, routerPath, err := getModuleEnterContent(data.ModuleName)
 	if err != nil {
 		return nil, err
 	}
@@ -42,16 +38,6 @@ func (s *serviceStruct) GetTemplates(data *GenerateBody) ([]WriteItem, error) {
 		Path:    routerPath,
 		Content: routerContent,
 	})
-	if data.CreateCURD {
-		initializationContent, initPath, err := getInitializationContent(data.ModuleName, data.ModelName)
-		if err != nil {
-			return nil, err
-		}
-		templateList = append(templateList, WriteItem{
-			Path:    initPath,
-			Content: initializationContent,
-		})
-	}
 	if data.CreateCURD {
 		for _, templateItem := range WebTemplatesPath {
 			content, err := getTemplateContent(templateItem.Path, data)
@@ -68,7 +54,6 @@ func (s *serviceStruct) GetTemplates(data *GenerateBody) ([]WriteItem, error) {
 				Path:    filePosition,
 				Content: content,
 			})
-			//templates[filePosition] = content
 		}
 	}
 	return templateList, nil
@@ -89,7 +74,7 @@ func (s *serviceStruct) Generate(data *GenerateBody) error {
 	return err
 }
 
-func (s *serviceStruct) History(req *request.ReqList) (list []*SysAutoCode, total int64, err error) {
+func (s *serviceStruct) History(req *request2.ReqList) (list []*SysAutoCode, total int64, err error) {
 	db := global.DB.Model(SysAutoCode{})
 	err = req.BuildWhere(db).Count(&total).Error
 	if err != nil {
@@ -99,7 +84,7 @@ func (s *serviceStruct) History(req *request.ReqList) (list []*SysAutoCode, tota
 	return
 }
 
-func (s *serviceStruct) Get(req *request.Req) (data *SysAutoCode, err error) {
+func (s *serviceStruct) Get(req *request2.Req) (data *SysAutoCode, err error) {
 	data = &SysAutoCode{}
 	err = req.BuildQuery(global.DB.Model(SysAutoCode{})).First(data).Error
 	return
@@ -123,7 +108,7 @@ func (s *serviceStruct) SaveHistory(data *GenerateBody) error {
 	return global.DB.Save(&history).Error
 }
 
-func (s *serviceStruct) DeleteByIds(req *request.ReqIds) (err error) {
+func (s *serviceStruct) DeleteByIds(req *request2.ReqIds) (err error) {
 	err = req.BuildQuery(global.DB).Delete(&SysAutoCode{}).Error
 	return
 }

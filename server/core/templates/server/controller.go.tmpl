@@ -1,8 +1,8 @@
 package {{.ModuleName}}
 
 import (
-	"gitee.com/mxcker/go-admin/server/core/request"
-	"gitee.com/mxcker/go-admin/server/core/response"
+	"gitee.com/mxcker/go-admin/server/core/models/request"
+	"gitee.com/mxcker/go-admin/server/core/models/response"
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,7 +24,7 @@ func (_ *controllerStruct) Get(ctx *gin.Context) {
 
 func (_ *controllerStruct) List(ctx *gin.Context) {
 	req := new(request.ReqList)
-	if err := ctx.ShouldBindQuery(req); err != nil {
+	if err := ctx.ShouldBindJSON(req); err != nil {
 		response.Error(ctx, err.Error())
 		return
 	}

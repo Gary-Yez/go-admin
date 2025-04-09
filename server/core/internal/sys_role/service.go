@@ -3,14 +3,14 @@ package sys_role
 import (
 	"errors"
 	"gitee.com/mxcker/go-admin/server/core/global"
-	"gitee.com/mxcker/go-admin/server/core/request"
+	request2 "gitee.com/mxcker/go-admin/server/core/models/request"
 	"gorm.io/gorm/clause"
 )
 
 type serviceStruck struct {
 }
 
-func (s *serviceStruck) Get(req *request.Req) (data *SysRole, err error) {
+func (s *serviceStruck) Get(req *request2.Req) (data *SysRole, err error) {
 	data = &SysRole{}
 	err = req.BuildQuery(global.DB.Model(SysRole{})).First(data).Error
 	return
@@ -37,7 +37,7 @@ func (s *serviceStruck) Update(data *SysRole) (err error) {
 		Where("id = ?", data.Id).Updates(data).Error
 }
 
-func (s *serviceStruck) DeleteByIds(req *request.ReqIds) (err error) {
+func (s *serviceStruck) DeleteByIds(req *request2.ReqIds) (err error) {
 	err = req.BuildQuery(global.DB).Where("`default` = ?", false).Delete(&SysRole{}).Error
 	return
 }

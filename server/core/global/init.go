@@ -1,7 +1,7 @@
 package global
 
 import (
-	"gitee.com/mxcker/go-admin/server/core/configs"
+	"gitee.com/mxcker/go-admin/server/core/models/configs"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -15,22 +15,10 @@ var (
 	Config *configs.Config
 	DB     *gorm.DB
 	Redis  string
-	Vars   variableMap
+	Vars   *variableMap
 )
 
-func Init() error {
-	err := InitConfig()
-	if err != nil {
-		return err
-	}
-	err = InitDB()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func InitConfig() error {
+func initConfig() error {
 	viper.SetConfigName("config")
 	// 设置配置文件路径（这里设置为当前目录）
 	viper.AddConfigPath(".")
@@ -48,7 +36,7 @@ func InitConfig() error {
 	return nil
 }
 
-func InitDB() error {
+func initDB() error {
 	// 配置数据库
 	db, err := gorm.Open(mysql.Open(Config.Mysql.ToString()), &gorm.Config{
 		Logger: logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
@@ -70,4 +58,16 @@ func InitDB() error {
 	sqlDB.SetConnMaxLifetime(time.Hour)
 	DB = db
 	return nil
+}
+
+func init() {
+	err := initConfig()
+	if err != nil {
+		panic(err)
+	}
+	err = initDB()
+	if err != nil {
+		panic(err)
+	}
+	Vars = new(variableMap)
 }

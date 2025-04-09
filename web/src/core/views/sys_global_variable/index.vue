@@ -1,14 +1,14 @@
 <template>
-  <el-tabs type="border-card">
-    <el-tab-pane label="站点设置">
-      <el-form label-position="top">
-        <el-form-item v-for="item in tableData" :label="item.name" :prop="item.key" :key="item.id">
-          <el-input v-if="item.type === 'string'"></el-input>
-          <el-input-number v-else-if="item.type === 'int'"></el-input-number>
-          <el-switch v-else-if="item.type === 'bool'"></el-switch>
-        </el-form-item>
-      </el-form>
-    </el-tab-pane>
+  <el-tabs v-model="activeName" type="border-card">
+<!--    <el-tab-pane label="站点设置" name="site">-->
+<!--      <el-form label-position="top">-->
+<!--        <el-form-item v-for="item in tableData" :label="item.name" :prop="item.key" :key="item.id">-->
+<!--          <el-input v-if="item.type === 'string'"></el-input>-->
+<!--          <el-input-number v-else-if="item.type === 'int'"></el-input-number>-->
+<!--          <el-switch v-else-if="item.type === 'bool'"></el-switch>-->
+<!--        </el-form-item>-->
+<!--      </el-form>-->
+<!--    </el-tab-pane>-->
   </el-tabs>
 <!--  <el-card class="container" shadow="never" v-loading="pageLoading">-->
 <!--    <div class="mb-[15px]">-->
@@ -89,7 +89,7 @@ import { SysGlobalVariableApi } from "../../apis/sys_global_variable.ts";
 // import { ElMessage,ElMessageBox } from "element-plus";
 // import FormDialog from "../../../components/core/FormDialog.vue";
 import {onMounted, ref} from "vue";
-
+const activeName = ref("site")
 // const varType:any = ref({
 //   "int":"整数型",
 //   "string":"字符串",
@@ -169,6 +169,6 @@ onMounted(()=>{
 </script>
 
 
-<style scoped>
+<style scoped lang="less">
 
 </style>

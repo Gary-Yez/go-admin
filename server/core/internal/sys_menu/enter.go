@@ -1,11 +1,22 @@
 package sys_menu
 
-import "github.com/gin-gonic/gin"
+import (
+	"gitee.com/mxcker/go-admin/server/core/global"
+	"github.com/gin-gonic/gin"
+)
 
 var Controller = new(controllerStruct)
 var Service = new(serviceStruct)
 
-func Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) {
+func Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) error {
+	err := global.DB.AutoMigrate(&SysMenu{})
+	if err != nil {
+		return err
+	}
+	err = InitData()
+	if err != nil {
+		return err
+	}
 	Group := adminAuthGroup.Group(path)
 	{
 		Group.GET("get", Controller.Get)
@@ -14,4 +25,5 @@ func Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.Rou
 		Group.POST("delete", Controller.Delete)
 		Group.POST("edit", Controller.Edit)
 	}
+	return nil
 }

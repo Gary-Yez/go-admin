@@ -10,7 +10,7 @@ var StartTime = time.Now()
 var Controller = new(controllerStruct)
 var Service = new(serviceStruct)
 
-func Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) {
+func Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) error {
 	Admin := adminAuthGroup.Group(path)
 	{
 		Admin.GET("statistic", Controller.Statistic)
@@ -20,4 +20,5 @@ func Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.Rou
 	//{
 	//	Public.GET("statistic", controller.Statistic)
 	//}
+	return nil
 }

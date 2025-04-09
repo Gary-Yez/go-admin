@@ -3,10 +3,10 @@ package {{.ModuleName}}
 import (
 	{{- if .CreateCURD}}
     "errors"
-    "gorm.io/gorm/clause"
 	"gitee.com/mxcker/go-admin/server/core/global"
-	"gitee.com/mxcker/go-admin/server/core/request"
-	{{end}}
+	"gitee.com/mxcker/go-admin/server/core/models/request"
+    "gorm.io/gorm/clause"
+	{{- end}}
 )
 
 type serviceStruct struct {

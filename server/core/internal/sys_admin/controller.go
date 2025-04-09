@@ -2,9 +2,9 @@ package sys_admin
 
 import (
 	"errors"
-	"gitee.com/mxcker/go-admin/server/core/common"
-	"gitee.com/mxcker/go-admin/server/core/request"
-	"gitee.com/mxcker/go-admin/server/core/response"
+	"gitee.com/mxcker/go-admin/server/core/models/common"
+	"gitee.com/mxcker/go-admin/server/core/models/request"
+	"gitee.com/mxcker/go-admin/server/core/models/response"
 	"github.com/gin-gonic/gin"
 	"slices"
 )

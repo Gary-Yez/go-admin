@@ -1,29 +1,29 @@
 package sys_global_variable
 
 import (
-	"gitee.com/mxcker/go-admin/server/core/request"
-	"gitee.com/mxcker/go-admin/server/core/response"
+	request2 "gitee.com/mxcker/go-admin/server/core/models/request"
+	"gitee.com/mxcker/go-admin/server/core/models/response"
 	"github.com/gin-gonic/gin"
 )
 
 type controllerStruct struct{}
 
 func (_ *controllerStruct) Get(ctx *gin.Context) {
-	req := new(request.Req)
+	req := new(request2.Req)
 	err := ctx.ShouldBindQuery(req)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
 	}
 	get, err := Service.Get(req)
-    if err != nil {
-    	return
-    }
+	if err != nil {
+		return
+	}
 	response.Success(ctx, get)
 }
 
 func (_ *controllerStruct) List(ctx *gin.Context) {
-	req := new(request.ReqList)
+	req := new(request2.ReqList)
 	if err := ctx.ShouldBindQuery(req); err != nil {
 		response.Error(ctx, err.Error())
 		return
@@ -53,7 +53,7 @@ func (_ *controllerStruct) Create(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) Delete(ctx *gin.Context) {
-	req := new(request.ReqIds)
+	req := new(request2.ReqIds)
 	err := ctx.ShouldBindJSON(req)
 	if err != nil {
 		response.Error(ctx, err.Error())
@@ -68,7 +68,7 @@ func (_ *controllerStruct) Delete(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) Edit(ctx *gin.Context) {
-    data := new(SysGlobalVariable)
+	data := new(SysGlobalVariable)
 	err := ctx.ShouldBindJSON(data)
 	if err != nil {
 		response.Error(ctx, err.Error())
@@ -81,4 +81,3 @@ func (_ *controllerStruct) Edit(ctx *gin.Context) {
 	}
 	response.Success(ctx, data)
 }
-

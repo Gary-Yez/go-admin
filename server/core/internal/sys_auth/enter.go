@@ -8,7 +8,7 @@ import (
 var Controller = new(controllerStruct)
 var Service = new(serviceStruct)
 
-func Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) {
+func Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) error {
 	Group := adminAuthGroup.Group(path)
 	{
 		Group.GET("me", middlewares.SysAuth, Controller.GetMe)
@@ -17,5 +17,5 @@ func Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.Rou
 	{
 		Public.POST("login", Controller.Login)
 	}
-
+	return nil
 }

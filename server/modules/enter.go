@@ -1,9 +1,9 @@
 package modules
 
 import (
-	"github.com/gin-gonic/gin"
+	"gitee.com/mxcker/go-admin/server/core/models"
 )
 
-func Register(adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) error {
+func Load(moduleMap *models.ModuleMap) error {
 	return nil
 }

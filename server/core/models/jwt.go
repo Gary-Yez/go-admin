@@ -1,9 +1,9 @@
-package utils
+package models
 
 import (
 	"errors"
-	"gitee.com/mxcker/go-admin/server/core/common"
 	"gitee.com/mxcker/go-admin/server/core/global"
+	"gitee.com/mxcker/go-admin/server/core/models/common"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
 )

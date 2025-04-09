@@ -3,20 +3,20 @@ package sys_global_variable
 import (
 	"errors"
 	"gitee.com/mxcker/go-admin/server/core/global"
-	"gitee.com/mxcker/go-admin/server/core/request"
+	request2 "gitee.com/mxcker/go-admin/server/core/models/request"
 	"gorm.io/gorm/clause"
 )
 
 type serviceStruct struct {
 }
 
-func (s *serviceStruct) Get(req *request.Req) (data *SysGlobalVariable, err error) {
+func (s *serviceStruct) Get(req *request2.Req) (data *SysGlobalVariable, err error) {
 	data = &SysGlobalVariable{}
 	err = req.BuildQuery(global.DB.Model(SysGlobalVariable{})).First(data).Error
 	return
 }
 
-func (s *serviceStruct) List(req *request.ReqList) (list []*SysGlobalVariable, total int64, err error) {
+func (s *serviceStruct) List(req *request2.ReqList) (list []*SysGlobalVariable, total int64, err error) {
 	db := global.DB.Model(SysGlobalVariable{})
 	err = req.BuildWhere(db).Count(&total).Error
 	if err != nil {
@@ -43,6 +43,6 @@ func (s *serviceStruct) Update(data *SysGlobalVariable) (err error) {
 		Where("id = ?", data.Id).Updates(data).Error
 }
 
-func (s *serviceStruct) DeleteByIds(req *request.ReqIds) (err error) {
+func (s *serviceStruct) DeleteByIds(req *request2.ReqIds) (err error) {
 	return req.BuildQuery(global.DB).Delete(&SysGlobalVariable{}).Error
 }

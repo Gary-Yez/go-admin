@@ -3,7 +3,7 @@ package sys_menu
 import (
 	"errors"
 	"gitee.com/mxcker/go-admin/server/core/global"
-	"gitee.com/mxcker/go-admin/server/core/request"
+	request2 "gitee.com/mxcker/go-admin/server/core/models/request"
 	"gorm.io/gorm/clause"
 )
 
@@ -28,7 +28,7 @@ func (s *serviceStruct) ListToTree(allList []*SysMenu) (list []*SysMenu) {
 	return list
 }
 
-func (s *serviceStruct) Get(req *request.Req) (data *SysMenu, err error) {
+func (s *serviceStruct) Get(req *request2.Req) (data *SysMenu, err error) {
 	data = &SysMenu{}
 	err = req.BuildQuery(global.DB.Model(SysMenu{})).First(data).Error
 	return
@@ -56,7 +56,7 @@ func (s *serviceStruct) Update(data *SysMenu) (err error) {
 		Where("id = ?", data.Id).Updates(data).Error
 }
 
-func (s *serviceStruct) DeleteByIds(req *request.ReqIds) (err error) {
+func (s *serviceStruct) DeleteByIds(req *request2.ReqIds) (err error) {
 	err = req.BuildQuery(global.DB).Delete(&SysMenu{}).Error
 	return
 }
