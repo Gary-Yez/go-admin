@@ -51,9 +51,10 @@
       </el-header>
       <el-main class="content-content">
         <div class="dashboard-page">
+<!--          <router-view></router-view>-->
           <router-view v-slot="{ Component }">
-            <transition name="fade" mode="out-in" appear>
-              <component :is="Component" :key="$route.path" />
+            <transition name="fade" mode="out-in">
+              <component :is="Component" />
             </transition>
           </router-view>
         </div>

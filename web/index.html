@@ -5,6 +5,12 @@
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Go-Admin管理后台</title>
+    <script>
+        // 解决路由跳转问题
+        if (!location.pathname.endsWith("/")){
+            location.href = location.href + "/"
+        }
+    </script>
     <script src="./js/iconify-icon.min.js"></script>
   </head>
   <body>

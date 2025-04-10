@@ -1,7 +1,7 @@
 <template>
   <el-card class="container" shadow="never" v-loading="pageLoading">
     <div class="mb-[10px] ">
-      <el-button type="primary" icon="Refresh" :loading="pageLoading" @click="getPageData">刷新</el-button>
+      <el-button type="primary" :loading="pageLoading" @click="getPageData">刷新</el-button>
       <el-button type="primary" icon="Plus" @click="()=>handleAdd({})">新增管理员</el-button>
     </div>
     <el-table :data="tableData">

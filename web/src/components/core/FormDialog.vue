@@ -39,7 +39,7 @@ const props = defineProps({
 
 const confirmLoading = ref(false)
 
-const handleClose = (done:any) => {
+const handleClose = (done?:any) => {
   if (confirmLoading.value) {
     return
   }
@@ -56,11 +56,12 @@ const handleConfirm = async () => {
   confirmLoading.value = true
   try {
     props.onConfirm && await props.onConfirm()
-    show.value = false
+    confirmLoading.value = false
+    handleClose()
   }catch (e) {
+    confirmLoading.value = false
     console.log(e)
   }
-  confirmLoading.value = false
 }
 </script>
 
