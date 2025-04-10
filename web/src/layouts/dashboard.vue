@@ -1,54 +1,56 @@
 <template>
   <el-container class="main-layout">
-    <el-aside class="main-aside">
-      <div class="aside">
-        <div class="logo">
-          <img class="logo-img" src="/logo.svg" alt="">
-          <div class="logo-text">管理员后台</div>
-        </div>
-        <el-menu class="main-slider-menu" router :default-active="$route.path">
-          <MenuItem :menus="menus"></MenuItem>
-        </el-menu>
-      </div>
-    </el-aside>
-    <el-container class="content-layout">
-      <el-header class="content-header">
-        <div class="flex h-full justify-between items-center">
+    <el-header class="main-header">
+      <div class="flex h-full justify-between items-center">
+        <div class="flex items-center">
+          <div class="logo">
+            <img class="logo-img" src="/logo.png" alt="">
+            <div class="logo-text">管理员后台</div>
+          </div>
           <div>
             <el-breadcrumb separator="/">
               <el-breadcrumb-item v-for="item in $route.matched">{{ item.meta.name }}</el-breadcrumb-item>
             </el-breadcrumb>
             <div class="text-[12px] text-[var(--el-text-color-regular)] mt-[5px]">当前时间：{{ commonStore.currentTime }}</div>
           </div>
-          <div class="flex items-center">
-            <div class="theme-btn">
-              <el-icon v-if="commonStore.theme === 'dark'" :size="18" @click="()=>commonStore.setTheme('light')">
-                <iconify-icon icon="iconoir:sun-light"></iconify-icon>
-              </el-icon>
-              <el-icon v-else :size="18" @click="()=>commonStore.setTheme('dark')">
-                <iconify-icon icon="iconoir:half-moon"></iconify-icon>
+        </div>
+        <div class="flex items-center">
+          <div class="theme-btn">
+            <el-icon v-if="commonStore.theme === 'dark'" :size="18" @click="()=>commonStore.setTheme('light')">
+              <iconify-icon icon="iconoir:sun-light"></iconify-icon>
+            </el-icon>
+            <el-icon v-else :size="18" @click="()=>commonStore.setTheme('dark')">
+              <iconify-icon icon="iconoir:half-moon"></iconify-icon>
+            </el-icon>
+          </div>
+          <el-dropdown trigger="hover" @command="handleCommand">
+            <div class="flex items-center outline-none">
+              <el-avatar class="mr-[5px]" :src="userStore.UserData?.avatar" :size="30"></el-avatar>
+              <span class="text-[14px]">{{ userStore.UserData?.nickname }}</span>
+              <el-icon class="el-icon--right">
+                <iconify-icon icon="iconoir:nav-arrow-down-solid"></iconify-icon>
               </el-icon>
             </div>
-            <el-dropdown trigger="hover" @command="handleCommand">
-              <div class="flex items-center outline-none">
-                <el-avatar class="mr-[5px]" :src="userStore.UserData?.avatar" :size="30"></el-avatar>
-                <span class="text-[14px]">{{ userStore.UserData?.nickname }}</span>
-                <el-icon class="el-icon--right">
-                  <iconify-icon icon="iconoir:nav-arrow-down-solid"></iconify-icon>
-                </el-icon>
-              </div>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item command="">当前角色：{{ userStore.UserData?.role?.name  }}</el-dropdown-item>
-                  <el-dropdown-item command="userinfo">个人信息</el-dropdown-item>
-                  <el-dropdown-item command="logout">退出登录</el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="">当前角色：{{ userStore.UserData?.role?.name  }}</el-dropdown-item>
+                <el-dropdown-item command="userinfo">个人信息</el-dropdown-item>
+                <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
 
-          </div>
         </div>
-      </el-header>
+      </div>
+    </el-header>
+    <el-container class="content-layout">
+      <el-aside class="content-aside">
+        <div class="aside">
+          <el-menu class="main-slider-menu" router :default-active="$route.path">
+            <MenuItem :menus="menus"></MenuItem>
+          </el-menu>
+        </div>
+      </el-aside>
       <el-main class="content-content">
         <div class="dashboard-page">
 <!--          <router-view></router-view>-->
@@ -99,77 +101,80 @@
   width: 100%;
   height: 100%;
   background: var(--main-bg-light-color);
-  .main-aside{
-    overflow: hidden;
-    //flex: unset !important;
-    width: 276px !important;
-    max-width: 276px !important;
-    height: 100%;
-    padding: 15px 0 15px 15px;
-    background: transparent;
-    border-radius: 30px;
-    .aside{
-      overflow: hidden;
-      border-radius: 15px;
-      height: 100%;
-      background: var(--main-bg-color);
-      .logo{
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 150px;
-        .logo-img{
-          width: 50px;
-          height: 50px;
-          margin-bottom: 15px;
-        }
-        .logo-text{
-          font-size: 24px;
-          font-weight: bold;
-          color: var(--main-text-color);
-        }
+  .main-header{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1;
+    background: var(--main-bg-color);
+    padding: 0 15px;
+    //margin-bottom: 15px;
+    box-shadow:0 1px 1px 1px rgba(0, 0, 0, .1);
+    .logo{
+      display: flex;
+      align-items: center;
+      margin-right: 30px;
+      .logo-img{
+        width: 30px;
+        height: 30px;
+        margin-right: 10px;
       }
-      :deep(.main-slider-menu){
-        width: 100%;
-        height: calc(100% - 150px);
-        border-right: none;
-        .el-sub-menu{
-         &.is-active{
-           .el-sub-menu__title{
-             color: var(--el-color-primary);
-           }
-         }
-        }
-        .el-menu-item{
-          &.is-active{
-            background: var(--el-color-primary);
-            color: #ffffff;
-          }
-        }
+      .logo-text{
+        font-size: 21px;
+        font-weight: bold;
+        letter-spacing: 2px;
+        //font-style: italic;
+        color: var(--main-text-color);
       }
+    }
+    .theme-btn{
+      margin-right: 15px;
+      --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / .1), 0 1px 2px -1px rgb(0 0 0 / .1) !important;
+      --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color) !important;
+      box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow) !important;
+      border-radius: 50%;
+      border:1px solid var(--el-border-color-lighter);
+      padding: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
     }
   }
   .content-layout{
     height: 100%;
+    padding-top: 60px;
     //padding: 15px;
-    .content-header{
+    .content-aside{
+      overflow: hidden;
+      //flex: unset !important;
+      width: 256px !important;
+      max-width: 256px !important;
+      height: 100%;
+      padding: 8px 8px;
       background: var(--main-bg-color);
-      padding: 0 15px;
-      border-radius: 15px;
-      margin: 15px;
-      .theme-btn{
-        margin-right: 15px;
-        --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / .1), 0 1px 2px -1px rgb(0 0 0 / .1) !important;
-        --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color) !important;
-        box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow) !important;
-        border-radius: 50%;
-        border:1px solid var(--el-border-color-lighter);
-        padding: 5px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
+      .aside{
+        overflow: hidden;
+        height: 100%;
+        :deep(.main-slider-menu){
+          width: 100%;
+          height: 100%;
+          border-right: none;
+          .el-sub-menu{
+            &.is-active{
+              .el-sub-menu__title{
+                color: var(--el-color-primary);
+              }
+            }
+          }
+          .el-menu-item{
+            &.is-active{
+              background: var(--el-color-primary);
+              color: #ffffff;
+            }
+          }
+        }
       }
     }
     .content-content{
@@ -177,8 +182,7 @@
       overflow-y: auto;
       //padding: 15px 0 0 0;
       //margin: 0 15px 15px;
-      padding: 0 15px 0;
-      margin-bottom: 15px;
+      padding: 15px;
       .dashboard-page{
         height: 100%;
         //padding: 15px 15px 15px 0;

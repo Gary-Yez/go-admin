@@ -6,7 +6,7 @@
      </div>
      <div class="form-box">
        <div class="logo-box">
-         <img src="/logo.svg" alt="">
+         <img src="/logo.png" alt="">
          <div class="logo-text">管理员登录</div>
        </div>
        <el-form :model="submitForm" ref="formRef" label-position="top" size="large">
