@@ -9,7 +9,7 @@ import (
 
 type controllerStruct struct{}
 
-func (_ *controllerStruct) GetRegisteredTask(ctx *gin.Context) {
+func (_ *controllerStruct) GetRegisteredHandler(ctx *gin.Context) {
 	response.Success(ctx, global.TaskManager.GetHandlers())
 }
 

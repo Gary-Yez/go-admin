@@ -45,6 +45,12 @@ func InitData() error {
 					Path:      "sys_global_variable",
 					Component: "../core/views/sys_global_variable/index.vue",
 					Sort:      3,
+				}, {
+					Name:      "定时任务",
+					Icon:      "iconoir:task-list",
+					Path:      "sys_task",
+					Component: "../core/views/sys_task/index.vue",
+					Sort:      4,
 				},
 			},
 		},

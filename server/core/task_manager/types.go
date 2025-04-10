@@ -1,35 +1,41 @@
 package task_manager
 
-import "sync"
+import "context"
 
-type handlerFun func(params interface{}) error
+type handlerFun func(ctx context.Context, params map[string]interface{}) error
+type ParamsTye string
+
+const StringParams = ParamsTye("string")
+const IntParams = ParamsTye("int")
+const BoolParams = ParamsTye("bool")
 
 type Manager interface {
-	GetHandlers() []*handler
-	RegisterHandler(key string, option *HandleOption, fn handlerFun) error
+	GetHandlers() map[string]*HandlerOption
+	RegisterHandler(key string, option *HandlerOption) error
+	RegisterJob(job *ScheduledJob) error
+	RemoveJobs(ids []uint)
+	StartScheduler()
+}
+
+type ScheduledJob struct {
+	ctx              context.Context
+	cancel           context.CancelFunc
+	Id               uint                   // 任务ID
+	HandlerKey       string                 // 注册的任务处理函数的Key
+	CronExpr         string                 // Cron表达式 * * * * * *
+	Params           map[string]interface{} // 传递给任务处理函数的参数
+	AllowConcurrency bool                   // 是否允许并发
 }
 
 type HandlerParams struct {
-	Key         string      `json:"key"`
-	Type        string      `json:"type"`
-	Description string      `json:"description"`
-	Default     interface{} `json:"default"`
+	Name        string    `json:"name"`
+	Key         string    `json:"key"`
+	Type        ParamsTye `json:"type"`
+	Description string    `json:"description"`
+	Required    bool      `json:"required"`
 }
-type HandleOption struct {
-	Name        string           `json:"name"`
-	Description string           `json:"description"`
-	Params      []*HandlerParams `json:"params"`
-}
-
-type handler struct {
-	Key string `json:"key"`
-	*HandleOption
-}
-
-func NewManager() Manager {
-	return &defaultManage{
-		lock:     sync.Mutex{},
-		handlers: []*handler{},
-		//functions: make(map[string]taskFunc),
-	}
+type HandlerOption struct {
+	Name    string           `json:"name"`
+	Params  []*HandlerParams `json:"params"`
+	Handler handlerFun       `json:"-"`
 }

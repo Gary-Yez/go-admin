@@ -4,6 +4,7 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"fmt"
 	"gitee.com/mxcker/go-admin/server/core"
 	"gitee.com/mxcker/go-admin/server/core/global"
 	"github.com/gin-contrib/cors"
@@ -28,11 +29,15 @@ var serverCmd = &cobra.Command{
 		corsConfig.AllowAllOrigins = true
 		corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, "Authorization")
 		Server.Use(cors.New(corsConfig))
-		Server.Use(static.Serve("/admin", static.LocalFile("./dist", true)))
+		fmt.Println(global.Config.Deploy)
+		fmt.Println(global.Config.Deploy.Listen)
+		fmt.Println(global.Config.Deploy.AdminPrefix)
+		fmt.Println(global.Config.Deploy.Listen.Host)
+		Server.Use(static.Serve(global.Config.Deploy.AdminPrefix, static.LocalFile("./dist", true)))
 		//挂载核心组件
 		core.Load(Server, true)
 		// 监听并在 0.0.0.0:8080 上启动服务
-		err := Server.Run(global.Config.Server.Host + ":" + strconv.Itoa(global.Config.Server.Port))
+		err := Server.Run(global.Config.Deploy.Listen.Host + ":" + strconv.Itoa(global.Config.Deploy.Listen.Port))
 		if err != nil {
 			panic(err)
 		}

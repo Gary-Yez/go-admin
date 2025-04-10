@@ -1,6 +1,8 @@
-Server:
-  Host: "0.0.0.0"
-  Port: 9000
+deploy:
+  admin_prefix: "/admin"
+  listen:
+    host: "0.0.0.0"
+    port: 9000
 mysql:
   host: ""
   port: 0

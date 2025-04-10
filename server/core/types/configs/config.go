@@ -1,7 +1,7 @@
 package configs
 
 type Config struct {
-	Server *server      `yaml:"server"`
+	Deploy *deploy      `yaml:"deploy"`
 	Mysql  *mysqlConfig `yaml:"mysql"`
 	Redis  *redisConfig `yaml:"redis"`
 	Jwt    *JwtConfig   `yaml:"jwt"`

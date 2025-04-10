@@ -1,9 +1,7 @@
 package sys_task
 
 import (
-	"fmt"
 	"gitee.com/mxcker/go-admin/server/core/global"
-	"gitee.com/mxcker/go-admin/server/core/task_manager"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,23 +12,13 @@ type Mounter struct {
 }
 
 func (_ *Mounter) Initialize() error {
-	err := global.TaskManager.RegisterHandler("zhangsan", &task_manager.HandleOption{
-		Name:        "",
-		Description: "",
-		Params:      nil,
-	}, func(params interface{}) error {
-		fmt.Println("任务开始了")
-		return nil
-	})
-	if err != nil {
-		return err
-	}
 	// 这里执行一些初始化操作
 	// 初始化数据库
-	err = global.DB.AutoMigrate(&SysTask{})
+	err := global.DB.AutoMigrate(&SysTask{})
 	if err != nil {
 		return err
 	}
+	go Service.Sync()
 	return nil
 }
 
@@ -50,7 +38,7 @@ func (_ *Mounter) Register(path string, adminAuthGroup *gin.RouterGroup, publicG
 	Public := publicGroup.Group(path)
 	{
 		_ = Public
-		Public.GET("get_registered_task", controller.GetRegisteredTask)
+		Public.GET("get_registered_handler", controller.GetRegisteredHandler)
 
 	}
 	return nil
