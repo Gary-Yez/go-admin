@@ -1,9 +1,11 @@
 package modules
 
 import (
-	"gitee.com/mxcker/go-admin/server/core/types/module_loader"
+	"gitee.com/mxcker/go-admin/server/core/pkg/modular"
+	"gitee.com/mxcker/go-admin/server/modules/test"
 )
 
-func Load(loader module_loader.Loader) error {
+func Load(loader modular.Loader) error {
+	loader.Add("test", new(test.Mounter))
 	return nil
 }

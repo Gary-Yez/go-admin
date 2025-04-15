@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"gitee.com/mxcker/go-admin/server/core/global"
 	"gitee.com/mxcker/go-admin/server/core/types"
 	"gitee.com/mxcker/go-admin/server/core/types/response"
 	"github.com/gin-gonic/gin"
@@ -16,13 +15,12 @@ func SysAuth(ctx *gin.Context) {
 	}
 	if strings.HasPrefix(authorization, "Bearer ") {
 		token := strings.Split(authorization, " ")[1]
-		jwt := types.NewJwt(global.Config.Jwt)
+		jwt := types.NewJwt()
 		accessToken, err := jwt.Parse(token)
 		if err != nil {
 			response.Error(ctx, err, 401)
 			return
 		}
-
 		if accessToken.UserId == 0 {
 			response.Error(ctx, "用户不存在", 401)
 			return
