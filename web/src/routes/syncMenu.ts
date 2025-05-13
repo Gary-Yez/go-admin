@@ -25,6 +25,7 @@ const flatMenuTreeToRouter = (menus:Array<any>,routers:Array<any>)=>{
             path:item.path,
             meta:{
                 name:item.name,
+                icon:item.icon,
             },
         }
         if (viewModules[item.component] || coreModules[item.component]){

@@ -8,7 +8,7 @@
       <el-table-column label="编号" prop="id" :width="100"></el-table-column>
       <el-table-column label="头像" prop="avatar" :width="100">
         <template #default="{ row }">
-          <el-avatar :src="row.avatar"></el-avatar>
+          <el-avatar :src="row.avatar || '/img/user.png'"></el-avatar>
         </template>
       </el-table-column>
       <el-table-column label="昵称" prop="nickname"></el-table-column>

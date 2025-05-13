@@ -5,7 +5,7 @@
         <div class="flex items-center">
           <div class="logo">
             <img class="logo-img" src="/logo.png" alt="">
-            <div class="logo-text">管理员后台</div>
+            <div class="logo-text">GoAdmin</div>
           </div>
           <div>
             <el-breadcrumb separator="/">
@@ -52,8 +52,30 @@
         </div>
       </el-aside>
       <el-main class="content-content">
+        <el-tabs v-model="activeTab" class="nav-tabs" type="card"  @tab-remove="removeTab" @tab-click="onTabClick">
+          <el-tab-pane v-for="tab in visitedTabs" :key="tab.fullPath" :name="tab.fullPath" :closable="visitedTabs.length > 1">
+            <template #label>
+              <el-dropdown trigger="contextmenu">
+                <div class="tab-label">
+                  <iconify-icon class="mr-[5px]" :icon="tab.meta.icon"></iconify-icon>
+                  <span>{{ tab.meta.name }}</span>
+                </div>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item @click="()=>handleRemoveOtherTabs(tab.fullPath)">关闭其他</el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+            </template>
+          </el-tab-pane>
+<!--         <el-dropdown  trigger="contextmenu">-->
+
+<!--           <template #dropdown>-->
+<!--             123123-->
+<!--           </template>-->
+<!--         </el-dropdown>-->
+        </el-tabs>
         <div class="dashboard-page">
-<!--          <router-view></router-view>-->
           <router-view v-slot="{ Component }">
             <transition name="fade" mode="out-in">
               <component :is="Component" />
@@ -66,15 +88,26 @@
 </template>
 
 <script setup lang="ts">
-  import { onMounted, ref} from "vue";
+  import { onMounted, ref,watch} from "vue";
   import {useUserStore} from "../stores/user.ts";
   import MenuItem from "../components/core/MenuItem.vue";
   import {useCommonStore} from "../stores/common.ts";
+  import {useRoute, useRouter} from "vue-router";
   const commonStore = useCommonStore()
   const userStore = useUserStore()
+  const route = useRoute()
+  const router = useRouter()
   const menus:any = ref([])
   commonStore.setTheme()
   commonStore.setTime()
+  const activeTab = ref(route.path)
+  console.log(userStore.UserMenu[0])
+  const visitedTabs = ref([
+    {
+      fullPath: route.fullPath,
+      meta: route.meta,
+    },
+  ])
 
   setInterval(()=>{
     commonStore.setTime()
@@ -84,15 +117,60 @@
     menus.value = userStore.UserMenu
   })
 
+  // 添加新标签页
+  const addTab = (route:any) => {
+    if (!visitedTabs.value.find((t) => t.fullPath === route.fullPath)) {
+      visitedTabs.value.push({
+        fullPath: route.fullPath,
+        meta: route.meta,
+      })
+    }
+    activeTab.value = route.fullPath
+  }
+
+  // 切换标签页时导航
+  const onTabClick = (tab:any) => {
+    router.push(tab.paneName)
+  }
+
+  // 关闭标签页
+  const removeTab = (targetName:string) => {
+    const tabs = visitedTabs.value
+    const index = tabs.findIndex((t) => t.fullPath === targetName)
+    if (tabs[index].fullPath === activeTab.value) {
+      const nextTab = tabs[index + 1] || tabs[index - 1]
+      if (nextTab) router.push(nextTab.fullPath)
+    }
+    visitedTabs.value = tabs.filter((t) => t.fullPath !== targetName)
+  }
+  //关闭其他
+  const handleRemoveOtherTabs = (targetName:string) => {
+    const tabs = visitedTabs.value
+    visitedTabs.value = tabs.filter((t) => t.fullPath === targetName)
+    router.push(targetName)
+  }
+
   const handleCommand = (command:string) => {
     switch (command) {
       case "userinfo":
+        router.push("/dashboard/sys_userinfo")
         break
       case "logout":
         userStore.logout()
         break
     }
   }
+
+  // 监听路由变化添加标签
+  watch(
+      () => route.fullPath,
+      (_newPath:string) => {
+        addTab(route)
+      },
+      { immediate: true }
+  )
+
+
 </script>
 
 <style lang="less" scoped>
@@ -123,8 +201,6 @@
       .logo-text{
         font-size: 21px;
         font-weight: bold;
-        letter-spacing: 2px;
-        //font-style: italic;
         color: var(--main-text-color);
       }
     }
@@ -178,14 +254,40 @@
       }
     }
     .content-content{
-      overflow: hidden;
-      overflow-y: auto;
-      //padding: 15px 0 0 0;
-      //margin: 0 15px 15px;
-      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      .nav-tabs{
+        background-color: var(--main-bg-color);
+        :deep(.el-tabs__header){
+          margin-bottom: 0;
+          border: none;
+          .el-tabs__nav{
+            border-bottom: unset;
+            border: 1px solid var(--el-border-color-light);
+            .el-tabs__item{
+              &.is-active{
+                background: var(--main-bg-light-color);
+                .tab-label{
+                  color: var(--el-color-primary);
+                }
+              }
+              .el-dropdown{
+                height: 100%;
+                .el-tooltip__trigger{
+                  display: flex;
+                  align-items: center;
+                }
+              }
+            }
+          }
+        }
+      }
       .dashboard-page{
-        height: 100%;
-        //padding: 15px 15px 15px 0;
+        flex: 1;
+        overflow: hidden;
+        overflow-y: auto;
+        padding: 12px;
       }
     }
   }

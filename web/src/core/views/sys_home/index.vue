@@ -59,128 +59,128 @@
         </el-card>
       </el-col>
     </el-row>
-    <el-card class="container mt-[15px]" header="系统信息" shadow="never">
-      <div class="sys_info">
-        <div class="system_info_item">
-          <div class="title">系统负载</div>
-          <el-progress type="dashboard" :stroke-width="8" :percentage="pageData.loadAvg?.load1.toFixed(2)" striped  striped-flow>
-            <template #default="{ percentage }">
-              <span class="percentage-value font-bold">{{ percentage }}%</span>
-            </template>
-          </el-progress>
-          <div class="detail_info">运行流畅</div>
-        </div>
-        <div class="system_info_item">
-          <div class="title">CPU占用率</div>
-          <el-progress type="dashboard" :stroke-width="8" :percentage="cpuPercent" striped  striped-flow>
-            <template #default="{ percentage }">
-              <span class="percentage-value font-bold">{{ percentage }}%</span>
-            </template>
-          </el-progress>
-          <div class="detail_info">{{ pageData.cpu_status?.counts }} 核心</div>
-        </div>
-        <div class="system_info_item">
-          <div class="title">内存占用率</div>
-          <el-progress type="dashboard" :stroke-width="8" :percentage="pageData.mem_status?.percent" striped  striped-flow>
-            <template #default="{ percentage }">
-              <span class="percentage-value font-bold">{{ percentage }}%</span>
-            </template>
-          </el-progress>
-          <div class="detail_info">{{ pageData.mem_status?.used.toFixed(0) }} / {{ pageData.mem_status?.total.toFixed(0) }}(MB)</div>
-        </div>
-        <div v-for="item in pageData.disks" class="system_info_item">
-          <div class="title">磁盘{{ item.name }}</div>
-          <el-progress type="dashboard" :stroke-width="8" :percentage="item?.percent.toFixed(2)" striped  striped-flow>
-            <template #default="{ percentage }">
-              <span class="percentage-value font-bold">{{ percentage }}%</span>
-            </template>
-          </el-progress>
-          <div class="detail_info">{{ (item.used / 1024).toFixed(0) }}G / {{ (item.total / 1024).toFixed(0) }}G</div>
-        </div>
-      </div>
-    </el-card>
-    <el-row :gutter="15">
-      <el-col :span="12">
-        <el-card class="container mt-[15px]" shadow="never">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <div>网络IO / KB每秒</div>
-              <div class="w-[150px]">
-                <el-select v-model="netName">
-                  <el-option label="全部" value="all"></el-option>
-                  <el-option v-for="item in pageData.netIO" :label="item.name" :value="item.name"></el-option>
-                </el-select>
-              </div>
-            </div>
-          </template>
-          <div class="ioBox">
-            <div>
-              <div class="label">
-                <div class="dot bg-amber-300"></div>
-                <span>上行</span>
-              </div>
-              <div class="value">{{ currentNetIo.bytesSent.toFixed(2) }} KB</div>
-            </div>
-            <div>
-              <div class="label">
-                <div class="dot bg-blue-300"></div>
-                <span>下行</span>
-              </div>
-              <div class="value">{{ currentNetIo.bytesRecv.toFixed(2) }} KB</div>
-            </div>
-            <div>
-              <div class="label">总发送</div>
-              <div class="value">{{ currentNetIo.allSend.toFixed(2) }} GB</div>
-            </div>
-            <div>
-              <div class="label">总接收</div>
-              <div class="value">{{ currentNetIo.allRecv.toFixed(2) }} GB</div>
-            </div>
-          </div>
-          <div id="netIo" class="h-[400px]"></div>
-        </el-card>
-      </el-col>
-      <el-col :span="12">
-        <el-card class="container mt-[15px]" shadow="never">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <div>磁盘IO / MB每秒</div>
-              <div class="w-[150px]">
-                <el-select v-model="diskName">
-                  <el-option label="全部" value="all"></el-option>
-                  <el-option v-for="item in pageData.diskIO" :label="item.name" :value="item.name"></el-option>
-                </el-select>
-              </div>
-            </div>
-          </template>
-          <div class="ioBox">
-            <div>
-              <div class="label">
-                <div class="dot bg-amber-300"></div>
-                <span>读取</span>
-              </div>
-              <div class="value">{{ currentdiskIo.readBytes.toFixed(2) }} MB</div>
-            </div>
-            <div>
-              <div class="label">
-                <div class="dot bg-blue-300"></div>
-                <span>写入</span>
-              </div>
-              <div class="value">{{ currentdiskIo.writeBytes.toFixed(2) }} MB</div>
-            </div>
-            <div>
-              <div class="label">每秒读写</div>
-              <div class="value">{{ currentdiskIo.count }}</div>
-            </div>
-            <div>
-              <div class="label">IO延迟</div>
-              <div class="value">{{ currentdiskIo.ioTime }} ms</div>
-            </div>
-          </div>
-          <div id="diskIo" class="h-[400px]"></div>
-        </el-card>
-      </el-col>
-    </el-row>
+<!--    <el-card class="container mt-[15px]" header="系统信息" shadow="never">-->
+<!--      <div class="sys_info">-->
+<!--        <div class="system_info_item">-->
+<!--          <div class="title">系统负载</div>-->
+<!--          <el-progress type="dashboard" :stroke-width="8" :percentage="pageData.loadAvg?.load1.toFixed(2)" striped  striped-flow>-->
+<!--            <template #default="{ percentage }">-->
+<!--              <span class="percentage-value font-bold">{{ percentage }}%</span>-->
+<!--            </template>-->
+<!--          </el-progress>-->
+<!--          <div class="detail_info">运行流畅</div>-->
+<!--        </div>-->
+<!--        <div class="system_info_item">-->
+<!--          <div class="title">CPU占用率</div>-->
+<!--          <el-progress type="dashboard" :stroke-width="8" :percentage="cpuPercent" striped  striped-flow>-->
+<!--            <template #default="{ percentage }">-->
+<!--              <span class="percentage-value font-bold">{{ percentage }}%</span>-->
+<!--            </template>-->
+<!--          </el-progress>-->
+<!--          <div class="detail_info">{{ pageData.cpu_status?.counts }} 核心</div>-->
+<!--        </div>-->
+<!--        <div class="system_info_item">-->
+<!--          <div class="title">内存占用率</div>-->
+<!--          <el-progress type="dashboard" :stroke-width="8" :percentage="pageData.mem_status?.percent" striped  striped-flow>-->
+<!--            <template #default="{ percentage }">-->
+<!--              <span class="percentage-value font-bold">{{ percentage }}%</span>-->
+<!--            </template>-->
+<!--          </el-progress>-->
+<!--          <div class="detail_info">{{ pageData.mem_status?.used.toFixed(0) }} / {{ pageData.mem_status?.total.toFixed(0) }}(MB)</div>-->
+<!--        </div>-->
+<!--        <div v-for="item in pageData.disks" class="system_info_item">-->
+<!--          <div class="title">磁盘{{ item.name }}</div>-->
+<!--          <el-progress type="dashboard" :stroke-width="8" :percentage="item?.percent.toFixed(2)" striped  striped-flow>-->
+<!--            <template #default="{ percentage }">-->
+<!--              <span class="percentage-value font-bold">{{ percentage }}%</span>-->
+<!--            </template>-->
+<!--          </el-progress>-->
+<!--          <div class="detail_info">{{ (item.used / 1024).toFixed(0) }}G / {{ (item.total / 1024).toFixed(0) }}G</div>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </el-card>-->
+<!--    <el-row :gutter="15">-->
+<!--      <el-col :span="12">-->
+<!--        <el-card class="container mt-[15px]" shadow="never">-->
+<!--          <template #header>-->
+<!--            <div class="flex items-center justify-between">-->
+<!--              <div>网络IO / KB每秒</div>-->
+<!--              <div class="w-[150px]">-->
+<!--                <el-select v-model="netName">-->
+<!--                  <el-option label="全部" value="all"></el-option>-->
+<!--                  <el-option v-for="item in pageData.netIO" :label="item.name" :value="item.name"></el-option>-->
+<!--                </el-select>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </template>-->
+<!--          <div class="ioBox">-->
+<!--            <div>-->
+<!--              <div class="label">-->
+<!--                <div class="dot bg-amber-300"></div>-->
+<!--                <span>上行</span>-->
+<!--              </div>-->
+<!--              <div class="value">{{ currentNetIo.bytesSent.toFixed(2) }} KB</div>-->
+<!--            </div>-->
+<!--            <div>-->
+<!--              <div class="label">-->
+<!--                <div class="dot bg-blue-300"></div>-->
+<!--                <span>下行</span>-->
+<!--              </div>-->
+<!--              <div class="value">{{ currentNetIo.bytesRecv.toFixed(2) }} KB</div>-->
+<!--            </div>-->
+<!--            <div>-->
+<!--              <div class="label">总发送</div>-->
+<!--              <div class="value">{{ currentNetIo.allSend.toFixed(2) }} GB</div>-->
+<!--            </div>-->
+<!--            <div>-->
+<!--              <div class="label">总接收</div>-->
+<!--              <div class="value">{{ currentNetIo.allRecv.toFixed(2) }} GB</div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--          <div id="netIo" class="h-[400px]"></div>-->
+<!--        </el-card>-->
+<!--      </el-col>-->
+<!--      <el-col :span="12">-->
+<!--        <el-card class="container mt-[15px]" shadow="never">-->
+<!--          <template #header>-->
+<!--            <div class="flex items-center justify-between">-->
+<!--              <div>磁盘IO / MB每秒</div>-->
+<!--              <div class="w-[150px]">-->
+<!--                <el-select v-model="diskName">-->
+<!--                  <el-option label="全部" value="all"></el-option>-->
+<!--                  <el-option v-for="item in pageData.diskIO" :label="item.name" :value="item.name"></el-option>-->
+<!--                </el-select>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </template>-->
+<!--          <div class="ioBox">-->
+<!--            <div>-->
+<!--              <div class="label">-->
+<!--                <div class="dot bg-amber-300"></div>-->
+<!--                <span>读取</span>-->
+<!--              </div>-->
+<!--              <div class="value">{{ currentdiskIo.readBytes.toFixed(2) }} MB</div>-->
+<!--            </div>-->
+<!--            <div>-->
+<!--              <div class="label">-->
+<!--                <div class="dot bg-blue-300"></div>-->
+<!--                <span>写入</span>-->
+<!--              </div>-->
+<!--              <div class="value">{{ currentdiskIo.writeBytes.toFixed(2) }} MB</div>-->
+<!--            </div>-->
+<!--            <div>-->
+<!--              <div class="label">每秒读写</div>-->
+<!--              <div class="value">{{ currentdiskIo.count }}</div>-->
+<!--            </div>-->
+<!--            <div>-->
+<!--              <div class="label">IO延迟</div>-->
+<!--              <div class="value">{{ currentdiskIo.ioTime }} ms</div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--          <div id="diskIo" class="h-[400px]"></div>-->
+<!--        </el-card>-->
+<!--      </el-col>-->
+<!--    </el-row>-->
   </div>
 </template>
 

@@ -1,6 +1,7 @@
 import {defineStore} from "pinia";
 import router from "../routes";
 import {ElMessage} from "element-plus";
+import {SysAuthApi} from "../core/apis/sys_auth.ts";
 
 export const useUserStore = defineStore("userStore", {
     state: () => ({
@@ -8,7 +9,10 @@ export const useUserStore = defineStore("userStore", {
         IsLogin: false,
         UserData:{} as {
             avatar?:string,
+            username?:string,
             nickname?:string,
+            phone?:string,
+            email?:string,
             role?:{
                 name:string,
                 menus:[]
@@ -24,6 +28,10 @@ export const useUserStore = defineStore("userStore", {
             this.UserData = payload
             this.IsLogin = true
             ElMessage.success("已成功登录")
+        },
+        async getUserData(){
+            const response = await SysAuthApi.GetMe()
+            this.setUserData(response.data)
         },
         async logout(){
             localStorage.removeItem("access_token")

@@ -1,6 +1,5 @@
 import {createRouter, createWebHashHistory} from 'vue-router';
 import {useUserStore} from "../stores/user.ts";
-import { SysAuthApi } from "../core/apis/sys_auth.ts";
 import {addSyncRouter, getBaseRouter, layoutsModules} from "./syncMenu.ts";
 //@ts-ignore
 import NProgress from "nprogress"
@@ -23,8 +22,7 @@ router.beforeEach(async (to, _, next) => {
     const userStore = useUserStore()
     if (userStore.AccessToken && !userStore.IsLogin){
         try {
-            const response = await SysAuthApi.GetMe()
-            userStore.setUserData(response.data)
+            await userStore.getUserData()
             addSyncRouter(userStore.UserMenu)
             return next(to.path)
         }catch (e) {

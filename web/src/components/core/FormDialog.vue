@@ -1,17 +1,31 @@
 <template>
-  <el-dialog class="max-w-[500px]" v-model="show" :title="props.title" :before-close="handleClose">
+  <el-drawer
+      v-model="show"
+      :before-close="handleClose"
+      :close-on-click-modal="false"
+  >
+    <template #header>
+      <el-page-header @back="handleClose">
+        <template #content>
+          <span>{{ props.title }}</span>
+        </template>
+      </el-page-header>
+    </template>
     <el-form :model="form" label-position="top" ref="formRef" size="large">
       <slot></slot>
     </el-form>
     <template #footer>
-      <el-button @click="handleClose">取消</el-button>
-      <el-button type="primary" :loading="confirmLoading" @click="handleConfirm">确认</el-button>
+      <el-button size="large" @click="handleClose">取消</el-button>
+      <el-button size="large" type="primary" :loading="confirmLoading" @click="handleConfirm">确认</el-button>
     </template>
-  </el-dialog>
+  </el-drawer>
+<!--  <el-dialog class="max-w-[500px]" v-model="show" :title="props.title" :before-close="handleClose" :close-on-click-modal="false">-->
+
+<!--  </el-dialog>-->
 </template>
 
 <script setup lang="ts">
-import {ref} from "vue";
+import { ref } from "vue";
 
 const formRef = ref();
 const show = defineModel({
@@ -66,6 +80,6 @@ const handleConfirm = async () => {
 </script>
 
 
-<style scoped>
+<style scoped lang="less">
 
 </style>

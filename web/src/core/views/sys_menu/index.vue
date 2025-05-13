@@ -6,15 +6,15 @@
     </div>
     <el-table :data="tableData" row-key="id" default-expand-all>
       <el-table-column label="ID" prop="id" :width="100" sortable></el-table-column>
-      <el-table-column label="字体图标" prop="icon" :width="100">
+      <el-table-column label="菜单名称" prop="name"></el-table-column>
+      <el-table-column label="字体图标" prop="icon">
         <template #default="{ row }">
-          <iconify-icon class="text-[24px]" :icon="row.icon"></iconify-icon>
-<!--          <el-icon v-if="row.icon" :size="20">-->
-<!--            <component :is="row.icon"></component>-->
-<!--          </el-icon>-->
+          <div class="flex items-center gap-x-[8px]">
+            <iconify-icon class="text-[24px]" :icon="row.icon"></iconify-icon>
+            <span>{{ row.icon }}</span>
+          </div>
         </template>
       </el-table-column>
-      <el-table-column label="菜单名称" prop="name"></el-table-column>
       <el-table-column label="路由地址" prop="path"></el-table-column>
       <el-table-column label="组件路径" prop="component">
         <template #default="{ row }">

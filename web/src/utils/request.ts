@@ -2,9 +2,8 @@ import axios from "axios"
 import {useUserStore} from "../stores/user.ts";
 import {ElMessage} from "element-plus";
 
-
 const request = axios.create({
-    baseURL:"http://localhost:9000/api",
+    baseURL: import.meta.env.VITE_API_BASE_URL,
 })
 
 request.interceptors.request.use(config=>{
