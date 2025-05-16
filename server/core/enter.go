@@ -2,18 +2,18 @@ package core
 
 import (
 	"gitee.com/mxcker/go-admin/server/core/global"
-	"gitee.com/mxcker/go-admin/server/core/internal/modules/sys_admin"
-	"gitee.com/mxcker/go-admin/server/core/internal/modules/sys_auth"
-	"gitee.com/mxcker/go-admin/server/core/internal/modules/sys_autocode"
-	"gitee.com/mxcker/go-admin/server/core/internal/modules/sys_cron_job"
-	"gitee.com/mxcker/go-admin/server/core/internal/modules/sys_global_variable"
-	"gitee.com/mxcker/go-admin/server/core/internal/modules/sys_home"
-	"gitee.com/mxcker/go-admin/server/core/internal/modules/sys_menu"
-	"gitee.com/mxcker/go-admin/server/core/internal/modules/sys_role"
+	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_admin"
+	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_auth"
+	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_autocode"
+	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_cron_job"
+	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_global_variable"
+	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_menu"
+	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_role"
 	"gitee.com/mxcker/go-admin/server/core/middlewares"
 	"gitee.com/mxcker/go-admin/server/core/pkg/modular"
 	"gitee.com/mxcker/go-admin/server/modules"
 	"github.com/gin-gonic/gin"
+	"time"
 )
 
 func Load(Server *gin.Engine, needInit bool) {
@@ -30,7 +30,6 @@ func Load(Server *gin.Engine, needInit bool) {
 	loader.Add("sys/role", new(sys_role.Mounter))
 	loader.Add("sys/admin", new(sys_admin.Mounter))
 	loader.Add("sys/auth", new(sys_auth.Mounter))
-	loader.Add("sys/home", new(sys_home.Mounter))
 	loader.Add("sys/cron_job", new(sys_cron_job.Mounter))
 	//加载用户组件
 	err := modules.Load(loader)
@@ -48,5 +47,5 @@ func Load(Server *gin.Engine, needInit bool) {
 		panic(err)
 	}
 	// 在系统成功挂载后再启动调度器
-	global.Timer.StartScheduler()
+	global.Timer.StartScheduler(time.Second)
 }

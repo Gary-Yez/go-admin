@@ -3,7 +3,7 @@ package initialization
 import (
 	"context"
 	"gitee.com/mxcker/go-admin/server/core/global"
-	"gitee.com/mxcker/go-admin/server/core/internal/modules/sys_cron_job"
+	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_cron_job"
 	"gitee.com/mxcker/go-admin/server/core/pkg/cacher"
 	"gitee.com/mxcker/go-admin/server/core/pkg/timer"
 	"github.com/go-co-op/gocron/v2"

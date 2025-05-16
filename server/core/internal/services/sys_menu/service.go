@@ -30,7 +30,7 @@ func (s *serviceStruct) ListToTree(allList []*SysMenu) (list []*SysMenu) {
 
 func (s *serviceStruct) Get(req *request2.Req) (data *SysMenu, err error) {
 	data = &SysMenu{}
-	err = req.BuildQuery(global.DB.Model(SysMenu{})).First(data).Error
+	err = req.WithQuery(global.DB.Model(SysMenu{})).First(data).Error
 	return
 }
 
@@ -57,6 +57,6 @@ func (s *serviceStruct) Update(data *SysMenu) (err error) {
 }
 
 func (s *serviceStruct) DeleteByIds(req *request2.ReqIds) (err error) {
-	err = req.BuildQuery(global.DB).Delete(&SysMenu{}).Error
+	err = req.WithQuery(global.DB).Delete(&SysMenu{}).Error
 	return
 }

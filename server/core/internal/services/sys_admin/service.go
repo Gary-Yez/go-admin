@@ -22,17 +22,17 @@ func (s *serviceStruct) GeneratePassHash(data *SysAdmin) error {
 
 func (s *serviceStruct) Get(req *request.Req) (data *SysAdmin, err error) {
 	data = &SysAdmin{}
-	err = req.BuildQuery(global.DB.Model(SysAdmin{})).First(data).Error
+	err = req.WithQuery(global.DB.Model(SysAdmin{})).First(data).Error
 	return
 }
 
 func (s *serviceStruct) List(req *request.ReqList) (list []*SysAdmin, total int64, err error) {
-	db := req.BuildFilter(global.DB.Model(SysAdmin{}), nil)
+	db := req.WithFilter(global.DB.Model(SysAdmin{}), nil)
 	err = db.Count(&total).Error
 	if err != nil {
 		return nil, 0, err
 	}
-	err = req.BuildPagination(req.BuildSort(db, nil)).Find(&list).Error
+	err = req.WithPagination(req.WithSort(db, nil)).Find(&list).Error
 	return
 }
 
@@ -68,6 +68,6 @@ func (s *serviceStruct) Update(data *SysAdmin) (err error) {
 }
 
 func (s *serviceStruct) DeleteByIds(req *request.ReqIds) (err error) {
-	err = req.BuildQuery(global.DB.Model(&SysAdmin{}).Debug()).Where("`default` = ?", false).Delete(&SysAdmin{}).Error
+	err = req.WithQuery(global.DB.Model(&SysAdmin{}).Debug()).Where("`default` = ?", false).Delete(&SysAdmin{}).Error
 	return
 }

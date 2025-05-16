@@ -3,9 +3,9 @@ package sys_auth
 import (
 	"errors"
 	"gitee.com/mxcker/go-admin/server/core/global"
-	"gitee.com/mxcker/go-admin/server/core/internal/modules/sys_admin"
-	"gitee.com/mxcker/go-admin/server/core/internal/modules/sys_menu"
-	"gitee.com/mxcker/go-admin/server/core/internal/modules/sys_role"
+	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_admin"
+	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_menu"
+	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_role"
 	"gorm.io/gorm"
 )
 

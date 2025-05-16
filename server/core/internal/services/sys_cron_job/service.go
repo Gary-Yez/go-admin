@@ -27,28 +27,28 @@ func (s *serviceStruct) Sync() ([]timer.Job, error) {
 }
 
 func (s *serviceStruct) GetLogs(req *request.ReqList) (list []*SysCronJobLog, total int64, err error) {
-	db := req.BuildFilter(global.DB.Model(SysCronJobLog{}), []string{"job_id"})
+	db := req.WithFilter(global.DB.Model(SysCronJobLog{}), []string{"job_id"})
 	err = db.Count(&total).Error
 	if err != nil {
 		return nil, 0, err
 	}
-	err = req.BuildPagination(req.BuildSort(db, nil)).Order("id DESC").Find(&list).Error
+	err = req.WithPagination(req.WithSort(db, nil)).Order("id DESC").Find(&list).Error
 	return
 }
 
 func (s *serviceStruct) Get(req *request.Req) (data *SysCronJob, err error) {
 	data = &SysCronJob{}
-	err = req.BuildQuery(global.DB.Model(SysCronJob{})).First(data).Error
+	err = req.WithQuery(global.DB.Model(SysCronJob{})).First(data).Error
 	return
 }
 
 func (s *serviceStruct) List(req *request.ReqList) (list []*SysCronJob, total int64, err error) {
-	db := req.BuildFilter(global.DB.Model(SysCronJob{}), nil)
+	db := req.WithFilter(global.DB.Model(SysCronJob{}), nil)
 	err = db.Count(&total).Error
 	if err != nil {
 		return nil, 0, err
 	}
-	err = req.BuildPagination(req.BuildSort(db, nil)).Find(&list).Error
+	err = req.WithPagination(req.WithSort(db, nil)).Find(&list).Error
 	return
 }
 
@@ -80,7 +80,7 @@ func (s *serviceStruct) Update(data *SysCronJob) (err error) {
 }
 
 func (s *serviceStruct) DeleteByIds(req *request.ReqIds) (err error) {
-	if err = req.BuildQuery(global.DB).Delete(&SysCronJob{}).Error; err != nil {
+	if err = req.WithQuery(global.DB).Delete(&SysCronJob{}).Error; err != nil {
 		return err
 	}
 	return nil

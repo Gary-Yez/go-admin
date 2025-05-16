@@ -70,9 +70,11 @@ func (t *defaultManage) startSync(syncInterval time.Duration) {
 				fmt.Println("定时任务调度器同步任务失败:", err)
 				continue
 			}
+			newJobs := make(map[string]Job, len(jobs))
 			//循环job进行处理
 			for _, job := range jobs {
 				jobId := job.GetID()
+				newJobs[jobId] = job
 				// 如果旧的任务是否存在或版本未发生改变则跳出循环
 				if oldJob, ok := t.jobs[jobId]; ok && oldJob.GetVersion() == job.GetVersion() {
 					continue
@@ -96,18 +98,20 @@ func (t *defaultManage) startSync(syncInterval time.Duration) {
 						startTime := time.Now().UTC()
 						// 执行任务处理函数
 						taskErr := handler.Handler(ctx, job.GetParams())
-						endTime := time.Now().UTC()
-						// 更新下次运行时间
-						var nextTime = job.GetNextRunTime()
-						for _, j := range t.cronScheduler.Jobs() {
-							if j.Name() == job.GetID() {
-								if next, gerErr := j.NextRun(); gerErr == nil {
-									nextTime = next
+						if !errors.Is(taskErr, context.Canceled) {
+							endTime := time.Now().UTC()
+							// 更新下次运行时间
+							var nextTime = job.GetNextRunTime()
+							for _, j := range t.cronScheduler.Jobs() {
+								if j.Name() == job.GetID() {
+									if next, gerErr := j.NextRun(); gerErr == nil {
+										nextTime = next
+									}
+									break
 								}
-								break
 							}
+							job.AfterRun(startTime, endTime, nextTime, taskErr)
 						}
-						job.AfterRun(startTime, endTime, nextTime, taskErr)
 					}),
 					gocron.WithSingletonMode(gocron.LimitModeReschedule),
 					gocron.WithTags(jobId),
@@ -119,6 +123,13 @@ func (t *defaultManage) startSync(syncInterval time.Duration) {
 				}
 				t.jobs[jobId] = job
 			}
+			// 删除旧任务
+			for oldId, _ := range t.jobs {
+				_, has := newJobs[oldId]
+				if !has {
+					t.cronScheduler.RemoveByTags(oldId)
+				}
+			}
 		case <-t.ctx.Done():
 			return
 		}
@@ -126,7 +137,7 @@ func (t *defaultManage) startSync(syncInterval time.Duration) {
 }
 
 // StartScheduler 启动调度器
-func (t *defaultManage) StartScheduler() {
-	go t.startSync(time.Second * 5)
+func (t *defaultManage) StartScheduler(syncInterval time.Duration) {
+	go t.startSync(syncInterval)
 	t.cronScheduler.Start()
 }

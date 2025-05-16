@@ -12,7 +12,7 @@ type serviceStruck struct {
 
 func (s *serviceStruck) Get(req *request2.Req) (data *SysRole, err error) {
 	data = &SysRole{}
-	err = req.BuildQuery(global.DB.Model(SysRole{})).First(data).Error
+	err = req.WithQuery(global.DB.Model(SysRole{})).First(data).Error
 	return
 }
 
@@ -38,7 +38,7 @@ func (s *serviceStruck) Update(data *SysRole) (err error) {
 }
 
 func (s *serviceStruck) DeleteByIds(req *request2.ReqIds) (err error) {
-	err = req.BuildQuery(global.DB).Where("`default` = ?", false).Delete(&SysRole{}).Error
+	err = req.WithQuery(global.DB).Where("`default` = ?", false).Delete(&SysRole{}).Error
 	return
 }
 

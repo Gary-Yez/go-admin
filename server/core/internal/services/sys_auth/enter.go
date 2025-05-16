@@ -18,6 +18,8 @@ func (_ *Mounter) Register(path string, adminAuthGroup *gin.RouterGroup, publicG
 	Group := adminAuthGroup.Group(path)
 	{
 		Group.GET("me", middlewares.SysAuth, Controller.GetMe)
+		Group.POST("change_info", middlewares.SysAuth, Controller.ChangeInfo)
+		Group.POST("change_password", middlewares.SysAuth, Controller.ChangePassword)
 	}
 	Public := publicGroup.Group(path)
 	{

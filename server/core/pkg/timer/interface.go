@@ -7,7 +7,7 @@ import (
 type Scheduler interface {
 	GetHandlers() map[string]*HandlerOption
 	RegisterHandler(key string, option *HandlerOption) error
-	StartScheduler()
+	StartScheduler(syncInterval time.Duration)
 }
 
 type Job interface {

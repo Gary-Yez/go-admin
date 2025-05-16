@@ -15,17 +15,17 @@ type serviceStruct struct {
 {{- if .CreateCURD}}
 func (s *serviceStruct) Get(req *request.Req) (data *{{.ModelName}}, err error) {
 	data = &{{.ModelName}}{}
-	err = req.BuildQuery(global.DB.Model({{.ModelName}}{})).First(data).Error
+	err = req.WithQuery(global.DB.Model({{.ModelName}}{})).First(data).Error
 	return
 }
 
 func (s *serviceStruct) List(req *request.ReqList) (list []*{{.ModelName}}, total int64, err error) {
-	db := global.DB.Model({{.ModelName}}{})
-	err = req.BuildWhere(db).Count(&total).Error
+	db := req.WithFilter(global.DB.Model({{.ModelName}}{}), nil)
+	err = db.Count(&total).Error
 	if err != nil {
 		return nil, 0, err
 	}
-	err = req.BuildQuery(db).Find(&list).Error
+	err = req.WithPagination(req.WithSort(db, nil)).Find(&list).Error
 	return
 }
 
@@ -57,6 +57,6 @@ func (s *serviceStruct) Update(data *{{.ModelName}}) (err error) {
 }
 
 func (s *serviceStruct) DeleteByIds(req *request.ReqIds) (err error) {
-	return req.BuildQuery(global.DB).Delete(&{{.ModelName}}{}).Error
+	return req.WithQuery(global.DB).Delete(&{{.ModelName}}{}).Error
 }
 {{end}}

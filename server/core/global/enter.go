@@ -14,6 +14,5 @@ var (
 )
 
 func IsDev() bool {
-	//return true
 	return os.Getenv("APP_ENV") != "production"
 }

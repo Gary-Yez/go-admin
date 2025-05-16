@@ -3,7 +3,7 @@ package sys_admin
 import (
 	"fmt"
 	"gitee.com/mxcker/go-admin/server/core/global"
-	"gitee.com/mxcker/go-admin/server/core/internal/modules/sys_role"
+	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_role"
 )
 
 func InitData() error {

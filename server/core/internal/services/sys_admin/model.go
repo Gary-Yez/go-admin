@@ -1,7 +1,7 @@
 package sys_admin
 
 import (
-	"gitee.com/mxcker/go-admin/server/core/internal/modules/sys_role"
+	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_role"
 	"gitee.com/mxcker/go-admin/server/core/types"
 )
 

@@ -7,8 +7,6 @@ import (
 	"gitee.com/mxcker/go-admin/server/core/cmd"
 )
 
-var TestVar = "1"
-
 func main() {
 	cmd.Execute()
 }
