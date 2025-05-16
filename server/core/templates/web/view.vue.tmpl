@@ -12,7 +12,7 @@
       {{- if .TableShow }}
       {{- if eq .Type "bool"}}
       <el-table-column label="{{if .ChineseName}}{{.ChineseName}}{{else}}{{.Name}}{{end}}" prop="{{.Name}}">
-          <template #default={ row }>
+          <template #default="{ row }">
             <el-tag v-if="row.{{.Name}}" type="success">开启</el-tag>
             <el-tag v-else type="danger">关闭</el-tag>
           </template>
