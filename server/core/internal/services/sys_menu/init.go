@@ -40,12 +40,6 @@ func InitData() error {
 					Component: "../core/views/sys_admin/index.vue",
 					Sort:      2,
 				}, {
-					Name:      "全局变量管理",
-					Icon:      "iconoir:folder-settings",
-					Path:      "sys_global_variable",
-					Component: "../core/views/sys_global_variable/index.vue",
-					Sort:      3,
-				}, {
 					Name:      "计划任务",
 					Icon:      "iconoir:task-list",
 					Path:      "sys_cron_job",

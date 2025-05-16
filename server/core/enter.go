@@ -6,7 +6,6 @@ import (
 	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_auth"
 	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_autocode"
 	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_cron_job"
-	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_global_variable"
 	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_menu"
 	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_role"
 	"gitee.com/mxcker/go-admin/server/core/middlewares"
@@ -25,7 +24,6 @@ func Load(Server *gin.Engine, needInit bool) {
 	if global.IsDev() {
 		loader.Add("sys/autocode", new(sys_autocode.Mounter))
 	}
-	loader.Add("sys/global_variable", new(sys_global_variable.Mounter))
 	loader.Add("sys/menu", new(sys_menu.Mounter))
 	loader.Add("sys/role", new(sys_role.Mounter))
 	loader.Add("sys/admin", new(sys_admin.Mounter))
