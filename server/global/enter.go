@@ -1,8 +1,8 @@
 package global
 
 import (
-	"gitee.com/mxcker/go-admin/server/core/pkg/cacher"
-	"gitee.com/mxcker/go-admin/server/core/pkg/timer"
+	"gitee.com/mxcker/go-admin/server/pkg/cacher"
+	"gitee.com/mxcker/go-admin/server/pkg/timer"
 	"gorm.io/gorm"
 )
 

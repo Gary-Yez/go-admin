@@ -1,5 +1,5 @@
 server:
-  dev: true
+  dev: false
   admin_prefix: "/admin"
 mysql:
   host: ""

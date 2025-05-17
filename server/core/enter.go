@@ -9,9 +9,9 @@ import (
 	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_menu"
 	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_role"
 	"gitee.com/mxcker/go-admin/server/core/middlewares"
-	"gitee.com/mxcker/go-admin/server/core/pkg/modular"
 	"gitee.com/mxcker/go-admin/server/global"
 	"gitee.com/mxcker/go-admin/server/modules"
+	"gitee.com/mxcker/go-admin/server/pkg/modular"
 	"github.com/gin-gonic/gin"
 	"time"
 )

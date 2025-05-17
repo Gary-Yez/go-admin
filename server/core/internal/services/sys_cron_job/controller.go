@@ -2,8 +2,8 @@ package sys_cron_job
 
 import (
 	"gitee.com/mxcker/go-admin/server/global"
-	request2 "gitee.com/mxcker/go-admin/server/types/request"
-	"gitee.com/mxcker/go-admin/server/types/response"
+	"gitee.com/mxcker/go-admin/server/pkg/request"
+	"gitee.com/mxcker/go-admin/server/pkg/response"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,7 +14,7 @@ func (_ *controllerStruct) GetRegisteredHandler(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) GetLogs(ctx *gin.Context) {
-	req := new(request2.ReqList)
+	req := new(request.ReqList)
 	if err := ctx.ShouldBindJSON(req); err != nil {
 		response.Error(ctx, err.Error())
 		return
@@ -28,7 +28,7 @@ func (_ *controllerStruct) GetLogs(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) Get(ctx *gin.Context) {
-	req := new(request2.Req)
+	req := new(request.Req)
 	err := ctx.ShouldBindQuery(req)
 	if err != nil {
 		response.Error(ctx, err.Error())
@@ -42,7 +42,7 @@ func (_ *controllerStruct) Get(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) List(ctx *gin.Context) {
-	req := new(request2.ReqList)
+	req := new(request.ReqList)
 	if err := ctx.ShouldBindJSON(req); err != nil {
 		response.Error(ctx, err.Error())
 		return
@@ -72,7 +72,7 @@ func (_ *controllerStruct) Create(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) Delete(ctx *gin.Context) {
-	req := new(request2.ReqIds)
+	req := new(request.ReqIds)
 	err := ctx.ShouldBindJSON(req)
 	if err != nil {
 		response.Error(ctx, err.Error())

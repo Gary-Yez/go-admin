@@ -1,8 +1,8 @@
 package middlewares
 
 import (
+	"gitee.com/mxcker/go-admin/server/pkg/response"
 	"gitee.com/mxcker/go-admin/server/types"
-	"gitee.com/mxcker/go-admin/server/types/response"
 	"github.com/gin-gonic/gin"
 	"strings"
 )
