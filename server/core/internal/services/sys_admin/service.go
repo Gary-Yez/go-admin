@@ -2,8 +2,8 @@ package sys_admin
 
 import (
 	"errors"
-	"gitee.com/mxcker/go-admin/server/core/global"
-	"gitee.com/mxcker/go-admin/server/core/types/request"
+	"gitee.com/mxcker/go-admin/server/global"
+	request2 "gitee.com/mxcker/go-admin/server/types/request"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm/clause"
 )
@@ -20,13 +20,13 @@ func (s *serviceStruct) GeneratePassHash(data *SysAdmin) error {
 	return nil
 }
 
-func (s *serviceStruct) Get(req *request.Req) (data *SysAdmin, err error) {
+func (s *serviceStruct) Get(req *request2.Req) (data *SysAdmin, err error) {
 	data = &SysAdmin{}
 	err = req.WithQuery(global.DB.Model(SysAdmin{})).First(data).Error
 	return
 }
 
-func (s *serviceStruct) List(req *request.ReqList) (list []*SysAdmin, total int64, err error) {
+func (s *serviceStruct) List(req *request2.ReqList) (list []*SysAdmin, total int64, err error) {
 	db := req.WithFilter(global.DB.Model(SysAdmin{}), nil)
 	err = db.Count(&total).Error
 	if err != nil {
@@ -67,7 +67,7 @@ func (s *serviceStruct) Update(data *SysAdmin) (err error) {
 		Where("id = ?", data.Id).Updates(data).Error
 }
 
-func (s *serviceStruct) DeleteByIds(req *request.ReqIds) (err error) {
+func (s *serviceStruct) DeleteByIds(req *request2.ReqIds) (err error) {
 	err = req.WithQuery(global.DB.Model(&SysAdmin{}).Debug()).Where("`default` = ?", false).Delete(&SysAdmin{}).Error
 	return
 }

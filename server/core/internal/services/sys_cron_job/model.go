@@ -2,8 +2,8 @@ package sys_cron_job
 
 import (
 	"fmt"
-	"gitee.com/mxcker/go-admin/server/core/global"
-	"gitee.com/mxcker/go-admin/server/core/types"
+	"gitee.com/mxcker/go-admin/server/global"
+	"gitee.com/mxcker/go-admin/server/types"
 	"gorm.io/gorm/clause"
 	"strconv"
 	"time"

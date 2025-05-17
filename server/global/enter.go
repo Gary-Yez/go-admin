@@ -4,7 +4,6 @@ import (
 	"gitee.com/mxcker/go-admin/server/core/pkg/cacher"
 	"gitee.com/mxcker/go-admin/server/core/pkg/timer"
 	"gorm.io/gorm"
-	"os"
 )
 
 var (
@@ -12,7 +11,3 @@ var (
 	Cache cacher.Cache
 	Timer timer.Scheduler
 )
-
-func IsDev() bool {
-	return os.Getenv("APP_ENV") != "production"
-}

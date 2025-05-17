@@ -2,9 +2,9 @@ package sys_cron_job
 
 import (
 	"errors"
-	"gitee.com/mxcker/go-admin/server/core/global"
 	"gitee.com/mxcker/go-admin/server/core/pkg/timer"
-	"gitee.com/mxcker/go-admin/server/core/types/request"
+	"gitee.com/mxcker/go-admin/server/global"
+	request2 "gitee.com/mxcker/go-admin/server/types/request"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -26,7 +26,7 @@ func (s *serviceStruct) Sync() ([]timer.Job, error) {
 	return jobs, nil
 }
 
-func (s *serviceStruct) GetLogs(req *request.ReqList) (list []*SysCronJobLog, total int64, err error) {
+func (s *serviceStruct) GetLogs(req *request2.ReqList) (list []*SysCronJobLog, total int64, err error) {
 	db := req.WithFilter(global.DB.Model(SysCronJobLog{}), []string{"job_id"})
 	err = db.Count(&total).Error
 	if err != nil {
@@ -36,13 +36,13 @@ func (s *serviceStruct) GetLogs(req *request.ReqList) (list []*SysCronJobLog, to
 	return
 }
 
-func (s *serviceStruct) Get(req *request.Req) (data *SysCronJob, err error) {
+func (s *serviceStruct) Get(req *request2.Req) (data *SysCronJob, err error) {
 	data = &SysCronJob{}
 	err = req.WithQuery(global.DB.Model(SysCronJob{})).First(data).Error
 	return
 }
 
-func (s *serviceStruct) List(req *request.ReqList) (list []*SysCronJob, total int64, err error) {
+func (s *serviceStruct) List(req *request2.ReqList) (list []*SysCronJob, total int64, err error) {
 	db := req.WithFilter(global.DB.Model(SysCronJob{}), nil)
 	err = db.Count(&total).Error
 	if err != nil {
@@ -79,7 +79,7 @@ func (s *serviceStruct) Update(data *SysCronJob) (err error) {
 	return nil
 }
 
-func (s *serviceStruct) DeleteByIds(req *request.ReqIds) (err error) {
+func (s *serviceStruct) DeleteByIds(req *request2.ReqIds) (err error) {
 	if err = req.WithQuery(global.DB).Delete(&SysCronJob{}).Error; err != nil {
 		return err
 	}

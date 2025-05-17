@@ -1,7 +1,7 @@
 package sys_autocode
 
 import (
-	"gitee.com/mxcker/go-admin/server/core/types"
+	"gitee.com/mxcker/go-admin/server/types"
 )
 
 type Filed struct {

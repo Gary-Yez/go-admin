@@ -2,9 +2,9 @@ package sys_admin
 
 import (
 	"errors"
-	"gitee.com/mxcker/go-admin/server/core/types"
-	"gitee.com/mxcker/go-admin/server/core/types/request"
-	"gitee.com/mxcker/go-admin/server/core/types/response"
+	"gitee.com/mxcker/go-admin/server/types"
+	request2 "gitee.com/mxcker/go-admin/server/types/request"
+	"gitee.com/mxcker/go-admin/server/types/response"
 	"github.com/gin-gonic/gin"
 	"slices"
 )
@@ -12,7 +12,7 @@ import (
 type controllerStruct struct{}
 
 func (_ *controllerStruct) Get(ctx *gin.Context) {
-	req := new(request.Req)
+	req := new(request2.Req)
 	err := ctx.ShouldBindQuery(req)
 	if err != nil {
 		response.Error(ctx, err.Error())
@@ -27,7 +27,7 @@ func (_ *controllerStruct) Get(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) List(ctx *gin.Context) {
-	req := new(request.ReqList)
+	req := new(request2.ReqList)
 	if err := ctx.ShouldBindQuery(req); err != nil {
 		response.Error(ctx, err.Error())
 		return
@@ -57,7 +57,7 @@ func (_ *controllerStruct) Create(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) Delete(ctx *gin.Context) {
-	req := new(request.ReqIds)
+	req := new(request2.ReqIds)
 	err := ctx.ShouldBindJSON(req)
 	if err != nil {
 		response.Error(ctx, err.Error())

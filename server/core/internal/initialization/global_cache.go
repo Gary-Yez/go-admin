@@ -1,9 +1,9 @@
 package initialization
 
 import (
-	"gitee.com/mxcker/go-admin/server/core/configs"
-	"gitee.com/mxcker/go-admin/server/core/global"
+	"gitee.com/mxcker/go-admin/server/configs"
 	"gitee.com/mxcker/go-admin/server/core/pkg/cacher"
+	"gitee.com/mxcker/go-admin/server/global"
 	"github.com/redis/go-redis/v9"
 	"time"
 )

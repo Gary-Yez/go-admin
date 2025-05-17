@@ -2,7 +2,7 @@ package initialization
 
 import (
 	"errors"
-	"gitee.com/mxcker/go-admin/server/core/configs"
+	"gitee.com/mxcker/go-admin/server/configs"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )

@@ -2,9 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"gitee.com/mxcker/go-admin/server/configs"
 	"gitee.com/mxcker/go-admin/server/core"
-	"gitee.com/mxcker/go-admin/server/core/configs"
-	"gitee.com/mxcker/go-admin/server/core/global"
 	"gitee.com/mxcker/go-admin/server/core/internal/initialization"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/static"
@@ -27,7 +26,7 @@ var rootCmd = &cobra.Command{
 		if err != nil {
 			panic("全局变量初始化失败：" + err.Error())
 		}
-		if !global.IsDev() {
+		if !configs.IsDev() {
 			gin.SetMode("release")
 		}
 		//创建服务器

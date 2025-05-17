@@ -2,7 +2,7 @@ package types
 
 import (
 	"errors"
-	"gitee.com/mxcker/go-admin/server/core/configs"
+	"gitee.com/mxcker/go-admin/server/configs"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
 )

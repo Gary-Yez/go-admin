@@ -1,8 +1,8 @@
 package initialization
 
 import (
-	"gitee.com/mxcker/go-admin/server/core/configs"
-	"gitee.com/mxcker/go-admin/server/core/global"
+	"gitee.com/mxcker/go-admin/server/configs"
+	"gitee.com/mxcker/go-admin/server/global"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

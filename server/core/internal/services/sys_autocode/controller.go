@@ -1,8 +1,8 @@
 package sys_autocode
 
 import (
-	request2 "gitee.com/mxcker/go-admin/server/core/types/request"
-	"gitee.com/mxcker/go-admin/server/core/types/response"
+	"gitee.com/mxcker/go-admin/server/types/request"
+	"gitee.com/mxcker/go-admin/server/types/response"
 	"github.com/gin-gonic/gin"
 )
 
@@ -44,7 +44,7 @@ func (_ *controllerStruct) Preview(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) History(ctx *gin.Context) {
-	req := new(request2.ReqList)
+	req := new(request.ReqList)
 	if err := ctx.ShouldBindQuery(req); err != nil {
 		response.Error(ctx, err.Error())
 		return
@@ -58,7 +58,7 @@ func (_ *controllerStruct) History(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) GetHistory(ctx *gin.Context) {
-	req := new(request2.Req)
+	req := new(request.Req)
 	err := ctx.ShouldBindQuery(req)
 	if err != nil {
 		response.Error(ctx, err.Error())
@@ -73,7 +73,7 @@ func (_ *controllerStruct) GetHistory(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) DeleteHistory(ctx *gin.Context) {
-	req := new(request2.ReqIds)
+	req := new(request.ReqIds)
 	err := ctx.ShouldBindJSON(req)
 	if err != nil {
 		response.Error(ctx, err.Error())

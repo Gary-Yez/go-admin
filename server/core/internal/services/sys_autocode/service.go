@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"gitee.com/mxcker/go-admin/server/core/global"
-	"gitee.com/mxcker/go-admin/server/core/types/request"
+	"gitee.com/mxcker/go-admin/server/global"
+	request2 "gitee.com/mxcker/go-admin/server/types/request"
 	"gorm.io/gorm"
 	"path/filepath"
 )
@@ -74,7 +74,7 @@ func (s *serviceStruct) Generate(data *GenerateBody) error {
 	return err
 }
 
-func (s *serviceStruct) History(req *request.ReqList) (list []*SysAutoCode, total int64, err error) {
+func (s *serviceStruct) History(req *request2.ReqList) (list []*SysAutoCode, total int64, err error) {
 	db := req.WithFilter(global.DB.Model(SysAutoCode{}), nil)
 	err = db.Count(&total).Error
 	if err != nil {
@@ -84,7 +84,7 @@ func (s *serviceStruct) History(req *request.ReqList) (list []*SysAutoCode, tota
 	return
 }
 
-func (s *serviceStruct) Get(req *request.Req) (data *SysAutoCode, err error) {
+func (s *serviceStruct) Get(req *request2.Req) (data *SysAutoCode, err error) {
 	data = &SysAutoCode{}
 	err = req.WithQuery(global.DB.Model(SysAutoCode{})).First(data).Error
 	return
@@ -108,7 +108,7 @@ func (s *serviceStruct) SaveHistory(data *GenerateBody) error {
 	return global.DB.Save(&history).Error
 }
 
-func (s *serviceStruct) DeleteByIds(req *request.ReqIds) (err error) {
+func (s *serviceStruct) DeleteByIds(req *request2.ReqIds) (err error) {
 	err = req.WithQuery(global.DB).Delete(&SysAutoCode{}).Error
 	return
 }

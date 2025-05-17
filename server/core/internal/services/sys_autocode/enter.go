@@ -1,8 +1,8 @@
 package sys_autocode
 
 import (
-	"gitee.com/mxcker/go-admin/server/core/global"
 	"gitee.com/mxcker/go-admin/server/core/middlewares"
+	"gitee.com/mxcker/go-admin/server/global"
 	"github.com/gin-gonic/gin"
 )
 

@@ -2,7 +2,7 @@ package sys_role
 
 import (
 	"fmt"
-	"gitee.com/mxcker/go-admin/server/core/global"
+	"gitee.com/mxcker/go-admin/server/global"
 )
 
 func InitData() error {

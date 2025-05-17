@@ -3,8 +3,8 @@ package sys_cron_job
 import (
 	"context"
 	"encoding/json"
-	"gitee.com/mxcker/go-admin/server/core/global"
 	"gitee.com/mxcker/go-admin/server/core/pkg/timer"
+	"gitee.com/mxcker/go-admin/server/global"
 	"github.com/gin-gonic/gin"
 	"time"
 )

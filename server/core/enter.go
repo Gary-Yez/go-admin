@@ -1,7 +1,7 @@
 package core
 
 import (
-	"gitee.com/mxcker/go-admin/server/core/global"
+	"gitee.com/mxcker/go-admin/server/configs"
 	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_admin"
 	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_auth"
 	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_autocode"
@@ -10,6 +10,7 @@ import (
 	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_role"
 	"gitee.com/mxcker/go-admin/server/core/middlewares"
 	"gitee.com/mxcker/go-admin/server/core/pkg/modular"
+	"gitee.com/mxcker/go-admin/server/global"
 	"gitee.com/mxcker/go-admin/server/modules"
 	"github.com/gin-gonic/gin"
 	"time"
@@ -21,7 +22,7 @@ func Load(Server *gin.Engine, needInit bool) {
 	// 注册系统组件
 	loader := modular.NewLoader()
 	// 只有开发环境下注册自动生成代码
-	if global.IsDev() {
+	if configs.IsDev() {
 		loader.Add("sys/autocode", new(sys_autocode.Mounter))
 	}
 	loader.Add("sys/menu", new(sys_menu.Mounter))

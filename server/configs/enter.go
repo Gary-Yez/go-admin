@@ -1,6 +1,6 @@
 package configs
 
-var Config *config
+var Config = &config{}
 
 type config struct {
 	Server server      `mapstructure:"server"`
@@ -9,6 +9,6 @@ type config struct {
 	Jwt    jwtConfig   `mapstructure:"jwt"`
 }
 
-func init() {
-	Config = &config{}
+func IsDev() bool {
+	return Config.Server.Dev
 }
