@@ -68,12 +68,6 @@
               </el-dropdown>
             </template>
           </el-tab-pane>
-<!--         <el-dropdown  trigger="contextmenu">-->
-
-<!--           <template #dropdown>-->
-<!--             123123-->
-<!--           </template>-->
-<!--         </el-dropdown>-->
         </el-tabs>
         <div class="dashboard-page">
           <router-view v-slot="{ Component }">
@@ -101,7 +95,6 @@
   commonStore.setTheme()
   commonStore.setTime()
   const activeTab = ref(route.path)
-  console.log(userStore.UserMenu[0])
   const visitedTabs = ref([
     {
       fullPath: route.fullPath,

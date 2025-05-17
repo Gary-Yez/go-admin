@@ -44,8 +44,8 @@
                     <el-option label="字符串" value="string"></el-option>
                     <el-option label="布尔值" value="bool"></el-option>
                     <el-option label="整数型" value="int"></el-option>
-                    <el-option label="无符号整数" value="uint"></el-option>
-                    <el-option label="浮点数" value="float64"></el-option>
+<!--                    <el-option label="无符号整数" value="uint"></el-option>-->
+<!--                    <el-option label="浮点数" value="float64"></el-option>-->
                   </el-select>
                 </el-form-item>
               </template>
@@ -89,6 +89,21 @@
               <template #default="{ row,$index }">
                 <el-form-item :prop="`fields.${$index}.hidden`">
                   <el-switch v-model="row.hidden" @change="(val:any)=>{ row.table_show = !val;row.editable = !val;row.required = !val }"></el-switch>
+                </el-form-item>
+              </template>
+            </el-table-column>
+            <el-table-column label="筛选">
+              <template #default="{ row,$index }">
+                <el-form-item :prop="`fields.${$index}.query_type`">
+                  <el-select v-model="row.index_type" placeholder="索引类型" clearable>
+                    <el-option label="模糊搜索" value="like"></el-option>
+                    <el-option label="等于" value="="></el-option>
+                    <el-option label="不等于" value="!="></el-option>
+                    <el-option label="大于" value=">"></el-option>
+                    <el-option label="大于等于" value=">="></el-option>
+                    <el-option label="小于" value="<"></el-option>
+                    <el-option label="小于等于" value="<="></el-option>
+                  </el-select>
                 </el-form-item>
               </template>
             </el-table-column>

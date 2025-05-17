@@ -23,7 +23,6 @@ export const useCommonStore = defineStore("commonStore", {
             }else {
                 html.classList.add("dark")
             }
-
             if (theme){
                 ElMessage.success("主题切换成功")
             }
