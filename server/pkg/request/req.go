@@ -1,6 +1,8 @@
 package request
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type Req struct {
 	Id uint `json:"id" form:"id" binding:"required"`

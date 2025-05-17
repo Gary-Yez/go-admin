@@ -14,8 +14,8 @@ func (_ *controllerStruct) GetRegisteredHandler(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) GetLogs(ctx *gin.Context) {
-	req := new(request.ReqList)
-	if err := ctx.ShouldBindJSON(req); err != nil {
+	req, err := request.GetReqList(ctx)
+	if err != nil {
 		response.Error(ctx, err.Error())
 		return
 	}
@@ -28,8 +28,7 @@ func (_ *controllerStruct) GetLogs(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) Get(ctx *gin.Context) {
-	req := new(request.Req)
-	err := ctx.ShouldBindQuery(req)
+	req, err := request.GetReq(ctx)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
@@ -42,8 +41,8 @@ func (_ *controllerStruct) Get(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) List(ctx *gin.Context) {
-	req := new(request.ReqList)
-	if err := ctx.ShouldBindJSON(req); err != nil {
+	req, err := request.GetReqList(ctx)
+	if err != nil {
 		response.Error(ctx, err.Error())
 		return
 	}
@@ -72,8 +71,7 @@ func (_ *controllerStruct) Create(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) Delete(ctx *gin.Context) {
-	req := new(request.ReqIds)
-	err := ctx.ShouldBindJSON(req)
+	req, err := request.GetReqIds(ctx)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return

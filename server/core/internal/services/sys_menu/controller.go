@@ -1,7 +1,7 @@
 package sys_menu
 
 import (
-	request2 "gitee.com/mxcker/go-admin/server/pkg/request"
+	"gitee.com/mxcker/go-admin/server/pkg/request"
 	"gitee.com/mxcker/go-admin/server/pkg/response"
 	"github.com/gin-gonic/gin"
 )
@@ -9,8 +9,7 @@ import (
 type controllerStruct struct{}
 
 func (_ *controllerStruct) Get(ctx *gin.Context) {
-	req := new(request2.Req)
-	err := ctx.ShouldBindQuery(req)
+	req, err := request.GetReq(ctx)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
@@ -49,8 +48,7 @@ func (_ *controllerStruct) Create(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) Delete(ctx *gin.Context) {
-	req := new(request2.ReqIds)
-	err := ctx.ShouldBindJSON(req)
+	req, err := request.GetReqIds(ctx)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
