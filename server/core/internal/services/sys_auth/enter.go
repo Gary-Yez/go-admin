@@ -18,6 +18,7 @@ func (_ *Mounter) AdminRouter(adminAuthGroup *gin.RouterGroup) {
 	adminAuthGroup.GET("me", Controller.GetMe)
 	adminAuthGroup.POST("change_info", Controller.ChangeInfo)
 	adminAuthGroup.POST("change_password", Controller.ChangePassword)
+	adminAuthGroup.POST("reset_api_token", Controller.ResetApiToken)
 }
 
 func (_ *Mounter) PublicRouter(publicGroup *gin.RouterGroup) {

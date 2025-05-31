@@ -32,10 +32,6 @@ func (_ *Mounter) Initialize() error {
 	if err != nil {
 		return err
 	}
-	err = InitData()
-	if err != nil {
-		return err
-	}
 	a, err := gormadapter.NewAdapterByDBUseTableName(global.DB, "sys_", "")
 	if err != nil {
 		return err
@@ -78,6 +74,10 @@ func (_ *Mounter) Initialize() error {
 	}
 	Enforcer.SetExpireTime(time.Hour)
 	err = Enforcer.LoadPolicy()
+	if err != nil {
+		return err
+	}
+	err = InitData()
 	if err != nil {
 		return err
 	}

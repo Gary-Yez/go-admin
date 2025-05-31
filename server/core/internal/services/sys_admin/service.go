@@ -27,7 +27,7 @@ func (s *serviceStruct) Get(req *request.Req) (data *SysAdmin, err error) {
 }
 
 func (s *serviceStruct) List(req *request.ReqList) (list []*SysAdmin, total int64, err error) {
-	db := req.WithFilter(global.DB.Model(SysAdmin{}), nil)
+	db := req.WithFilter(global.DB.Model(SysAdmin{}).Omit("ApiToken"), nil)
 	err = db.Count(&total).Error
 	if err != nil {
 		return nil, 0, err
@@ -54,7 +54,7 @@ func (s *serviceStruct) Update(data *SysAdmin) (err error) {
 	}
 	query := global.DB.Select("*").
 		Omit(clause.Associations).
-		Omit("Id", "CreatedAt", "UpdatedAt")
+		Omit("Id", "CreatedAt", "UpdatedAt", "ApiToken")
 	if data.Password != "" {
 		err = s.GeneratePassHash(data)
 		if err != nil {

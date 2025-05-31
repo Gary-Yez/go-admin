@@ -131,3 +131,15 @@ func (_ *controllerStruct) ChangePassword(ctx *gin.Context) {
 		response.Success(ctx)
 	}
 }
+
+func (_ *controllerStruct) ResetApiToken(ctx *gin.Context) {
+	authUser := request.GetAuthUser(ctx)
+	token, err := Service.ResetApiToken(authUser.UserId)
+	if err != nil {
+		response.Error(ctx, err.Error())
+		return
+	}
+	response.Success(ctx, gin.H{
+		"api_token": token,
+	})
+}
