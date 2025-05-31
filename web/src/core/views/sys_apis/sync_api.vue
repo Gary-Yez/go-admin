@@ -127,15 +127,14 @@
        ...item,
       })
     })
-    let deleteIds = pageData.value.deleteApis.map((item:any)=>item.id)
     if (createPromiseList.length > 0){
       await Promise.all(createPromiseList)
     }
+    let deleteIds = pageData.value.deleteApis.map((item:any)=>item.id)
     if (deleteIds.length > 0){
       await SysApisApi.Delete(deleteIds)
     }
     ElMessage.success("同步成功")
-    getPageData()
   }
 </script>
 
