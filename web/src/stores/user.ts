@@ -13,6 +13,7 @@ export const useUserStore = defineStore("userStore", {
             nickname?:string,
             phone?:string,
             email?:string,
+            api_token?:string,
             role?:{
                 name:string,
                 menus:[]

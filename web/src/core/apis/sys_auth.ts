@@ -12,5 +12,8 @@ export const SysAuthApi = {
     },
     ChangePassword(form:any){
         return request.post("/sys_auth/change_password",form);
+    },
+    ResetApiToken(){
+        return request.post("/sys_auth/reset_api_token");
     }
 }

@@ -53,6 +53,26 @@
                     </div>
                   </el-form>
                 </el-tab-pane>
+                <el-tab-pane label="API密钥">
+                  <div v-if="userStore.UserData.api_token">
+                    <el-input class="my-[20px]" v-model="userStore.UserData.api_token" size="large" disabled></el-input>
+                    <el-row :gutter="20" >
+                      <el-col :span="12">
+                        <el-button class="w-full" size="large" type="primary" :loading="submitLoading" @click="handleResetApiToken">重置API密钥</el-button>
+                      </el-col>
+                      <el-col :span="12">
+                        <el-button class="w-full" size="large" type="success" :loading="submitLoading" @click="handleCopyApiToken">复制密钥</el-button>
+                      </el-col>
+                    </el-row>
+                  </div>
+                  <div v-else>
+                    <el-empty description="暂无API密钥，点击下方按钮生成">
+                      <template #default>
+                        <el-button size="large" type="primary" :loading="submitLoading" @click="handleResetApiToken">生成API密钥</el-button>
+                      </template>
+                    </el-empty>
+                  </div>
+                </el-tab-pane>
               </el-tabs>
             </el-card>
           </el-col>
@@ -67,6 +87,7 @@
   import {ref} from "vue";
   import {SysAuthApi} from "../../apis/sys_auth.ts";
   import {ElMessage} from "element-plus";
+  import {copyText} from "../../../utils/utils.ts";
   const submitLoading = ref(false);
   const userinfoRef = ref()
   const passwordRef = ref()
@@ -121,6 +142,22 @@
       console.log(e)
     }
     submitLoading.value = false;
+  }
+
+  const handleResetApiToken = async () => {
+    submitLoading.value = true;
+    try {
+      const response = await SysAuthApi.ResetApiToken()
+      userStore.UserData.api_token = response.data.api_token
+      ElMessage.success("生成成功")
+    }catch (e) {
+      console.log(e)
+    }
+    submitLoading.value = false;
+  }
+
+  const handleCopyApiToken = () => {
+    copyText(userStore.UserData.api_token || "")
   }
 </script>
 
