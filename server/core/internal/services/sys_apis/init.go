@@ -1,6 +1,7 @@
 package sys_apis
 
 import (
+	"fmt"
 	"gitee.com/mxcker/go-admin/server/global"
 	"net/http"
 )
@@ -59,16 +60,20 @@ func InitData() error {
 			{Method: http.MethodPost, Path: "/sys_devtools/preview", Group: "系统模块-开发工具", Description: "预览代码"},
 			{Method: http.MethodPost, Path: "/sys_devtools/delete_history", Group: "系统模块-开发工具", Description: "删除生成历史"},
 		}
-		return global.DB.Create(defaultApis).Error
+		if err := global.DB.Create(defaultApis).Error; err != nil {
+			return err
+		}
 	}
 	ignoreCount := int64(0)
 	if err := global.DB.Model(SysIgnoreApi{}).Count(&ignoreCount).Error; err != nil {
 		return err
 	}
+	fmt.Println(ignoreCount)
 	if ignoreCount == 0 {
 		var defaultIgnoreApis = []SysIgnoreApi{
 			{Method: http.MethodPost, Path: "/sys_auth/login"},
 		}
+		fmt.Println("执行")
 		return global.DB.Create(defaultIgnoreApis).Error
 	}
 	return nil
