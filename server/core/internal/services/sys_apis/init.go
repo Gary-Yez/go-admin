@@ -16,6 +16,7 @@ func InitData() error {
 			{Method: http.MethodGet, Path: "/sys_auth/me", Group: "系统模块-鉴权", Description: "获取当前用户(必选)"},
 			{Method: http.MethodPost, Path: "/sys_auth/change_info", Group: "系统模块-鉴权", Description: "修改自身信息"},
 			{Method: http.MethodPost, Path: "/sys_auth/change_password", Group: "系统模块-鉴权", Description: "修改自身密码"},
+			{Method: http.MethodPost, Path: "/sys_auth/reset_api_token", Group: "系统模块-鉴权", Description: "重置API密钥"},
 			// 系统模块-管理员
 			{Method: http.MethodPost, Path: "/sys_admin/create", Group: "系统模块-管理员", Description: "创建管理员"},
 			{Method: http.MethodPost, Path: "/sys_admin/delete", Group: "系统模块-管理员", Description: "删除管理员"},
