@@ -56,7 +56,7 @@
                 <el-tab-pane label="API密钥">
                   <div v-if="userStore.UserData.api_token">
                     <el-input class="my-[20px]" v-model="userStore.UserData.api_token" size="large" disabled></el-input>
-                    <el-row :gutter="20" >
+                    <el-row :gutter="20" class="mb-[15px]">
                       <el-col :span="12">
                         <el-button class="w-full" size="large" type="primary" :loading="submitLoading" @click="handleResetApiToken">重置API密钥</el-button>
                       </el-col>
@@ -64,6 +64,7 @@
                         <el-button class="w-full" size="large" type="success" :loading="submitLoading" @click="handleCopyApiToken">复制密钥</el-button>
                       </el-col>
                     </el-row>
+                    <el-alert type="warning" :closable="false">重置密钥后，旧的API密钥有效时间为一小时</el-alert>
                   </div>
                   <div v-else>
                     <el-empty description="暂无API密钥，点击下方按钮生成">
