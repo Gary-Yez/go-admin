@@ -1,4 +1,4 @@
-package sys_autocode
+package sys_devtools
 
 import (
 	"encoding/json"
@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"gitee.com/mxcker/go-admin/server/global"
 	"gitee.com/mxcker/go-admin/server/pkg/request"
+	"gitee.com/mxcker/go-admin/server/utils"
 	"gorm.io/gorm"
 	"path/filepath"
 )
@@ -65,7 +66,7 @@ func (s *serviceStruct) Generate(data *GenerateBody) error {
 		return err
 	}
 	for _, templateItem := range templateMap {
-		err = writeFile(filepath.Join(templateItem.Path), templateItem.Content)
+		err = utils.WriteFile(filepath.Join(templateItem.Path), templateItem.Content)
 		if err != nil {
 			fmt.Println(templateItem.Path, err.Error())
 			return err
@@ -81,12 +82,6 @@ func (s *serviceStruct) History(req *request.ReqList) (list []*SysAutoCode, tota
 		return nil, 0, err
 	}
 	err = req.WithPagination(req.WithSort(db, nil)).Find(&list).Error
-	return
-}
-
-func (s *serviceStruct) Get(req *request.Req) (data *SysAutoCode, err error) {
-	data = &SysAutoCode{}
-	err = req.WithQuery(global.DB.Model(SysAutoCode{})).First(data).Error
 	return
 }
 

@@ -1,8 +1,7 @@
-package sys_autocode
+package sys_devtools
 
 import (
 	"bytes"
-	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/printer"
@@ -137,7 +136,7 @@ func getModuleEnterContent(moduleName string) (string, string, error) {
 			newCall := &ast.CallExpr{
 				Fun: &ast.SelectorExpr{
 					X:   ast.NewIdent("loader"),
-					Sel: ast.NewIdent("Add"),
+					Sel: ast.NewIdent("Mount"),
 				},
 				Args: []ast.Expr{
 					&ast.BasicLit{Kind: token.STRING, Value: `"` + moduleName + `"`},
@@ -161,34 +160,4 @@ func getModuleEnterContent(moduleName string) (string, string, error) {
 		return "", "", err
 	}
 	return buf.String(), filePath, nil
-}
-
-func writeFile(filePath, fileContent string) error {
-	// 获取文件的目录部分
-	dir := filePath[:len(filePath)-len("/"+getFileName(filePath))]
-	// 使用 os.MkdirAll 创建目录，如果目录已经存在不会报错
-	err := os.MkdirAll(dir, os.ModePerm)
-	if err != nil {
-		fmt.Println("Error creating directory:", err)
-		return err
-	}
-
-	// 写入文件内容
-	err = os.WriteFile(filePath, []byte(fileContent), 0644)
-	if err != nil {
-		fmt.Println("Error writing file:", err)
-		return err
-	}
-
-	fmt.Println("File written successfully:", filePath)
-	return nil
-}
-
-func getFileName(filePath string) string {
-	for i := len(filePath) - 1; i >= 0; i-- {
-		if filePath[i] == '/' || filePath[i] == '\\' {
-			return filePath[i+1:]
-		}
-	}
-	return filePath
 }

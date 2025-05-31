@@ -2,12 +2,14 @@ package initialization
 
 import (
 	"errors"
-	"gitee.com/mxcker/go-admin/server/configs"
+	"gitee.com/mxcker/go-admin/server/global"
+	"gitee.com/mxcker/go-admin/server/types/config"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
 
 func InitConfig(flag *pflag.FlagSet) error {
+	global.Config = &config.Config{}
 	viper.SetEnvPrefix("MYAPP")
 	viper.AutomaticEnv()
 	_ = viper.BindPFlag("server.host", flag.Lookup("server.host"))
@@ -18,7 +20,7 @@ func InitConfig(flag *pflag.FlagSet) error {
 	if err := viper.ReadInConfig(); err != nil {
 		return err
 	}
-	if err := viper.Unmarshal(&configs.Config); err != nil {
+	if err := viper.Unmarshal(global.Config); err != nil {
 		return err
 	}
 	return nil

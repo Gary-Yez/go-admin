@@ -1,4 +1,4 @@
-package sys_menu
+package sys_devtools
 
 import (
 	"gitee.com/mxcker/go-admin/server/global"
@@ -11,12 +11,12 @@ var Service = new(serviceStruct)
 type Mounter struct {
 }
 
+func (_ *Mounter) Name() string {
+	return "核心服务-自动代码生成"
+}
+
 func (_ *Mounter) Initialize() error {
-	err := global.DB.AutoMigrate(&SysMenu{})
-	if err != nil {
-		return err
-	}
-	err = InitData()
+	err := global.DB.AutoMigrate(SysAutoCode{})
 	if err != nil {
 		return err
 	}
@@ -24,12 +24,12 @@ func (_ *Mounter) Initialize() error {
 }
 
 func (_ *Mounter) AdminRouter(adminAuthGroup *gin.RouterGroup) {
-	adminAuthGroup.GET("get", Controller.Get)
-	adminAuthGroup.GET("list", Controller.List)
-	adminAuthGroup.POST("create", Controller.Create)
-	adminAuthGroup.POST("delete", Controller.Delete)
-	adminAuthGroup.POST("edit", Controller.Edit)
+	adminAuthGroup.POST("generate", Controller.Generate)
+	adminAuthGroup.POST("preview", Controller.Preview)
+	adminAuthGroup.GET("history", Controller.History)
+	adminAuthGroup.POST("delete_history", Controller.DeleteHistory)
 }
 
 func (_ *Mounter) PublicRouter(publicGroup *gin.RouterGroup) {
+
 }

@@ -47,25 +47,16 @@ func (_ *Mounter) Initialize() error {
 	return nil
 }
 
-func (_ *Mounter) Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) error {
-	// 注册路由
-	// 需要管理员权限的路由
-	Group := adminAuthGroup.Group(path)
-	{
-		//Group.GET("get_registered_task", controller.GetRegisteredTask)
-		Group.GET("get", controller.Get)
-		Group.POST("list", controller.List)
-		Group.POST("logs", controller.GetLogs)
-		Group.POST("create", controller.Create)
-		Group.POST("delete", controller.Delete)
-		Group.POST("edit", controller.Edit)
-	}
-	// 无需鉴权的路由
-	Public := publicGroup.Group(path)
-	{
-		_ = Public
-		Public.GET("get_registered_handler", controller.GetRegisteredHandler)
+func (_ *Mounter) AdminRouter(adminAuthGroup *gin.RouterGroup) {
+	adminAuthGroup.GET("get_handlers", controller.GetHandlers)
+	adminAuthGroup.GET("get", controller.Get)
+	adminAuthGroup.POST("list", controller.List)
+	adminAuthGroup.POST("logs", controller.GetLogs)
+	adminAuthGroup.POST("create", controller.Create)
+	adminAuthGroup.POST("delete", controller.Delete)
+	adminAuthGroup.POST("edit", controller.Edit)
+}
 
-	}
-	return nil
+func (_ *Mounter) PublicRouter(publicGroup *gin.RouterGroup) {
+
 }

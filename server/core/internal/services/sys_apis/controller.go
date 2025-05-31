@@ -1,7 +1,6 @@
-package sys_cron_job
+package sys_apis
 
 import (
-	"gitee.com/mxcker/go-admin/server/global"
 	"gitee.com/mxcker/go-admin/server/pkg/request"
 	"gitee.com/mxcker/go-admin/server/pkg/response"
 	"github.com/gin-gonic/gin"
@@ -9,22 +8,26 @@ import (
 
 type controllerStruct struct{}
 
-func (_ *controllerStruct) GetHandlers(ctx *gin.Context) {
-	response.Success(ctx, global.Timer.GetHandlers())
+func (_ *controllerStruct) SyncApi(ctx *gin.Context) {
+	newApis, deleteApis, ignoreApis, err := Service.SyncApi()
+	if err != nil {
+		response.Error(ctx, err)
+		return
+	}
+	response.Success(ctx, gin.H{
+		"newApis":    newApis,
+		"deleteApis": deleteApis,
+		"ignoreApis": ignoreApis,
+	})
 }
 
-func (_ *controllerStruct) GetLogs(ctx *gin.Context) {
-	req, err := request.GetReqList(ctx)
+func (_ *controllerStruct) GetGroups(ctx *gin.Context) {
+	groups, err := Service.GetGroups()
 	if err != nil {
-		response.Error(ctx, err.Error())
+		response.Error(ctx, err)
 		return
 	}
-	list, total, err := Service.GetLogs(req)
-	if err != nil {
-		response.Error(ctx, err.Error())
-		return
-	}
-	response.List(ctx, list, total)
+	response.Success(ctx, groups)
 }
 
 func (_ *controllerStruct) Get(ctx *gin.Context) {
@@ -56,13 +59,13 @@ func (_ *controllerStruct) List(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) Create(ctx *gin.Context) {
-	data := new(SysCronJob)
+	data := new(SysApi)
 	err := ctx.ShouldBindJSON(data)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
 	}
-	err = Service.Create(data)
+	err = Service.CreateOrUpdate(data)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
@@ -85,13 +88,28 @@ func (_ *controllerStruct) Delete(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) Edit(ctx *gin.Context) {
-	data := new(SysCronJob)
+	data := new(SysApi)
 	err := ctx.ShouldBindJSON(data)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
 	}
 	err = Service.Update(data)
+	if err != nil {
+		response.Error(ctx, err.Error())
+		return
+	}
+	response.Success(ctx, data)
+}
+
+func (_ *controllerStruct) UpdateIgnore(ctx *gin.Context) {
+	data := new(SysIgnoreApi)
+	err := ctx.ShouldBindJSON(data)
+	if err != nil {
+		response.Error(ctx, err.Error())
+		return
+	}
+	err = Service.UpdateIgnore(data)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return

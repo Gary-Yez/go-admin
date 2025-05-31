@@ -4,7 +4,6 @@ import (
 	"errors"
 	"gitee.com/mxcker/go-admin/server/pkg/request"
 	"gitee.com/mxcker/go-admin/server/pkg/response"
-	"gitee.com/mxcker/go-admin/server/types"
 	"github.com/gin-gonic/gin"
 	"slices"
 )
@@ -61,11 +60,7 @@ func (_ *controllerStruct) Delete(ctx *gin.Context) {
 		response.Error(ctx, err.Error())
 		return
 	}
-	authUser, ok := ctx.MustGet("AuthUser").(types.AuthUser)
-	if !ok {
-		response.Error(ctx, "登录失效")
-		return
-	}
+	authUser := request.GetAuthUser(ctx)
 	if slices.Contains(req.Ids, authUser.UserId) {
 		response.Error(ctx, errors.New("不可以自己删除自己"))
 		return

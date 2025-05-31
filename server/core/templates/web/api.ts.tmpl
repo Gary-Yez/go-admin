@@ -9,9 +9,7 @@ export const {{.ModelName}}Api = {
         });
     },
     List(query:any){
-        return request.post("/{{.ModuleName}}/list",{
-            params:query
-        });
+        return request.post("/{{.ModuleName}}/list",query);
     },
     Create(form:any){
         return request.post("/{{.ModuleName}}/create",form);

@@ -1,6 +1,7 @@
 server:
   dev: false
   admin_prefix: "/admin"
+  api_prefix: "/api"
 mysql:
   host: ""
   port: "3306"

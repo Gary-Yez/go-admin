@@ -1,4 +1,4 @@
-package sys_autocode
+package sys_devtools
 
 import (
 	"gitee.com/mxcker/go-admin/server/pkg/request"
@@ -55,20 +55,6 @@ func (_ *controllerStruct) History(ctx *gin.Context) {
 		return
 	}
 	response.List(ctx, list, total)
-}
-
-func (_ *controllerStruct) GetHistory(ctx *gin.Context) {
-	req, err := request.GetReq(ctx)
-	if err != nil {
-		response.Error(ctx, err.Error())
-		return
-	}
-	get, err := Service.Get(req)
-	if err != nil {
-		response.Error(ctx, err.Error())
-		return
-	}
-	response.Success(ctx, get)
 }
 
 func (_ *controllerStruct) DeleteHistory(ctx *gin.Context) {

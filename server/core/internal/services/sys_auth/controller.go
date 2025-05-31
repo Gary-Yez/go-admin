@@ -4,6 +4,7 @@ import (
 	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_admin"
 	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_menu"
 	"gitee.com/mxcker/go-admin/server/global"
+	"gitee.com/mxcker/go-admin/server/pkg/request"
 	"gitee.com/mxcker/go-admin/server/pkg/response"
 	"gitee.com/mxcker/go-admin/server/types"
 	"github.com/gin-gonic/gin"
@@ -46,11 +47,7 @@ func (_ *controllerStruct) Login(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) GetMe(ctx *gin.Context) {
-	authUser, ok := ctx.MustGet("AuthUser").(types.AuthUser)
-	if !ok {
-		response.Error(ctx, "登录失效")
-		return
-	}
+	authUser := request.GetAuthUser(ctx)
 	user, err := Service.GetUser(authUser.UserId)
 	if err != nil {
 		response.Error(ctx, err.Error())
@@ -65,11 +62,7 @@ func (_ *controllerStruct) GetMe(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) ChangeInfo(ctx *gin.Context) {
-	authUser, ok := ctx.MustGet("AuthUser").(types.AuthUser)
-	if !ok {
-		response.Error(ctx, "登录失效")
-		return
-	}
+	authUser := request.GetAuthUser(ctx)
 	body := struct {
 		Nickname string `json:"nickname" binding:"required"`
 		Phone    string `json:"phone" binding:"required"`
@@ -98,11 +91,7 @@ func (_ *controllerStruct) ChangeInfo(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) ChangePassword(ctx *gin.Context) {
-	authUser, ok := ctx.MustGet("AuthUser").(types.AuthUser)
-	if !ok {
-		response.Error(ctx, "登录失效")
-		return
-	}
+	authUser := request.GetAuthUser(ctx)
 	body := struct {
 		OldPassword     string `json:"old_password" binding:"required"`
 		NewPassword     string `json:"new_password" binding:"required"`

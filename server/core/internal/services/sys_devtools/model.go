@@ -1,4 +1,4 @@
-package sys_autocode
+package sys_devtools
 
 import (
 	"gitee.com/mxcker/go-admin/server/types"

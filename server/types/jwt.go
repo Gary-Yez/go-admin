@@ -2,7 +2,7 @@ package types
 
 import (
 	"errors"
-	"gitee.com/mxcker/go-admin/server/configs"
+	"gitee.com/mxcker/go-admin/server/global"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
 )
@@ -17,7 +17,7 @@ type AccessToken struct {
 }
 
 func NewJwt() *JWT {
-	return &JWT{SigningKey: []byte(configs.Config.Jwt.Secret)}
+	return &JWT{SigningKey: []byte(global.Config.Jwt.Secret)}
 }
 
 func (c *JWT) Generate(userId uint, roleId uint) (string, error) {

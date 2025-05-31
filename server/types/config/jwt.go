@@ -1,5 +1,5 @@
-package configs
+package config
 
-type jwtConfig struct {
+type Jwt struct {
 	Secret string `mapstructure:"secret"`
 }

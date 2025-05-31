@@ -7,8 +7,9 @@ import (
 type SysMenu struct {
 	types.DbBaseModel
 	Name      string     `json:"name"`
+	Key       string     `json:"key" gorm:"unique"`
 	Icon      string     `json:"icon"`
-	Path      string     `json:"path" gorm:"unique"`
+	Path      string     `json:"path"`
 	Component string     `json:"component"`
 	Sort      int        `json:"sort"`
 	Hidden    bool       `json:"hidden"`

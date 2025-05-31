@@ -4,6 +4,7 @@ import (
 	"errors"
 	"gitee.com/mxcker/go-admin/server/global"
 	request "gitee.com/mxcker/go-admin/server/pkg/request"
+	"gitee.com/mxcker/go-admin/server/utils"
 	"gorm.io/gorm/clause"
 )
 
@@ -58,5 +59,8 @@ func (s *serviceStruct) Update(data *SysMenu) (err error) {
 
 func (s *serviceStruct) DeleteByIds(req *request.ReqIds) (err error) {
 	err = req.WithQuery(global.DB).Delete(&SysMenu{}).Error
+	if utils.IsForeignKeyConstraintError(err) {
+		return errors.New("该菜单存在子菜单，请先删除子菜单")
+	}
 	return
 }

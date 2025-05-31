@@ -6,11 +6,12 @@ import (
 
 type Mounter interface {
 	Initialize() error
-	Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) error
+	AdminRouter(adminGroup *gin.RouterGroup)
+	PublicRouter(publicGroup *gin.RouterGroup)
 }
 
 type Loader interface {
-	Add(moduleName string, mounter Mounter)
-	Initialize() error
-	Server(adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) error
+	Mount(routerPrefix string, mounter Mounter)
+	InitializeAll() error
+	RegisterRouter(adminGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) error
 }

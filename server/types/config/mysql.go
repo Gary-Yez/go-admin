@@ -1,8 +1,8 @@
-package configs
+package config
 
 import "fmt"
 
-type mysqlConfig struct {
+type Mysql struct {
 	Host     string `mapstructure:"host"`
 	Port     string `mapstructure:"port"`
 	Database string `mapstructure:"database"`
@@ -10,7 +10,7 @@ type mysqlConfig struct {
 	Password string `mapstructure:"password"`
 }
 
-func (config *mysqlConfig) ToString() string {
+func (config *Mysql) ToString() string {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
 		config.Username, config.Password, config.Host, config.Port, config.Database)
 	return dsn

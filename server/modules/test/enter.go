@@ -1,25 +1,28 @@
-package sys_auth
+package test
 
 import (
 	"github.com/gin-gonic/gin"
 )
 
-var Controller = new(controllerStruct)
+var controller = new(controllerStruct)
 var Service = new(serviceStruct)
 
 type Mounter struct {
 }
 
+func (_ *Mounter) Name() string {
+	return "测试模块"
+}
+
 func (_ *Mounter) Initialize() error {
+	// 这里执行一些初始化操作
 	return nil
 }
 
 func (_ *Mounter) AdminRouter(adminAuthGroup *gin.RouterGroup) {
-	adminAuthGroup.GET("me", Controller.GetMe)
-	adminAuthGroup.POST("change_info", Controller.ChangeInfo)
-	adminAuthGroup.POST("change_password", Controller.ChangePassword)
+	adminAuthGroup.GET("test", func(c *gin.Context) {})
 }
 
 func (_ *Mounter) PublicRouter(publicGroup *gin.RouterGroup) {
-	publicGroup.POST("login", Controller.Login)
+
 }

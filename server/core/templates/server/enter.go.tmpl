@@ -7,7 +7,10 @@ import (
     "github.com/gin-gonic/gin"
 )
 
-var controller = new(controllerStruct)
+// Controller 路由控制器
+var Controller = new(controllerStruct)
+
+// Service 服务实例
 var Service = new(serviceStruct)
 
 type Mounter struct {
@@ -25,25 +28,19 @@ func (_ *Mounter) Initialize() error {
 	return nil
 }
 
-func (_ *Mounter) Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) error {
-    // 注册路由
-    // 需要管理员权限的路由
-	Group := adminAuthGroup.Group(path)
-	{
-	    {{- if .CreateCURD}}
-		Group.GET("get", controller.Get)
-		Group.POST("list", controller.List)
-		Group.POST("create", controller.Create)
-		Group.POST("delete", controller.Delete)
-		Group.POST("edit", controller.Edit)
-		{{- else}}
-		_ = Group
-		{{- end}}
-	}
-	// 无需鉴权的路由
-    Public := publicGroup.Group(path)
-    {
-        _ = Public
-    }
-    return nil
+func (_ *Mounter) AdminRouter(adminGroup gin.IRouter) {
+    {{- if .CreateCURD}}
+	adminGroup.GET("get", Controller.Get)
+	adminGroup.POST("list", Controller.List)
+	adminGroup.POST("create", Controller.Create)
+	adminGroup.POST("delete", Controller.Delete)
+	adminGroup.POST("edit", Controller.Edit)
+	{{- else}}
+	// 这里注册需要管理权限的路由
+	{{- end}}
+}
+
+
+func (_ *Mounter) PublicRouter(publicGroup gin.IRouter) {
+	// 这里注册公共路由
 }

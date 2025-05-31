@@ -11,6 +11,18 @@ var Service = new(serviceStruct)
 type Mounter struct {
 }
 
+func (_ *Mounter) AdminRouter(adminAuthGroup *gin.RouterGroup) {
+	adminAuthGroup.GET("get", Controller.Get)
+	adminAuthGroup.GET("list", Controller.List)
+	adminAuthGroup.POST("create", Controller.Create)
+	adminAuthGroup.POST("delete", Controller.Delete)
+	adminAuthGroup.POST("edit", Controller.Edit)
+}
+
+func (_ *Mounter) PublicRouter(publicGroup *gin.RouterGroup) {
+
+}
+
 func (_ *Mounter) Initialize() error {
 	err := global.DB.AutoMigrate(&SysAdmin{})
 	if err != nil {
@@ -18,18 +30,6 @@ func (_ *Mounter) Initialize() error {
 	}
 	if err = InitData(); err != nil {
 		return err
-	}
-	return nil
-}
-
-func (_ *Mounter) Register(path string, adminAuthGroup *gin.RouterGroup, publicGroup *gin.RouterGroup) error {
-	Group := adminAuthGroup.Group(path)
-	{
-		Group.GET("get", Controller.Get)
-		Group.GET("list", Controller.List)
-		Group.POST("create", Controller.Create)
-		Group.POST("delete", Controller.Delete)
-		Group.POST("edit", Controller.Edit)
 	}
 	return nil
 }
