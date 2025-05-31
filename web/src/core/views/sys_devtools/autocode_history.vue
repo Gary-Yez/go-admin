@@ -43,7 +43,7 @@
 
 <script setup lang="ts">
   import {onMounted, ref} from "vue";
-  import {SysAutocodeApi} from "../../apis/sys_autocode.ts";
+  import {SysDevtoolsApi} from "../../apis/sys_devtools.ts";
   import {useRouter} from "vue-router";
   import {formatTime} from "../../../utils/formatTime.ts";
   import { ElMessage,ElMessageBox } from "element-plus"
@@ -59,7 +59,7 @@
   const getPageData = async () => {
     pageLoading.value = true
     try {
-      const response = await SysAutocodeApi.History(queryForm.value)
+      const response = await SysDevtoolsApi.History(queryForm.value)
       tableData.value = response.data.list
       total.value = response.data.total
     }catch(err) {
@@ -90,15 +90,17 @@
         if (action === "confirm") {
           instance.confirmButtonLoading = true
           try {
-            await SysAutocodeApi.Delete(ids)
+            await SysDevtoolsApi.Delete(ids)
             ElMessage.success("删除成功")
             getPageData().then()
           }catch (e){
             console.log(e)
           }
+          done()
           instance.confirmButtonLoading = false
+        }else if (!instance.confirmButtonLoading){
+          done()
         }
-        done()
       }
     })
   }

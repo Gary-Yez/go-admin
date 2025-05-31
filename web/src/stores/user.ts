@@ -49,17 +49,17 @@ export const useUserStore = defineStore("userStore", {
                 menus.push({
                     name: "开发工具",
                     icon: "iconoir:laptop-dev-mode",
-                    path: "dev",
+                    path: "sys_devtools",
                     children: [{
                         name:      "代码生成",
                         icon:      "iconoir:code",
-                        path:      "sys_autocode",
-                        component: "../core/views/sys_autocode/index.vue",
+                        path:      "autocode",
+                        component: "../core/views/sys_devtools/autocode.vue",
                     }, {
                         name:      "生成历史",
                         icon:      "iconoir:code-brackets-square",
-                        path:      "sys_autocode_history",
-                        component: "../core/views/sys_autocode/history.vue",
+                        path:      "autocode_history",
+                        component: "../core/views/sys_devtools/autocode_history.vue",
                     }],
                 })
             }

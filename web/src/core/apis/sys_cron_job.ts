@@ -2,36 +2,36 @@ import { request } from "../../utils/request.ts";
 
 export const SysCronJobApi = {
     GetRegisteredHandler(){
-        return request.get("/sys/cron_job/get_registered_handler");
+        return request.get("/sys_cron_job/get_handlers");
     },
     Get(id:number){
-        return request.get("/sys/cron_job/get",{
+        return request.get("/sys_cron_job/get",{
             params:{
                 id:id
             }
         });
     },
     List(query:any){
-        return request.post("/sys/cron_job/list",query);
+        return request.post("/sys_cron_job/list",query);
     },
     GetLogs(query:any){
-        return request.post("/sys/cron_job/logs",query);
+        return request.post("/sys_cron_job/logs",query);
     },
     Create(form:any){
-        return request.post("/sys/cron_job/create",{
+        return request.post("/sys_cron_job/create",{
             ...form,
             params:form.params ? JSON.stringify(form.params) : ""
         });
     },
     Edit(form:any){
         console.log(form.params)
-        return request.post("/sys/cron_job/edit", {
+        return request.post("/sys_cron_job/edit", {
             ...form,
             params:form.params ? JSON.stringify(form.params) : ""
         });
     },
     Delete(ids:Array<number>){
-        return request.post("/sys/cron_job/delete", {
+        return request.post("/sys_cron_job/delete", {
             ids:ids
         });
     }

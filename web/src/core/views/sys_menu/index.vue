@@ -4,7 +4,7 @@
       <el-button type="primary" icon="Refresh" :loading="pageLoading" @click="getPageData">刷新</el-button>
       <el-button type="primary" icon="Plus" @click="()=>handleAdd({})">新增根菜单</el-button>
     </div>
-    <el-table :data="tableData" row-key="id" default-expand-all>
+    <el-table :data="tableData" row-key="id">
       <el-table-column label="ID" prop="id" :width="100" sortable></el-table-column>
       <el-table-column label="菜单名称" prop="name"></el-table-column>
       <el-table-column label="字体图标" prop="icon">
@@ -177,9 +177,11 @@ const handleDelete = (ids:Array<any>) => {
         }catch (e){
           console.log(e)
         }
+        done()
         instance.confirmButtonLoading = false
+      } else if (!instance.confirmButtonLoading){
+        done()
       }
-      done()
     }
   })
 }

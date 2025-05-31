@@ -134,9 +134,11 @@
           }catch (e){
             console.log(e)
           }
+          done()
           instance.confirmButtonLoading = false
+        } else if (!instance.confirmButtonLoading){
+          done()
         }
-        done()
       }
     })
   }

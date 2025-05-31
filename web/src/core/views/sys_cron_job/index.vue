@@ -205,7 +205,7 @@ const handleDelete = (ids:Array<any>) => {
         }
         done()
         instance.confirmButtonLoading = false
-      }else{
+      } else if (!instance.confirmButtonLoading){
         done()
       }
     }

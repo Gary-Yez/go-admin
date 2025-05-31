@@ -158,7 +158,7 @@
 
 <script setup lang="ts">
   import {onMounted, ref} from "vue";
-  import {SysAutocodeApi} from "../../apis/sys_autocode.ts";
+  import {SysDevtoolsApi} from "../../apis/sys_devtools.ts";
   import {useRoute} from "vue-router";
   import { ElMessage } from "element-plus";
 
@@ -222,7 +222,7 @@
       if (fieldFormRef.value){
         await fieldFormRef.value.validate()
       }
-      const response = await SysAutocodeApi.Preview(submitForm.value)
+      const response = await SysDevtoolsApi.Preview(submitForm.value)
       previewList.value = response.data
       previewShow.value = true
     }catch (e) {
@@ -234,7 +234,7 @@
   const handleConfirm = async () => {
     submitLoading.value = true
     try {
-      await SysAutocodeApi.Generate(submitForm.value)
+      await SysDevtoolsApi.Generate(submitForm.value)
       previewShow.value = false
       ElMessage.success("生成成功")
     }catch (e) {
@@ -248,7 +248,7 @@
     if (route.query.id){
       isEdit.value = true
       pageLoading.value = true
-      const response = await SysAutocodeApi.GetHistory(route.query.id)
+      const response = await SysDevtoolsApi.GetHistory(route.query.id)
       submitForm.value = JSON.parse(response.data.form)
       pageLoading.value = false
     }else{
