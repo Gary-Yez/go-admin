@@ -2,8 +2,8 @@ package sys_cron_job
 
 import (
 	"gitee.com/mxcker/go-admin/server/global"
-	"gitee.com/mxcker/go-admin/server/pkg/request"
-	"gitee.com/mxcker/go-admin/server/pkg/response"
+	"gitee.com/mxcker/go-admin/server/utils/request"
+	"gitee.com/mxcker/go-admin/server/utils/response"
 	"github.com/gin-gonic/gin"
 )
 

@@ -1,12 +1,12 @@
 package {{.ModuleName}}
 
-import "gitee.com/mxcker/go-admin/server/types"
+import "gitee.com/mxcker/go-admin/server/utils"
 
 type {{.ModelName}} struct {
 	{{- if .UseSoftDelete}}
-	types.DbBaseModelWidthDelete
+	utils.DbBaseModelWidthDelete
 	{{- else if .UseCommon}}
-	types.DbBaseModel
+	utils.DbBaseModel
 	{{- end}}
 	{{- range .Fields}}
 	{{.Key}} {{.Type}} `json:"{{if .Hidden}}-{{else}}{{.Name}}{{end}}"{{if .IndexType}} gorm:"{{.IndexType}};"{{end}}{{if .Required }} binding:"required"{{end}}`

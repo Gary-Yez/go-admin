@@ -3,8 +3,8 @@ package sys_cron_job
 import (
 	"context"
 	"encoding/json"
+	"gitee.com/mxcker/go-admin/server/core/pkg/timer"
 	"gitee.com/mxcker/go-admin/server/global"
-	"gitee.com/mxcker/go-admin/server/pkg/timer"
 	"github.com/gin-gonic/gin"
 	"time"
 )
@@ -13,6 +13,10 @@ var controller = new(controllerStruct)
 var Service = new(serviceStruct)
 
 type Mounter struct {
+}
+
+func (_ *Mounter) Name() string {
+	return "核心服务-定时任务"
 }
 
 func (_ *Mounter) Initialize() error {

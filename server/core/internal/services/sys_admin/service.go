@@ -3,7 +3,7 @@ package sys_admin
 import (
 	"errors"
 	"gitee.com/mxcker/go-admin/server/global"
-	"gitee.com/mxcker/go-admin/server/pkg/request"
+	"gitee.com/mxcker/go-admin/server/utils/request"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm/clause"
 )

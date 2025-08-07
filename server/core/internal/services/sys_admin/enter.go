@@ -11,6 +11,10 @@ var Service = new(serviceStruct)
 type Mounter struct {
 }
 
+func (_ *Mounter) Name() string {
+	return "核心服务-管理员"
+}
+
 func (_ *Mounter) AdminRouter(adminAuthGroup *gin.RouterGroup) {
 	adminAuthGroup.GET("get", Controller.Get)
 	adminAuthGroup.GET("list", Controller.List)

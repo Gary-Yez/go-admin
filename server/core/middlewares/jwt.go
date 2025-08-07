@@ -2,9 +2,9 @@ package middlewares
 
 import (
 	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_auth"
-	"gitee.com/mxcker/go-admin/server/pkg/request"
-	"gitee.com/mxcker/go-admin/server/pkg/response"
-	"gitee.com/mxcker/go-admin/server/types"
+	"gitee.com/mxcker/go-admin/server/utils"
+	"gitee.com/mxcker/go-admin/server/utils/request"
+	"gitee.com/mxcker/go-admin/server/utils/response"
 	"github.com/gin-gonic/gin"
 	"strings"
 )
@@ -26,7 +26,7 @@ func JWTMiddleware() gin.HandlerFunc {
 				}
 				request.SetAuthUser(ctx, authUser)
 			} else {
-				jwt := types.NewJwt()
+				jwt := utils.NewJwt()
 				accessToken, err := jwt.Parse(token)
 				if err != nil {
 					response.Error(ctx, err, 401)

@@ -1,12 +1,10 @@
 package sys_menu
 
 import (
-	"fmt"
 	"gitee.com/mxcker/go-admin/server/global"
 )
 
 func InitData() error {
-	fmt.Println("初始化系统菜单")
 	data := []*SysMenu{
 		{
 			Name:      "仪表盘",

@@ -1,4 +1,4 @@
-package types
+package utils
 
 import (
 	"errors"
@@ -6,6 +6,11 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"time"
 )
+
+type AuthUser struct {
+	UserId uint `json:"user_id"`
+	RoleId uint `json:"role_id"`
+}
 
 type JWT struct {
 	SigningKey []byte

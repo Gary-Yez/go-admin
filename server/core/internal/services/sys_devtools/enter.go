@@ -9,10 +9,12 @@ var Controller = new(controllerStruct)
 var Service = new(serviceStruct)
 
 type Mounter struct {
+	name      string
+	routePath string
 }
 
-func (_ *Mounter) Name() string {
-	return "核心服务-自动代码生成"
+func (m *Mounter) Name() string {
+	return "核心服务-开发工具"
 }
 
 func (_ *Mounter) Initialize() error {

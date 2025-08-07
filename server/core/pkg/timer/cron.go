@@ -3,8 +3,8 @@ package timer
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/go-co-op/gocron/v2"
+	"log"
 	"sync"
 	"time"
 )
@@ -67,7 +67,7 @@ func (t *defaultManage) startSync(syncInterval time.Duration) {
 		case <-timer.C:
 			jobs, err := t.jobSyncer.Sync()
 			if err != nil {
-				fmt.Println("定时任务调度器同步任务失败:", err)
+				log.Println("定时任务调度器同步任务失败:", err)
 				continue
 			}
 			newJobs := make(map[string]Job, len(jobs))

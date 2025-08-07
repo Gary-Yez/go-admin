@@ -1,7 +1,6 @@
 package sys_apis
 
 import (
-	"fmt"
 	"gitee.com/mxcker/go-admin/server/global"
 	"net/http"
 )
@@ -68,12 +67,10 @@ func InitData() error {
 	if err := global.DB.Model(SysIgnoreApi{}).Count(&ignoreCount).Error; err != nil {
 		return err
 	}
-	fmt.Println(ignoreCount)
 	if ignoreCount == 0 {
 		var defaultIgnoreApis = []SysIgnoreApi{
 			{Method: http.MethodPost, Path: "/sys_auth/login"},
 		}
-		fmt.Println("执行")
 		return global.DB.Create(defaultIgnoreApis).Error
 	}
 	return nil

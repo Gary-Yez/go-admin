@@ -4,9 +4,9 @@ import (
 	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_admin"
 	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_menu"
 	"gitee.com/mxcker/go-admin/server/global"
-	"gitee.com/mxcker/go-admin/server/pkg/request"
-	"gitee.com/mxcker/go-admin/server/pkg/response"
-	"gitee.com/mxcker/go-admin/server/types"
+	"gitee.com/mxcker/go-admin/server/utils"
+	"gitee.com/mxcker/go-admin/server/utils/request"
+	"gitee.com/mxcker/go-admin/server/utils/response"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"sort"
@@ -34,7 +34,7 @@ func (_ *controllerStruct) Login(ctx *gin.Context) {
 	} else if admin.Status != 1 {
 		response.Error(ctx, "管理员被禁用")
 	} else {
-		jwt := types.NewJwt()
+		jwt := utils.NewJwt()
 		tokenString, err := jwt.Generate(admin.Id, admin.RoleId)
 		if err != nil {
 			response.Error(ctx, err.Error())

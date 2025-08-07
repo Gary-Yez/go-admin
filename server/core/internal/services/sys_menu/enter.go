@@ -11,6 +11,10 @@ var Service = new(serviceStruct)
 type Mounter struct {
 }
 
+func (_ *Mounter) Name() string {
+	return "核心服务-菜单管理"
+}
+
 func (_ *Mounter) Initialize() error {
 	err := global.DB.AutoMigrate(&SysMenu{})
 	if err != nil {

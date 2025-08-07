@@ -1,13 +1,11 @@
 package sys_admin
 
 import (
-	"fmt"
 	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_role"
 	"gitee.com/mxcker/go-admin/server/global"
 )
 
 func InitData() error {
-	fmt.Println("初始化默认管理员")
 	db := global.DB.Model(&SysAdmin{})
 	count := int64(0)
 	if err := db.Count(&count).Error; err != nil {

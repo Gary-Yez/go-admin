@@ -3,10 +3,9 @@ package sys_devtools
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"gitee.com/mxcker/go-admin/server/global"
-	"gitee.com/mxcker/go-admin/server/pkg/request"
 	"gitee.com/mxcker/go-admin/server/utils"
+	"gitee.com/mxcker/go-admin/server/utils/request"
 	"gorm.io/gorm"
 	"path/filepath"
 )
@@ -68,7 +67,6 @@ func (s *serviceStruct) Generate(data *GenerateBody) error {
 	for _, templateItem := range templateMap {
 		err = utils.WriteFile(filepath.Join(templateItem.Path), templateItem.Content)
 		if err != nil {
-			fmt.Println(templateItem.Path, err.Error())
 			return err
 		}
 	}

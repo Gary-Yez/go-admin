@@ -1,7 +1,7 @@
 package sys_devtools
 
 import (
-	"gitee.com/mxcker/go-admin/server/types"
+	"gitee.com/mxcker/go-admin/server/utils"
 )
 
 type Filed struct {
@@ -38,7 +38,7 @@ type TemplateItem struct {
 }
 
 type SysAutoCode struct {
-	types.DbBaseModel
+	utils.DbBaseModel
 	ModuleName string `json:"module_name" gorm:"unique"`
 	ModelName  string `json:"model_name" gorm:"unique"`
 	Form       string `json:"form" json:"form,omitempty"`

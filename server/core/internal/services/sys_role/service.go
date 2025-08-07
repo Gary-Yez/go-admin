@@ -3,8 +3,8 @@ package sys_role
 import (
 	"errors"
 	"gitee.com/mxcker/go-admin/server/global"
-	"gitee.com/mxcker/go-admin/server/pkg/request"
 	"gitee.com/mxcker/go-admin/server/utils"
+	"gitee.com/mxcker/go-admin/server/utils/request"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"strconv"

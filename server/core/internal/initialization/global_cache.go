@@ -1,15 +1,15 @@
 package initialization
 
 import (
+	cacher2 "gitee.com/mxcker/go-admin/server/core/pkg/cacher"
 	"gitee.com/mxcker/go-admin/server/global"
-	"gitee.com/mxcker/go-admin/server/pkg/cacher"
 	"github.com/redis/go-redis/v9"
 	"time"
 )
 
 func initCache() error {
 	if global.Config.Redis.IsNotEmpty() {
-		r, err := cacher.NewRedisCache(&redis.Options{
+		r, err := cacher2.NewRedisCache(&redis.Options{
 			Addr:     global.Config.Redis.Host + ":" + global.Config.Redis.Port,
 			Username: global.Config.Redis.Username,
 			Password: global.Config.Redis.Password, // 没有密码默认留空
@@ -21,7 +21,7 @@ func initCache() error {
 		global.Cache = r
 		return nil
 	} else {
-		c, err := cacher.NewMemoryCache(time.Minute)
+		c, err := cacher2.NewMemoryCache(time.Minute)
 		if err != nil {
 			return err
 		}

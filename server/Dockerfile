@@ -13,7 +13,7 @@ FROM alpine
 
 WORKDIR /app
 COPY --from=builder /app/app .
-COPY --from=builder /app/config.dev.yaml .
+COPY --from=builder /app/config.yaml .
 
 RUN apk add --no-cache ca-certificates tzdata
 ENV TZ=Asia/Shanghai

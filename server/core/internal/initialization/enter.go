@@ -2,8 +2,8 @@ package initialization
 
 import (
 	"errors"
+	"gitee.com/mxcker/go-admin/server/config"
 	"gitee.com/mxcker/go-admin/server/global"
-	"gitee.com/mxcker/go-admin/server/types/config"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )

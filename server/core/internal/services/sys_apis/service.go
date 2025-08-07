@@ -4,7 +4,7 @@ import (
 	"errors"
 	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_role"
 	"gitee.com/mxcker/go-admin/server/global"
-	"gitee.com/mxcker/go-admin/server/pkg/request"
+	"gitee.com/mxcker/go-admin/server/utils/request"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"strings"

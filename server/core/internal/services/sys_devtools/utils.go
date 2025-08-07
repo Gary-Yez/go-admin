@@ -79,7 +79,6 @@ func getModuleEnterContent(moduleName string) (string, string, error) {
 		if !ok || genDecl.Tok != token.IMPORT {
 			continue
 		}
-
 		// 检查是否已经存在该导入
 		for _, spec := range genDecl.Specs {
 			importSpec := spec.(*ast.ImportSpec)
@@ -120,38 +119,62 @@ func getModuleEnterContent(moduleName string) (string, string, error) {
 		newDecls = append(newDecls, newImportDecl)
 		f.Decls = append(newDecls, f.Decls...)
 	}
-	// 查找目标函数
+	// 查找目标Init函数
 	ast.Inspect(f, func(n ast.Node) bool {
 		fn, ok := n.(*ast.FuncDecl)
-		if !ok || fn.Name.Name != "Load" {
+		if !ok || fn.Name.Name != "Init" {
 			return true
 		}
-		// 找到函数体中的return语句
-		for i, stmt := range fn.Body.List {
-			ret, ok := stmt.(*ast.ReturnStmt)
-			if !ok || len(ret.Results) != 1 {
+		moduleLit := &ast.BasicLit{
+			Kind:  token.STRING,
+			Value: `"` + moduleName + `"`,
+		}
+		// 判断是否已经存在 core.AddModule("模块名", ...)
+		for _, stmt := range fn.Body.List {
+			exprStmt, ok := stmt.(*ast.ExprStmt)
+			if !ok {
 				continue
 			}
-			// 构造要插入的表达式：otherModule.Register("/other", adminAuthGroup, publicGroup)
-			newCall := &ast.CallExpr{
-				Fun: &ast.SelectorExpr{
-					X:   ast.NewIdent("loader"),
-					Sel: ast.NewIdent("Mount"),
-				},
-				Args: []ast.Expr{
-					&ast.BasicLit{Kind: token.STRING, Value: `"` + moduleName + `"`},
-					ast.NewIdent("new(" + moduleName + ".Mounter)"),
-					//ast.NewIdent("publicGroup"),
-				},
+			callExpr, ok := exprStmt.X.(*ast.CallExpr)
+			if !ok {
+				continue
 			}
-			// 在return前插入新语句
-			newStmt := &ast.ExprStmt{X: newCall}
-			fn.Body.List = append(
-				fn.Body.List[:i],
-				append([]ast.Stmt{newStmt}, fn.Body.List[i:]...)...,
-			)
-			break
+			sel, ok := callExpr.Fun.(*ast.SelectorExpr)
+			if !ok {
+				continue
+			}
+			if sel.Sel.Name != "AddModule" {
+				continue
+			}
+			xIdent, ok := sel.X.(*ast.Ident)
+			if !ok || xIdent.Name != "core" {
+				continue
+			}
+			if len(callExpr.Args) > 0 {
+				arg0, ok := callExpr.Args[0].(*ast.BasicLit)
+				if ok && arg0.Kind == token.STRING && arg0.Value == moduleLit.Value {
+					// 已经添加过，不重复添加
+					return false
+				}
+			}
 		}
+
+		// 构造 core.AddModule("模块名", new(模块名.Mounter))
+		newCall := &ast.CallExpr{
+			Fun: &ast.SelectorExpr{
+				X:   ast.NewIdent("core"),
+				Sel: ast.NewIdent("AddModule"),
+			},
+			Args: []ast.Expr{
+				moduleLit,
+				ast.NewIdent("new(" + moduleName + ".Mounter)"),
+			},
+		}
+		newStmt := &ast.ExprStmt{X: newCall}
+
+		// 添加到函数体末尾
+		fn.Body.List = append(fn.Body.List, newStmt)
+
 		return false
 	})
 	// 将修改后的AST写回文件

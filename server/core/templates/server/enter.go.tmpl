@@ -7,13 +7,16 @@ import (
     "github.com/gin-gonic/gin"
 )
 
-// Controller 路由控制器
-var Controller = new(controllerStruct)
-
-// Service 服务实例
-var Service = new(serviceStruct)
+var (
+	Controller = new(controllerStruct)
+	Service    = new(serviceStruct)
+)
 
 type Mounter struct {
+}
+
+func (_ *Mounter) Name() string {
+	return "{{.ChineseModuleName}}"
 }
 
 func (_ *Mounter) Initialize() error {
@@ -28,7 +31,7 @@ func (_ *Mounter) Initialize() error {
 	return nil
 }
 
-func (_ *Mounter) AdminRouter(adminGroup gin.IRouter) {
+func (_ *Mounter) AdminRouter(adminGroup *gin.RouterGroup) {
     {{- if .CreateCURD}}
 	adminGroup.GET("get", Controller.Get)
 	adminGroup.POST("list", Controller.List)
@@ -41,6 +44,6 @@ func (_ *Mounter) AdminRouter(adminGroup gin.IRouter) {
 }
 
 
-func (_ *Mounter) PublicRouter(publicGroup gin.IRouter) {
+func (_ *Mounter) PublicRouter(publicGroup *gin.RouterGroup) {
 	// 这里注册公共路由
 }

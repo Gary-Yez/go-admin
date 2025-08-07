@@ -2,9 +2,9 @@ package sys_cron_job
 
 import (
 	"errors"
+	"gitee.com/mxcker/go-admin/server/core/pkg/timer"
 	"gitee.com/mxcker/go-admin/server/global"
-	"gitee.com/mxcker/go-admin/server/pkg/request"
-	"gitee.com/mxcker/go-admin/server/pkg/timer"
+	"gitee.com/mxcker/go-admin/server/utils/request"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )

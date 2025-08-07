@@ -1,13 +1,11 @@
 package sys_role
 
 import (
-	"fmt"
 	"gitee.com/mxcker/go-admin/server/global"
 	"strconv"
 )
 
 func InitData() error {
-	fmt.Println("初始化默认角色")
 	db := global.DB.Model(&SysRole{})
 	count := int64(0)
 	if err := db.Count(&count).Error; err != nil {

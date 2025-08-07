@@ -6,7 +6,6 @@ import (
 	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_menu"
 	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_role"
 	"gitee.com/mxcker/go-admin/server/global"
-	"gitee.com/mxcker/go-admin/server/types"
 	"gitee.com/mxcker/go-admin/server/utils"
 	"gorm.io/gorm"
 	"time"
@@ -54,8 +53,8 @@ func (s *serviceStruct) ResetApiToken(id uint) (string, error) {
 	return randomString, global.DB.Model(sys_admin.SysAdmin{}).Where("id = ?", id).UpdateColumn("api_token", randomString).Error
 }
 
-func (s *serviceStruct) VerifyApiToken(token string) (user *types.AuthUser, err error) {
-	user = &types.AuthUser{}
+func (s *serviceStruct) VerifyApiToken(token string) (user *utils.AuthUser, err error) {
+	user = &utils.AuthUser{}
 	if token == "" {
 		return nil, errors.New("无效的API密钥")
 	}
@@ -74,7 +73,7 @@ func (s *serviceStruct) VerifyApiToken(token string) (user *types.AuthUser, err 
 		}
 		return nil, errors.New("API验证失败")
 	}
-	authUser := types.AuthUser{
+	authUser := utils.AuthUser{
 		UserId: admin.Id,
 		RoleId: admin.RoleId,
 	}

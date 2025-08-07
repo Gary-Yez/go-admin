@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"gitee.com/mxcker/go-admin/server/core"
+	"gitee.com/mxcker/go-admin/server/core/internal"
 	"gitee.com/mxcker/go-admin/server/core/internal/initialization"
 	"gitee.com/mxcker/go-admin/server/global"
 	"github.com/gin-gonic/gin"
@@ -26,8 +26,7 @@ var rootCmd = &cobra.Command{
 			gin.SetMode("release")
 		}
 		//挂载核心组件
-		core.Run(true)
-
+		internal.Run(true)
 	},
 }
 

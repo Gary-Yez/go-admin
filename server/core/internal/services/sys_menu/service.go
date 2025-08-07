@@ -3,8 +3,8 @@ package sys_menu
 import (
 	"errors"
 	"gitee.com/mxcker/go-admin/server/global"
-	request "gitee.com/mxcker/go-admin/server/pkg/request"
 	"gitee.com/mxcker/go-admin/server/utils"
+	"gitee.com/mxcker/go-admin/server/utils/request"
 	"gorm.io/gorm/clause"
 )
 

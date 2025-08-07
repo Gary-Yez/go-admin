@@ -10,6 +10,10 @@ var Service = new(serviceStruct)
 type Mounter struct {
 }
 
+func (_ *Mounter) Name() string {
+	return "核心服务-鉴权服务"
+}
+
 func (_ *Mounter) Initialize() error {
 	return nil
 }

@@ -1,16 +1,15 @@
 package sys_cron_job
 
 import (
-	"fmt"
 	"gitee.com/mxcker/go-admin/server/global"
-	"gitee.com/mxcker/go-admin/server/types"
+	"gitee.com/mxcker/go-admin/server/utils"
 	"gorm.io/gorm/clause"
 	"strconv"
 	"time"
 )
 
 type SysCronJob struct {
-	types.DbBaseModel
+	utils.DbBaseModel
 	Name        string     `json:"name" binding:"required"`
 	HandlerKey  string     `json:"handler_key" binding:"required"`
 	Params      string     `json:"params"`
@@ -70,12 +69,11 @@ func (j *SysCronJob) AfterRun(startTime time.Time, endTime time.Time, nextRunTim
 		Error:     errMsg,
 		JobId:     j.Id,
 	}
-	fmt.Print(errMsg)
 	global.DB.Omit(clause.Associations).Create(log)
 }
 
 type SysCronJobLog struct {
-	types.DbBaseModel
+	utils.DbBaseModel
 	StartTime time.Time   `json:"start_time"`
 	EndTime   time.Time   `json:"end_time"`
 	Error     string      `json:"error"`

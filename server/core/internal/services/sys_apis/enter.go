@@ -13,6 +13,10 @@ var (
 type Mounter struct {
 }
 
+func (_ *Mounter) Name() string {
+	return "核心服务-API管理"
+}
+
 func (_ *Mounter) Initialize() error {
 	// 这里执行一些初始化操作
 	// 初始化数据库

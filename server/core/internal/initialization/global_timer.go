@@ -3,9 +3,9 @@ package initialization
 import (
 	"context"
 	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_cron_job"
+	"gitee.com/mxcker/go-admin/server/core/pkg/cacher"
+	"gitee.com/mxcker/go-admin/server/core/pkg/timer"
 	"gitee.com/mxcker/go-admin/server/global"
-	"gitee.com/mxcker/go-admin/server/pkg/cacher"
-	timer2 "gitee.com/mxcker/go-admin/server/pkg/timer"
 	"github.com/go-co-op/gocron/v2"
 	"time"
 )
@@ -34,7 +34,7 @@ func (r *cacheLocker) Lock(_ context.Context, key string) (gocron.Lock, error) {
 }
 
 func initTaskManager() error {
-	t, err := timer2.NewManager(timer2.SchedulerOption{
+	t, err := timer.NewManager(timer.SchedulerOption{
 		JobSyncer:         sys_cron_job.Service,
 		DistributedLocker: &cacheLocker{},
 		Location:          time.UTC,
