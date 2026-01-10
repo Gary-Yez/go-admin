@@ -1,11 +1,11 @@
 package sys_role
 
 import (
+	rediswatcher "gitee.com/mxcker/go-admin/server/core/pkg/redis_wacher"
 	"gitee.com/mxcker/go-admin/server/global"
-	"github.com/casbin/casbin/v2"
-	"github.com/casbin/casbin/v2/model"
+	"github.com/casbin/casbin/v3"
+	"github.com/casbin/casbin/v3/model"
 	gormadapter "github.com/casbin/gorm-adapter/v3"
-	rediswatcher "github.com/casbin/redis-watcher/v2"
 	"github.com/gin-gonic/gin"
 	"time"
 )

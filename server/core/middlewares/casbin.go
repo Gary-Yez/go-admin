@@ -4,7 +4,7 @@ import (
 	"gitee.com/mxcker/go-admin/server/core/pkg/request"
 	"gitee.com/mxcker/go-admin/server/core/pkg/response"
 	"gitee.com/mxcker/go-admin/server/global"
-	"github.com/casbin/casbin/v2"
+	"github.com/casbin/casbin/v3"
 	"github.com/gin-gonic/gin"
 	"strconv"
 	"strings"
