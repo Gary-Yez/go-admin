@@ -1,7 +1,7 @@
 package sys_role
 
 import (
-	rediswatcher "gitee.com/mxcker/go-admin/server/core/pkg/redis_wacher"
+	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_role/redis_wacher"
 	"gitee.com/mxcker/go-admin/server/global"
 	"github.com/casbin/casbin/v3"
 	"github.com/casbin/casbin/v3/model"
@@ -63,10 +63,10 @@ func (_ *Mounter) Initialize() error {
 	Enforcer, _ = casbin.NewSyncedCachedEnforcer(m, a)
 	if global.Config.Redis.IsNotEmpty() {
 		//Enforcer.EnableCache(false)
-		watcher, err := rediswatcher.NewWatcher(global.Config.Redis.Address(), rediswatcher.WatcherOptions{
+		watcher, err := redis_wacher.NewWatcher(global.Config.Redis.Address(), redis_wacher.WatcherOptions{
 			Options:                *global.Config.Redis.Option(),
 			IgnoreSelf:             true,
-			OptionalUpdateCallback: rediswatcher.DefaultUpdateCallback(Enforcer),
+			OptionalUpdateCallback: redis_wacher.DefaultUpdateCallback(Enforcer),
 		})
 		if err != nil {
 			return err
