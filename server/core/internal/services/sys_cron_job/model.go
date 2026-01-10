@@ -2,14 +2,15 @@ package sys_cron_job
 
 import (
 	"gitee.com/mxcker/go-admin/server/global"
-	"gitee.com/mxcker/go-admin/server/utils"
 	"gorm.io/gorm/clause"
 	"strconv"
 	"time"
 )
 
 type SysCronJob struct {
-	utils.DbBaseModel
+	Id          uint       `gorm:"primary_key;AUTO_INCREMENT" json:"id"`
+	CreatedAt   time.Time  `json:"created_at" gorm:"comment:创建时间"`
+	UpdatedAt   time.Time  `json:"updated_at" gorm:"comment:更新时间"`
 	Name        string     `json:"name" binding:"required"`
 	HandlerKey  string     `json:"handler_key" binding:"required"`
 	Params      string     `json:"params"`
@@ -73,7 +74,9 @@ func (j *SysCronJob) AfterRun(startTime time.Time, endTime time.Time, nextRunTim
 }
 
 type SysCronJobLog struct {
-	utils.DbBaseModel
+	Id        uint        `gorm:"primary_key;AUTO_INCREMENT" json:"id"`
+	CreatedAt time.Time   `json:"created_at" gorm:"comment:创建时间"`
+	UpdatedAt time.Time   `json:"updated_at" gorm:"comment:更新时间"`
 	StartTime time.Time   `json:"start_time"`
 	EndTime   time.Time   `json:"end_time"`
 	Error     string      `json:"error"`

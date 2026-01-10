@@ -2,8 +2,8 @@ package sys_admin
 
 import (
 	"errors"
-	"gitee.com/mxcker/go-admin/server/utils/request"
-	"gitee.com/mxcker/go-admin/server/utils/response"
+	request2 "gitee.com/mxcker/go-admin/server/core/pkg/request"
+	"gitee.com/mxcker/go-admin/server/core/pkg/response"
 	"github.com/gin-gonic/gin"
 	"slices"
 )
@@ -11,7 +11,7 @@ import (
 type controllerStruct struct{}
 
 func (_ *controllerStruct) Get(ctx *gin.Context) {
-	req, err := request.GetReq(ctx)
+	req, err := request2.GetReq(ctx)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
@@ -25,7 +25,7 @@ func (_ *controllerStruct) Get(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) List(ctx *gin.Context) {
-	req, err := request.GetReqList(ctx)
+	req, err := request2.GetReqList(ctx)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
@@ -55,12 +55,12 @@ func (_ *controllerStruct) Create(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) Delete(ctx *gin.Context) {
-	req, err := request.GetReqIds(ctx)
+	req, err := request2.GetReqIds(ctx)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
 	}
-	authUser := request.GetAuthUser(ctx)
+	authUser := request2.GetAuthUser(ctx)
 	if slices.Contains(req.Ids, authUser.UserId) {
 		response.Error(ctx, errors.New("不可以自己删除自己"))
 		return

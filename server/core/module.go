@@ -11,11 +11,20 @@ type Module interface {
 	PublicRouter(publicGroup *gin.RouterGroup)
 }
 
-var Modules = make(map[string]Module)
+type registeredModule struct {
+	Key string
+	Module
+}
 
-func AddModule(routePath string, m Module) {
-	if Modules[routePath] != nil {
-		panic("重复注册的routePath：" + routePath)
+var moduleKeyMap = make(map[string]bool)
+var Modules []*registeredModule
+
+func AddModule(moduleKey string, m Module) {
+	if moduleKeyMap[moduleKey] {
+		panic("重复注册的模组：" + moduleKey)
 	}
-	Modules[routePath] = m
+	Modules = append(Modules, &registeredModule{
+		Key:    moduleKey,
+		Module: m,
+	})
 }

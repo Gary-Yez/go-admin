@@ -1,9 +1,9 @@
 package middlewares
 
 import (
+	"gitee.com/mxcker/go-admin/server/core/pkg/request"
+	"gitee.com/mxcker/go-admin/server/core/pkg/response"
 	"gitee.com/mxcker/go-admin/server/global"
-	"gitee.com/mxcker/go-admin/server/utils/request"
-	"gitee.com/mxcker/go-admin/server/utils/response"
 	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
 	"strconv"

@@ -3,8 +3,8 @@ package sys_apis
 import (
 	"errors"
 	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_role"
+	request2 "gitee.com/mxcker/go-admin/server/core/pkg/request"
 	"gitee.com/mxcker/go-admin/server/global"
-	"gitee.com/mxcker/go-admin/server/utils/request"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"strings"
@@ -90,13 +90,13 @@ func (s *serviceStruct) GetGroups() (groups []string, err error) {
 	return
 }
 
-func (s *serviceStruct) Get(req *request.Req) (data *SysApi, err error) {
+func (s *serviceStruct) Get(req *request2.Req) (data *SysApi, err error) {
 	data = &SysApi{}
 	err = req.WithQuery(global.DB.Model(SysApi{})).First(data).Error
 	return
 }
 
-func (s *serviceStruct) List(req *request.ReqList) (list []*SysApi, total int64, err error) {
+func (s *serviceStruct) List(req *request2.ReqList) (list []*SysApi, total int64, err error) {
 	db := req.WithFilter(global.DB.Model(SysApi{}), nil)
 	err = db.Count(&total).Error
 	if err != nil {
@@ -128,7 +128,7 @@ func (s *serviceStruct) UpdateIgnore(api *SysIgnoreApi) (err error) {
 	}
 }
 
-func (s *serviceStruct) DeleteByIds(req *request.ReqIds) error {
+func (s *serviceStruct) DeleteByIds(req *request2.ReqIds) error {
 	return global.DB.Transaction(func(tx *gorm.DB) error {
 		var list []*SysApi
 		if err := req.WithQuery(global.DB).Find(&list).Error; err != nil {

@@ -2,9 +2,9 @@ package sys_role
 
 import (
 	"errors"
+	request2 "gitee.com/mxcker/go-admin/server/core/pkg/request"
 	"gitee.com/mxcker/go-admin/server/global"
 	"gitee.com/mxcker/go-admin/server/utils"
-	"gitee.com/mxcker/go-admin/server/utils/request"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"strconv"
@@ -13,7 +13,7 @@ import (
 type serviceStruck struct {
 }
 
-func (s *serviceStruck) Get(req *request.Req) (data *SysRole, err error) {
+func (s *serviceStruck) Get(req *request2.Req) (data *SysRole, err error) {
 	data = &SysRole{}
 	err = req.WithQuery(global.DB.Model(SysRole{}).Preload("Menus")).First(data).Error
 	policy, err := Enforcer.GetFilteredPolicy(0, strconv.Itoa(int(data.Id)))
@@ -51,7 +51,7 @@ func (s *serviceStruck) Update(data *SysRole) (err error) {
 		Where("id = ?", data.Id).Updates(data).Error
 }
 
-func (s *serviceStruck) DeleteByIds(req *request.ReqIds) error {
+func (s *serviceStruck) DeleteByIds(req *request2.ReqIds) error {
 	return global.DB.Transaction(func(tx *gorm.DB) error {
 		err := req.WithQuery(global.DB).Where("`default` = ?", false).Delete(&SysRole{}).Error
 		if err != nil {

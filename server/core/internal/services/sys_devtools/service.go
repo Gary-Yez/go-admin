@@ -3,9 +3,8 @@ package sys_devtools
 import (
 	"encoding/json"
 	"errors"
+	request2 "gitee.com/mxcker/go-admin/server/core/pkg/request"
 	"gitee.com/mxcker/go-admin/server/global"
-	"gitee.com/mxcker/go-admin/server/utils"
-	"gitee.com/mxcker/go-admin/server/utils/request"
 	"gorm.io/gorm"
 	"path/filepath"
 )
@@ -65,7 +64,7 @@ func (s *serviceStruct) Generate(data *GenerateBody) error {
 		return err
 	}
 	for _, templateItem := range templateMap {
-		err = utils.WriteFile(filepath.Join(templateItem.Path), templateItem.Content)
+		err = writeFile(filepath.Join(templateItem.Path), templateItem.Content)
 		if err != nil {
 			return err
 		}
@@ -73,7 +72,7 @@ func (s *serviceStruct) Generate(data *GenerateBody) error {
 	return err
 }
 
-func (s *serviceStruct) History(req *request.ReqList) (list []*SysAutoCode, total int64, err error) {
+func (s *serviceStruct) History(req *request2.ReqList) (list []*SysAutoCode, total int64, err error) {
 	db := req.WithFilter(global.DB.Model(SysAutoCode{}), nil)
 	err = db.Count(&total).Error
 	if err != nil {
@@ -101,7 +100,7 @@ func (s *serviceStruct) SaveHistory(data *GenerateBody) error {
 	return global.DB.Save(&history).Error
 }
 
-func (s *serviceStruct) DeleteByIds(req *request.ReqIds) (err error) {
+func (s *serviceStruct) DeleteByIds(req *request2.ReqIds) (err error) {
 	err = req.WithQuery(global.DB).Delete(&SysAutoCode{}).Error
 	return
 }

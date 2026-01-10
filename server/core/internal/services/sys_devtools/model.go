@@ -1,7 +1,7 @@
 package sys_devtools
 
 import (
-	"gitee.com/mxcker/go-admin/server/utils"
+	"time"
 )
 
 type Filed struct {
@@ -21,7 +21,6 @@ type GenerateBody struct {
 	ModuleName        string  `json:"module_name" binding:"required"`
 	ChineseModuleName string  `json:"chinese_module_name" binding:"required"`
 	ModelName         string  `json:"model_name" binding:"required"`
-	UseCommon         bool    `json:"use_common"`
 	UseSoftDelete     bool    `json:"use_soft_delete"`
 	CreateCURD        bool    `json:"create_curd"`
 	Fields            []Filed `json:"fields" binding:"required"`
@@ -38,8 +37,10 @@ type TemplateItem struct {
 }
 
 type SysAutoCode struct {
-	utils.DbBaseModel
-	ModuleName string `json:"module_name" gorm:"unique"`
-	ModelName  string `json:"model_name" gorm:"unique"`
-	Form       string `json:"form" json:"form,omitempty"`
+	Id         uint      `gorm:"primary_key;AUTO_INCREMENT" json:"id"`
+	CreatedAt  time.Time `json:"created_at" gorm:"comment:创建时间"`
+	UpdatedAt  time.Time `json:"updated_at" gorm:"comment:更新时间"`
+	ModuleName string    `json:"module_name" gorm:"unique"`
+	ModelName  string    `json:"model_name" gorm:"unique"`
+	Form       string    `json:"form" json:"form,omitempty"`
 }

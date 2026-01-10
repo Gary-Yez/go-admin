@@ -2,9 +2,9 @@ package middlewares
 
 import (
 	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_auth"
+	"gitee.com/mxcker/go-admin/server/core/pkg/request"
+	"gitee.com/mxcker/go-admin/server/core/pkg/response"
 	"gitee.com/mxcker/go-admin/server/utils"
-	"gitee.com/mxcker/go-admin/server/utils/request"
-	"gitee.com/mxcker/go-admin/server/utils/response"
 	"github.com/gin-gonic/gin"
 	"strings"
 )

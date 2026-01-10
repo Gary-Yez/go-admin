@@ -1,8 +1,8 @@
 package sys_apis
 
 import (
-	"gitee.com/mxcker/go-admin/server/utils/request"
-	"gitee.com/mxcker/go-admin/server/utils/response"
+	"gitee.com/mxcker/go-admin/server/core/pkg/request"
+	"gitee.com/mxcker/go-admin/server/core/pkg/response"
 	"github.com/gin-gonic/gin"
 )
 

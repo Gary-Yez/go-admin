@@ -60,10 +60,10 @@ func Run(needInit bool) {
 	AdminAuthGroup := server.Group(apiPrefix, middlewares.JWTMiddleware(), middlewares.CasbinMiddleware(sys_role.Enforcer))
 	PublicGroup := server.Group(apiPrefix)
 	// 注册路由
-	for routePath, module := range core.Modules {
+	for _, module := range core.Modules {
 		log.Println("注册路由中：", module.Name())
-		module.AdminRouter(AdminAuthGroup.Group(routePath))
-		module.PublicRouter(PublicGroup.Group(routePath))
+		module.AdminRouter(AdminAuthGroup.Group(module.Key))
+		module.PublicRouter(PublicGroup.Group(module.Key))
 	}
 	global.Routes = server.Routes()
 	slices.SortFunc(global.Routes, func(a, b gin.RouteInfo) int {

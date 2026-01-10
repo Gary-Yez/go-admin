@@ -32,6 +32,7 @@ func (_ *Mounter) Initialize() error {
 }
 
 func (_ *Mounter) AdminRouter(adminGroup *gin.RouterGroup) {
+	// 这里注册需要管理权限的路由
     {{- if .CreateCURD}}
 	adminGroup.GET("get", Controller.Get)
 	adminGroup.POST("list", Controller.List)
@@ -39,11 +40,14 @@ func (_ *Mounter) AdminRouter(adminGroup *gin.RouterGroup) {
 	adminGroup.POST("delete", Controller.Delete)
 	adminGroup.POST("edit", Controller.Edit)
 	{{- else}}
-	// 这里注册需要管理权限的路由
+	adminGroup.GET("/test", Controller.Test)
 	{{- end}}
 }
 
-
 func (_ *Mounter) PublicRouter(publicGroup *gin.RouterGroup) {
 	// 这里注册公共路由
+	{{- if .CreateCURD}}
+    {{- else}}
+    publicGroup.GET("/test", Controller.Test)
+    {{- end}}
 }

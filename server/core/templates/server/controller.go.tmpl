@@ -1,8 +1,8 @@
 package {{.ModuleName}}
 
 import (
-	"gitee.com/mxcker/go-admin/server/utils/request"
-	"gitee.com/mxcker/go-admin/server/utils/response"
+	"gitee.com/mxcker/go-admin/server/core/pkg/request"
+	"gitee.com/mxcker/go-admin/server/core/pkg/response"
 	"github.com/gin-gonic/gin"
 )
 
@@ -81,6 +81,11 @@ func (_ *controllerStruct) Edit(ctx *gin.Context) {
 }
 {{else}}
 func (c *controllerStruct) Test(ctx *gin.Context) {
-	response.Success(ctx, "test")
+	_, err := request.GetReq(ctx)
+	if err != nil {
+		response.Error(ctx, err)
+		return
+	}
+	response.Success(ctx, Service.Test())
 }
 {{end}}

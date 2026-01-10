@@ -2,11 +2,13 @@ package sys_admin
 
 import (
 	"gitee.com/mxcker/go-admin/server/core/internal/services/sys_role"
-	"gitee.com/mxcker/go-admin/server/utils"
+	"time"
 )
 
 type SysAdmin struct {
-	utils.DbBaseModel
+	Id           uint              `gorm:"primary_key;AUTO_INCREMENT" json:"id"`
+	CreatedAt    time.Time         `json:"created_at" gorm:"comment:创建时间"`
+	UpdatedAt    time.Time         `json:"updated_at" gorm:"comment:更新时间"`
 	Username     string            `json:"username" gorm:"unique;comment:用户名"`
 	Avatar       string            `json:"avatar" gorm:"comment:头像"`
 	Nickname     string            `json:"nickname" gorm:"comment:昵称"`

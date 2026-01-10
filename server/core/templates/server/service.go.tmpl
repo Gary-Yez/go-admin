@@ -3,8 +3,8 @@ package {{.ModuleName}}
 import (
 	{{- if .CreateCURD}}
     "errors"
+	"gitee.com/mxcker/go-admin/server/core/pkg/request"
 	"gitee.com/mxcker/go-admin/server/global"
-	"gitee.com/mxcker/go-admin/server/utils/request"
     "gorm.io/gorm/clause"
 	{{- end}}
 )
@@ -58,5 +58,10 @@ func (s *serviceStruct) Update(data *{{.ModelName}}) (err error) {
 
 func (s *serviceStruct) DeleteByIds(req *request.ReqIds) (err error) {
 	return req.WithQuery(global.DB).Delete(&{{.ModelName}}{}).Error
+}
+
+{{else}}
+func (s *serviceStruct) Test() string {
+	return "hello world"
 }
 {{end}}
