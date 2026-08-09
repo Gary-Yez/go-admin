@@ -2,8 +2,8 @@ package sys_admin
 
 import (
 	"errors"
-	request2 "gitee.com/mxcker/go-admin/request"
-	"gitee.com/mxcker/go-admin/response"
+	request2 "github.com/Gary-Yez/go-admin/request"
+	"github.com/Gary-Yez/go-admin/response"
 	"github.com/gin-gonic/gin"
 	"slices"
 )

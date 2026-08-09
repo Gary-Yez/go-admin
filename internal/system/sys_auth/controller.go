@@ -1,12 +1,12 @@
 package sys_auth
 
 import (
-	"gitee.com/mxcker/go-admin/internal/state"
-	"gitee.com/mxcker/go-admin/internal/system/sys_admin"
-	"gitee.com/mxcker/go-admin/internal/system/sys_menu"
-	"gitee.com/mxcker/go-admin/internal/utils"
-	"gitee.com/mxcker/go-admin/request"
-	"gitee.com/mxcker/go-admin/response"
+	"github.com/Gary-Yez/go-admin/internal/state"
+	"github.com/Gary-Yez/go-admin/internal/system/sys_admin"
+	"github.com/Gary-Yez/go-admin/internal/system/sys_menu"
+	"github.com/Gary-Yez/go-admin/internal/utils"
+	"github.com/Gary-Yez/go-admin/request"
+	"github.com/Gary-Yez/go-admin/response"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"sort"

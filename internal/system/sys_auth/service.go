@@ -2,12 +2,12 @@ package sys_auth
 
 import (
 	"errors"
-	"gitee.com/mxcker/go-admin/internal/state"
-	utils2 "gitee.com/mxcker/go-admin/internal/utils"
+	"github.com/Gary-Yez/go-admin/internal/state"
+	utils2 "github.com/Gary-Yez/go-admin/internal/utils"
 
-	"gitee.com/mxcker/go-admin/internal/system/sys_admin"
-	"gitee.com/mxcker/go-admin/internal/system/sys_menu"
-	"gitee.com/mxcker/go-admin/internal/system/sys_role"
+	"github.com/Gary-Yez/go-admin/internal/system/sys_admin"
+	"github.com/Gary-Yez/go-admin/internal/system/sys_menu"
+	"github.com/Gary-Yez/go-admin/internal/system/sys_role"
 	"gorm.io/gorm"
 	"time"
 )

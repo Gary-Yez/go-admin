@@ -1,9 +1,9 @@
 package sys_role
 
 import (
-	"gitee.com/mxcker/go-admin/internal/state"
+	"github.com/Gary-Yez/go-admin/internal/state"
 
-	"gitee.com/mxcker/go-admin/internal/system/sys_role/redis_wacher"
+	"github.com/Gary-Yez/go-admin/internal/system/sys_role/redis_wacher"
 	"github.com/casbin/casbin/v3"
 	"github.com/casbin/casbin/v3/model"
 	gormadapter "github.com/casbin/gorm-adapter/v3"

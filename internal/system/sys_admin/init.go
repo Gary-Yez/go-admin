@@ -1,8 +1,8 @@
 package sys_admin
 
 import (
-	"gitee.com/mxcker/go-admin/internal/state"
-	"gitee.com/mxcker/go-admin/internal/system/sys_role"
+	"github.com/Gary-Yez/go-admin/internal/state"
+	"github.com/Gary-Yez/go-admin/internal/system/sys_role"
 )
 
 func InitData() error {

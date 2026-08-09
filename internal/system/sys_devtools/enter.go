@@ -1,7 +1,7 @@
 package sys_devtools
 
 import (
-	"gitee.com/mxcker/go-admin/internal/state"
+	"github.com/Gary-Yez/go-admin/internal/state"
 
 	"github.com/gin-gonic/gin"
 )

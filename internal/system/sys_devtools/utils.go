@@ -13,7 +13,7 @@ import (
 	"strings"
 	"text/template"
 
-	adminTemplates "gitee.com/mxcker/go-admin/internal/templates"
+	adminTemplates "github.com/Gary-Yez/go-admin/internal/templates"
 )
 
 var ServerPath string

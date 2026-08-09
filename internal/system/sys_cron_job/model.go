@@ -1,7 +1,7 @@
 package sys_cron_job
 
 import (
-	"gitee.com/mxcker/go-admin/internal/state"
+	"github.com/Gary-Yez/go-admin/internal/state"
 	"gorm.io/gorm/clause"
 	"strconv"
 	"time"

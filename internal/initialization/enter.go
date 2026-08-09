@@ -2,9 +2,9 @@ package initialization
 
 import (
 	"errors"
-	"gitee.com/mxcker/go-admin/cache"
-	"gitee.com/mxcker/go-admin/config"
-	"gitee.com/mxcker/go-admin/scheduler"
+	"github.com/Gary-Yez/go-admin/cache"
+	"github.com/Gary-Yez/go-admin/config"
+	"github.com/Gary-Yez/go-admin/scheduler"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"

@@ -2,9 +2,9 @@ package sys_admin
 
 import (
 	"errors"
-	"gitee.com/mxcker/go-admin/internal/state"
+	"github.com/Gary-Yez/go-admin/internal/state"
 
-	request2 "gitee.com/mxcker/go-admin/request"
+	request2 "github.com/Gary-Yez/go-admin/request"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm/clause"
 )

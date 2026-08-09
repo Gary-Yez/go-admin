@@ -1,9 +1,9 @@
 package middlewares
 
 import (
-	"gitee.com/mxcker/go-admin/internal/utils"
-	"gitee.com/mxcker/go-admin/request"
-	"gitee.com/mxcker/go-admin/response"
+	"github.com/Gary-Yez/go-admin/internal/utils"
+	"github.com/Gary-Yez/go-admin/request"
+	"github.com/Gary-Yez/go-admin/response"
 	"github.com/gin-gonic/gin"
 	"strings"
 )

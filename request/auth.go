@@ -1,7 +1,7 @@
 package request
 
 import (
-	"gitee.com/mxcker/go-admin/internal/utils"
+	"github.com/Gary-Yez/go-admin/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 

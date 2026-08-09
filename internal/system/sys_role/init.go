@@ -1,7 +1,7 @@
 package sys_role
 
 import (
-	"gitee.com/mxcker/go-admin/internal/state"
+	"github.com/Gary-Yez/go-admin/internal/state"
 	"strconv"
 )
 

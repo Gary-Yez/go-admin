@@ -1,7 +1,7 @@
 package sys_role
 
 import (
-	"gitee.com/mxcker/go-admin/internal/system/sys_menu"
+	"github.com/Gary-Yez/go-admin/internal/system/sys_menu"
 	"time"
 )
 

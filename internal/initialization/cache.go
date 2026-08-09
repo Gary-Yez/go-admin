@@ -1,8 +1,8 @@
 package initialization
 
 import (
-	cacher2 "gitee.com/mxcker/go-admin/cache"
-	"gitee.com/mxcker/go-admin/config"
+	cacher2 "github.com/Gary-Yez/go-admin/cache"
+	"github.com/Gary-Yez/go-admin/config"
 	"github.com/redis/go-redis/v9"
 	"time"
 )

@@ -5,7 +5,7 @@
 ```go
 package main
 
-import "gitee.com/mxcker/go-admin"
+import "github.com/Gary-Yez/go-admin"
 
 func main() {
 	if err := admin.Run(false); err != nil {

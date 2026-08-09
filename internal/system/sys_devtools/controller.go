@@ -1,8 +1,8 @@
 package sys_devtools
 
 import (
-	"gitee.com/mxcker/go-admin/request"
-	"gitee.com/mxcker/go-admin/response"
+	"github.com/Gary-Yez/go-admin/request"
+	"github.com/Gary-Yez/go-admin/response"
 	"github.com/gin-gonic/gin"
 )
 

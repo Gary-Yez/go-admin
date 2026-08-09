@@ -2,10 +2,10 @@ package sys_role
 
 import (
 	"errors"
-	"gitee.com/mxcker/go-admin/internal/state"
-	"gitee.com/mxcker/go-admin/internal/utils"
+	"github.com/Gary-Yez/go-admin/internal/state"
+	"github.com/Gary-Yez/go-admin/internal/utils"
 
-	request2 "gitee.com/mxcker/go-admin/request"
+	request2 "github.com/Gary-Yez/go-admin/request"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"strconv"

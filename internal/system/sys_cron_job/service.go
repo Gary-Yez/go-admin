@@ -2,10 +2,10 @@ package sys_cron_job
 
 import (
 	"errors"
-	"gitee.com/mxcker/go-admin/internal/state"
+	"github.com/Gary-Yez/go-admin/internal/state"
 
-	request2 "gitee.com/mxcker/go-admin/request"
-	"gitee.com/mxcker/go-admin/scheduler"
+	request2 "github.com/Gary-Yez/go-admin/request"
+	"github.com/Gary-Yez/go-admin/scheduler"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )

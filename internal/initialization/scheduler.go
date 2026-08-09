@@ -2,9 +2,9 @@ package initialization
 
 import (
 	"context"
-	"gitee.com/mxcker/go-admin/cache"
-	"gitee.com/mxcker/go-admin/internal/system/sys_cron_job"
-	"gitee.com/mxcker/go-admin/scheduler"
+	"github.com/Gary-Yez/go-admin/cache"
+	"github.com/Gary-Yez/go-admin/internal/system/sys_cron_job"
+	"github.com/Gary-Yez/go-admin/scheduler"
 	"github.com/go-co-op/gocron/v2"
 	"time"
 )

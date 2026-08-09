@@ -1,9 +1,9 @@
 package sys_cron_job
 
 import (
-	"gitee.com/mxcker/go-admin/internal/state"
-	"gitee.com/mxcker/go-admin/request"
-	"gitee.com/mxcker/go-admin/response"
+	"github.com/Gary-Yez/go-admin/internal/state"
+	"github.com/Gary-Yez/go-admin/request"
+	"github.com/Gary-Yez/go-admin/response"
 	"github.com/gin-gonic/gin"
 )
 

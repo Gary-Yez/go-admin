@@ -2,10 +2,10 @@ package sys_apis
 
 import (
 	"errors"
-	"gitee.com/mxcker/go-admin/internal/state"
+	"github.com/Gary-Yez/go-admin/internal/state"
 
-	"gitee.com/mxcker/go-admin/internal/system/sys_role"
-	request2 "gitee.com/mxcker/go-admin/request"
+	"github.com/Gary-Yez/go-admin/internal/system/sys_role"
+	request2 "github.com/Gary-Yez/go-admin/request"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"strings"

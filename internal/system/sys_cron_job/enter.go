@@ -3,9 +3,9 @@ package sys_cron_job
 import (
 	"context"
 	"encoding/json"
-	"gitee.com/mxcker/go-admin/internal/state"
+	"github.com/Gary-Yez/go-admin/internal/state"
 
-	"gitee.com/mxcker/go-admin/scheduler"
+	"github.com/Gary-Yez/go-admin/scheduler"
 	"github.com/gin-gonic/gin"
 	"time"
 )

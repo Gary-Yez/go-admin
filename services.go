@@ -1,10 +1,10 @@
 package admin
 
 import (
-	"gitee.com/mxcker/go-admin/cache"
-	"gitee.com/mxcker/go-admin/config"
-	"gitee.com/mxcker/go-admin/internal/state"
-	"gitee.com/mxcker/go-admin/scheduler"
+	"github.com/Gary-Yez/go-admin/cache"
+	"github.com/Gary-Yez/go-admin/config"
+	"github.com/Gary-Yez/go-admin/internal/state"
+	"github.com/Gary-Yez/go-admin/scheduler"
 	"gorm.io/gorm"
 )
 
