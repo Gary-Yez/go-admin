@@ -1,0 +1,67 @@
+package {{.ModuleName}}
+
+import (
+	{{- if .CreateCURD}}
+	"gitee.com/mxcker/go-admin"
+    "errors"
+	"gitee.com/mxcker/go-admin/request"
+    "gorm.io/gorm/clause"
+	{{- end}}
+)
+
+type serviceStruct struct {
+}
+
+{{- if .CreateCURD}}
+func (s *serviceStruct) Get(req *request.Req) (data *{{.ModelName}}, err error) {
+	data = &{{.ModelName}}{}
+	err = req.WithQuery(admin.DB().Model({{.ModelName}}{})).First(data).Error
+	return
+}
+
+func (s *serviceStruct) List(req *request.ReqList) (list []*{{.ModelName}}, total int64, err error) {
+	db := req.WithFilter(admin.DB().Model({{.ModelName}}{}), nil)
+	err = db.Count(&total).Error
+	if err != nil {
+		return nil, 0, err
+	}
+	err = req.WithPagination(req.WithSort(db, nil)).Find(&list).Error
+	return
+}
+
+func (s *serviceStruct) Create(data *{{.ModelName}}) (err error) {
+	err = admin.DB().
+	    Omit(clause.Associations).
+	    {{- range .Fields}}
+	    {{- if eq .Editable false}}
+        Omit("{{.Key}}").
+	    {{- end}}
+	    {{- end}}
+	    Create(data).Error
+	return
+}
+
+func (s *serviceStruct) Update(data *{{.ModelName}}) (err error) {
+	if data.Id == 0 {
+		return errors.New("id不能为空")
+	}
+	return admin.DB().Select("*").
+    		Omit(clause.Associations).
+    		Omit("Id", "CreatedAt", "UpdatedAt").
+    		{{- range .Fields}}
+            {{- if eq .Editable false}}
+            Omit("{{.Key}}").
+            {{- end}}
+            {{- end}}
+    		Where("id = ?", data.Id).Updates(data).Error
+}
+
+func (s *serviceStruct) DeleteByIds(req *request.ReqIds) (err error) {
+	return req.WithQuery(admin.DB()).Delete(&{{.ModelName}}{}).Error
+}
+
+{{else}}
+func (s *serviceStruct) Test() string {
+	return "hello world"
+}
+{{end}}
