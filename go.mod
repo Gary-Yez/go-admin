@@ -1,4 +1,4 @@
-module gitee.com/mxcker/go-admin
+module github.com/Gary-Yez/go-admin-template
 
 go 1.25.5
 
