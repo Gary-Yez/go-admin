@@ -18,7 +18,7 @@ type {{.ModelName}} struct {
     DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index;comment:删除时间"`
 	{{- end}}
 	{{- range .Fields}}
-	{{.Key}} {{.Type}} `json:"{{.Name}}"{{if .IndexType}} gorm:"{{.IndexType}};"{{end}}`
+	{{.Key}} {{.Type}} `json:"{{.Name}}" gorm:"{{if .IndexType}}{{.IndexType}};{{end}}comment:{{if .ChineseName}}{{.ChineseName}}{{else}}{{.Name}}{{end}}"`
 	{{- end}}
 }
 

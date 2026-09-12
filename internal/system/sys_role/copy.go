@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/Gary-Yez/go-admin/dberror"
 	"strconv"
 	"strings"
 
@@ -36,13 +37,6 @@ func (s *serviceStruck) Copy(body *CopyBody) (*SysRole, error) {
 	if err := tx.Preload("Menus").First(&source, body.Id).Error; err != nil {
 		return nil, err
 	}
-	var count int64
-	if err := tx.Model(&SysRole{}).Where("name = ?", name).Count(&count).Error; err != nil {
-		return nil, err
-	}
-	if count > 0 {
-		return nil, errors.New("角色名称已存在")
-	}
 	role := &SysRole{Name: name, Menus: source.Menus, DefaultMenu: source.DefaultMenu}
 	var sourceRules [][]string
 	if source.IsSuperAdmin {
@@ -64,7 +58,7 @@ func (s *serviceStruck) Copy(body *CopyBody) (*SysRole, error) {
 		}
 	}
 	if err := tx.Omit(clause.Associations).Create(role).Error; err != nil {
-		return nil, err
+		return nil, dberror.Unique(err, role)
 	}
 	// 只写关联，菜单记录本身保持独立管理。
 	menus := role.Menus

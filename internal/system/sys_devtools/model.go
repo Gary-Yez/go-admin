@@ -81,8 +81,8 @@ type SysAutoCode struct {
 	Id         uint      `gorm:"primary_key;AUTO_INCREMENT" json:"id"`
 	CreatedAt  time.Time `json:"created_at" gorm:"comment:创建时间"`
 	UpdatedAt  time.Time `json:"updated_at" gorm:"comment:更新时间"`
-	ModuleName string    `json:"module_name" gorm:"unique"`
-	ModelName  string    `json:"model_name" gorm:"unique"`
+	ModuleName string    `json:"module_name" gorm:"unique;comment:模块名称"`
+	ModelName  string    `json:"model_name" gorm:"unique;comment:模型名称"`
 	Form       string    `json:"form,omitempty"`
 }
 
@@ -123,4 +123,15 @@ func (body GenerateBody) BuiltinFields() []Filed {
 		{Name: "created_at", Key: "CreatedAt", Type: "time.Time", ChineseName: "创建时间", TableShow: true, Sortable: true},
 		{Name: "updated_at", Key: "UpdatedAt", Type: "time.Time", ChineseName: "更新时间", TableShow: true, Sortable: true},
 	}
+}
+
+// UniqueFields 使用现有索引配置，不额外保存重复的唯一开关。
+func (body GenerateBody) UniqueFields() []Filed {
+	var fields []Filed
+	for _, field := range body.Fields {
+		if field.IndexType == "unique" || field.IndexType == "uniqueIndex" {
+			fields = append(fields, field)
+		}
+	}
+	return fields
 }

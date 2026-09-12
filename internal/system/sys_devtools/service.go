@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/Gary-Yez/go-admin/dberror"
 	"os"
 	"path/filepath"
 	"strings"
@@ -169,7 +170,7 @@ func (s *serviceStruct) SaveHistory(data *GenerateBody) error {
 		return err
 	}
 	history.Form = string(marshal)
-	return state.DB().Save(&history).Error
+	return dberror.Unique(state.DB().Save(&history).Error, &history)
 }
 
 func (s *serviceStruct) DeleteByIds(req *request2.ReqIds) (err error) {

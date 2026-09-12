@@ -19,7 +19,7 @@ type SysMenu struct {
 	CreatedAt time.Time  `json:"created_at" gorm:"comment:创建时间"`
 	UpdatedAt time.Time  `json:"updated_at" gorm:"comment:更新时间"`
 	Name      string     `json:"name"`
-	Key       string     `json:"key" gorm:"unique"`
+	Key       string     `json:"key" gorm:"unique;comment:菜单标识"`
 	Icon      string     `json:"icon"`
 	Path      string     `json:"path"`
 	Component string     `json:"component"`

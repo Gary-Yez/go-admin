@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/Gary-Yez/go-admin/dberror"
 	"github.com/Gary-Yez/go-admin/internal/permissions"
 	"github.com/Gary-Yez/go-admin/internal/state"
 	"github.com/Gary-Yez/go-admin/internal/system/sys_menu"
@@ -70,17 +71,18 @@ func (s *serviceStruck) List(req *request2.ReqList) (list []*SysRole, total int6
 func (s *serviceStruck) Create(data *SysRole) (err error) {
 	data.IsSuperAdmin = false
 	err = state.DB().Omit("Menus.*").Create(data).Error
-	return
+	return dberror.Unique(err, data)
 }
 
 func (s *serviceStruck) Update(data *SysRole) (err error) {
 	if data.Id == 0 {
 		return errors.New("id不能为空")
 	}
-	return state.DB().Select("*").
+	err = state.DB().Select("*").
 		Omit(clause.Associations).
 		Omit("Id", "CreatedAt", "UpdatedAt", "DefaultMenu", "IsSuperAdmin").
 		Where("id = ?", data.Id).Updates(data).Error
+	return dberror.Unique(err, data)
 }
 
 func (s *serviceStruck) DeleteByIds(req *request2.ReqIds) error {

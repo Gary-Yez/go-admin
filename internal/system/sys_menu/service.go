@@ -2,6 +2,7 @@ package sys_menu
 
 import (
 	"errors"
+	"github.com/Gary-Yez/go-admin/dberror"
 	"github.com/Gary-Yez/go-admin/internal/state"
 	"github.com/Gary-Yez/go-admin/internal/utils"
 	"slices"
@@ -189,17 +190,18 @@ func (s *serviceStruct) Sort(req *SortBody) error {
 
 func (s *serviceStruct) Create(menu *SysMenu) (err error) {
 	err = state.DB().Omit(clause.Associations).Create(menu).Error
-	return
+	return dberror.Unique(err, menu)
 }
 
 func (s *serviceStruct) Update(data *SysMenu) (err error) {
 	if data.Id == 0 {
 		return errors.New("id不能为空")
 	}
-	return state.DB().Select("*").
+	err = state.DB().Select("*").
 		Omit(clause.Associations).
 		Omit("Id", "CreatedAt", "UpdatedAt", "Children").
 		Where("id = ?", data.Id).Updates(data).Error
+	return dberror.Unique(err, data)
 }
 
 func (s *serviceStruct) DeleteByIds(req *request2.ReqIds) (err error) {

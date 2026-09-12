@@ -105,6 +105,9 @@ func validateGenerateBody(data *GenerateBody) error {
 		if f.Type == "bool" && f.QueryType != "" && f.QueryType != "=" && f.QueryType != "!=" {
 			return fail("布尔字段仅支持等于或不等于筛选")
 		}
+		if strings.Contains(f.ChineseName, ";") {
+			return fail("显示名称不能包含分号，以免影响数据库字段注释")
+		}
 		if !safeLabel(f.ChineseName) {
 			return fail("显示名称不能包含引号、模板符号或控制字符")
 		}

@@ -2,6 +2,7 @@ package sys_auth
 
 import (
 	"errors"
+	"github.com/Gary-Yez/go-admin/dberror"
 	"github.com/Gary-Yez/go-admin/internal/state"
 	"github.com/Gary-Yez/go-admin/internal/system/sys_admin"
 	"github.com/Gary-Yez/go-admin/internal/system/sys_login_log"
@@ -135,7 +136,7 @@ func (_ *controllerStruct) ChangeInfo(ctx *gin.Context) {
 		"email":    body.Email,
 	}).Error
 	if err != nil {
-		response.Error(ctx, err.Error())
+		response.Error(ctx, dberror.Unique(err, &sys_admin.SysAdmin{}))
 		return
 	} else {
 		response.Success(ctx)

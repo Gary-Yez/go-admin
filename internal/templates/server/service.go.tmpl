@@ -5,6 +5,7 @@ import (
 	"github.com/Gary-Yez/go-admin"
     {{if .CanEdit}}"errors"{{end}}
 	"github.com/Gary-Yez/go-admin/request"
+    {{if and .UniqueFields (or .CanCreate .CanEdit)}}"github.com/Gary-Yez/go-admin/dberror"{{end}}
     {{if or .CanCreate .CanEdit}}"gorm.io/gorm/clause"{{end}}
 	{{- end}}
 )
@@ -36,7 +37,7 @@ func (s *serviceStruct) Create(data *{{.ModelName}}) (err error) {
 	err = admin.DB().
 	    Omit(clause.Associations, "Id", "DeletedAt"{{range .Fields}}{{if not .Editable}}, "{{.Key}}"{{end}}{{end}}).
 	    Create(data).Error
-	return
+	return {{if .UniqueFields}}dberror.Unique(err, data){{else}}err{{end}}
 }
 
 {{end}}
@@ -45,12 +46,14 @@ func (s *serviceStruct) Update(data *{{.ModelName}}) (err error) {
 	if data.Id == 0 {
 		return errors.New("id不能为空")
 	}
-	return admin.DB().Select("*").
+	err = admin.DB().Select("*").
 		Omit(clause.Associations, "Id", "CreatedAt", "DeletedAt"{{range .Fields}}{{if not .Editable}}, "{{.Key}}"{{end}}{{end}}).
     		Where("id = ?", data.Id).Updates(data).Error
+    return {{if .UniqueFields}}dberror.Unique(err, data){{else}}err{{end}}
 }
 
 {{end}}
+
 {{if .CanDelete}}
 func (s *serviceStruct) DeleteByIds(req *request.ReqIds) (err error) {
 	return req.WithQuery(admin.DB()).Delete(&{{.ModelName}}{}).Error

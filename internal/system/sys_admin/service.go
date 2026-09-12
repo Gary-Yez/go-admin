@@ -3,6 +3,7 @@ package sys_admin
 import (
 	"context"
 	"errors"
+	"github.com/Gary-Yez/go-admin/dberror"
 	"github.com/Gary-Yez/go-admin/internal/state"
 	"github.com/Gary-Yez/go-admin/internal/system/sys_role"
 	"github.com/Gary-Yez/go-admin/internal/utils"
@@ -62,7 +63,7 @@ func (s *serviceStruct) Create(data *SysAdmin) (err error) {
 			return err
 		}
 		if err := tx.Omit(clause.Associations).Create(data).Error; err != nil {
-			return err
+			return dberror.Unique(err, data)
 		}
 		return replaceRoles(tx, data)
 	})
@@ -122,7 +123,7 @@ func (s *serviceStruct) Update(data *SysAdmin) (err error) {
 			query = query.Omit("PasswordHash")
 		}
 		if err := query.Where("id = ?", data.Id).Updates(data).Error; err != nil {
-			return err
+			return dberror.Unique(err, data)
 		}
 		if rolesChanged {
 			if err := replaceRoles(tx, data); err != nil {
