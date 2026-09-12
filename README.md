@@ -320,3 +320,9 @@ return admin.Scheduler().RegisterHandler("order.cleanup", &admin.HandlerOption{
 机器指标是操作系统可见资源，不代表容器 CPU/内存配额；磁盘展示运行目录所在卷。进程 CPU 按单核 100% 计算，可超过 100%。采集不支持或失败显示不可用，首次 CPU 和 GC 增量需要等待下一次采样。Go 堆内存不等同于进程 RSS。
 
 监控接口 `GET /sys_monitor/list` 属于受保护路由，需要单独分配角色权限；不提供 pprof、环境变量、密钥或连接凭据。Redis 故障时不会伪装成单机列表，上报会持续重试，页面展示读取失败。页面支持节点详情和当前页面内的短趋势，离开页面不再轮询，不保存历史监控数据。
+
+## 框架维护与发布
+
+维护环境通过 maintain.ps1 release 统一 go-admin 与 go-admin-web 的版本，并推送同名 vX.Y.Z Tag。本仓库的 .github/workflows/release.yml 在 Tag 推送后独立执行 go test ./...，通过后自动创建 GitHub Release。Go 模块仍通过 Git Tag 提供版本，业务项目不需要 GitHub CLI。
+
+公共前端由 go-admin-web 仓库的 Tag 工作流发布 npm。两个工作流各自运行，失败时在 Actions 重跑；已有 Tag 不覆盖。两边发布完成且 npm 版本可用后，再运行 maintain.ps1 update-template 更新模板正式依赖。
