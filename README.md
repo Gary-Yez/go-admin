@@ -1,104 +1,91 @@
 # go-admin
 
-面向业务开发的 Go 管理后台框架，配合 [go-admin-template](https://github.com/Gary-Yez/go-admin-template) 快速搭建后台项目。
+基于 Gin、GORM 和 Casbin 的 Go 后台开发框架。业务项目通过模块注册扩展接口、菜单、数据模型和任务，系统管理能力由框架提供。
 
-- **快速生成业务代码**：生成 Go 模块、Vue 页面、API 调用和菜单，按需选择增删改能力。
-- **内置权限管理**：管理员多角色、角色切换、菜单授权、API 自动登记及个人 API 密钥。
-- **类型明确的业务配置**：通过字段读取单项配置，支持数据库持久化和动态初始值。
-- **统一基础能力**：复用数据库、内存或 Redis 缓存，以及定时任务调度。
+- 内置管理员、多角色、菜单与 API 权限、个人资料和 API 密钥管理。
+- 支持 MySQL / PostgreSQL；单实例使用内存缓存，多实例共享 Redis。
+- 提供代码生成、配置定义、配置管理、登录日志、计划任务和节点监控。
+- 业务配置持久化到数据库，通过带类型的配置项按需读取缓存。
 
-## 从哪里开始
+需要完整可运行项目时，从 [go-admin-template](https://github.com/Gary-Yez/go-admin-template) 开始；公共前端接入见 [go-admin-web](https://github.com/Gary-Yez/go-admin-web)。
 
-开发业务项目，先使用模板仓库完成前后端启动，再按本文调用框架提供的方法。
+## 安装与最小启动
 
-```text
-go-admin/
-├── admin.go       # 服务启动和模块注册
-├── module.go      # 模块接口
-├── menu.go        # 菜单声明
-├── configs.go     # 内置配置和配置项类型
-├── services.go    # 数据库、缓存、调度器入口
-├── request/       # 请求参数与当前身份
-├── response/      # 统一响应
-└── internal/      # 框架内部实现，业务无需直接引用
+要求 Go 1.25.5 或更新的兼容版本，以及可连接的 MySQL 或 PostgreSQL 数据库。框架会建表，数据库本身需要先创建。
+
+```sh
+mkdir my-admin
+cd my-admin
+go mod init example.com/my-admin
+go get github.com/Gary-Yez/go-admin@latest
 ```
 
-业务主要导入：
+创建 `main.go`：
 
 ```go
+package main
+
 import (
+    "log"
+
     admin "github.com/Gary-Yez/go-admin"
-    "github.com/Gary-Yez/go-admin/request"
-    "github.com/Gary-Yez/go-admin/response"
 )
-```
 
-## 公开方法速查
-
-| 方法或类型 | 用途 |
-| --- | --- |
-| `admin.Run()` | 读取配置并启动后台服务 |
-| `admin.Register(key, module)` | 注册业务模块，返回错误 |
-| `admin.MustRegister(key, module)` | 注册模块，错误时 panic |
-| `admin.Module` | 业务模块需要实现的接口 |
-| `admin.MenuDefinition` | 声明模块默认菜单 |
-| `admin.DB()` | 获取 GORM 数据库连接 |
-| `admin.Cache()` | 获取统一缓存接口 |
-| `admin.Scheduler()` | 获取任务调度器 |
-| `admin.ConfigItem[T]` | 带具体值类型的配置项 |
-| `admin.ConfigDefault(value)` | 在配置 Init 中构造动态初始值 |
-| `admin.RegisterConfig(&config)` | 绑定并注册配置结构，模板已自动调用 |
-| `request.GetAuthUser(ctx)` | 获取当前用户和角色 |
-| `request.GetReqList(ctx)` | 绑定分页、筛选、排序参数 |
-| `request.GetReqIds(ctx)` | 绑定并去重批量 ID |
-| `request.GetReq(ctx)` | 绑定单个 ID |
-| `response.Success / List / Error` | 返回统一结果 |
-
-## 启动服务
-
-当前项目使用 Go 1.25.5。准备 MySQL 或 PostgreSQL 数据库后，在业务项目中调用：
-
-```go
 func main() {
     if err := admin.Run(); err != nil {
-        panic(err)
+        log.Fatal(err)
     }
 }
 ```
 
-默认读取工作目录下的 `config.yaml`。文件不存在时会创建默认文件并退出，填写连接信息后重新启动。
+运行 `go run .`。工作目录没有 `config.yaml` 时，框架生成包含随机 JWT 签名密钥的配置文件并退出；填写数据库连接后重新运行。
 
-```go
-admin.Run("config.dev.yaml") // 也可以在代码里指定文件
-```
+默认监听 `0.0.0.0:8080`，API 前缀为 `/api`，管理端静态资源挂载在 `/admin`。框架包不自带编译后的前端，需要把前端产物放在运行目录的 `dist/`。
+
+配置文件中：
+
+- `database.driver` 为 `mysql` 或 `postgres`，对应端口通常为 3306 或 5432；PostgreSQL 还可配置 `sslmode`。
+- `redis.host` 留空使用内存缓存；填写后使用 Redis。
+- `server.dev` 默认关闭。开发工具需要开启它；开发接口可操作本地源码，生产环境应保持关闭。
+- `jwt.secret` 至少 32 字节，修改后重启生效。登录有效期属于数据库业务配置。
+
+## 启动接口与调用顺序
+
+| 公开接口 | 用途 | 调用时机 |
+| --- | --- | --- |
+| `Register(key, module) error` | 注册业务模块，拒绝空 Key、重复 Key 和无效模块 | `Run` 前 |
+| `MustRegister(key, module)` | 注册失败时 panic | `Run` 前，通常在业务模块入口 |
+| `RegisterConfig(&config) error` | 注册唯一的业务配置结构并绑定字段 Key | `Run` 前 |
+| `ConfigureEngine(func(*gin.Engine) error) error` | 添加全局 Gin 配置回调，可注册多个 | `Run` 前 |
+| `Run(configPaths ...string) error` | 初始化依赖、模块和路由，然后阻塞提供 HTTP 服务 | main 中调用一次 |
+| `DB()` / `Cache()` / `Scheduler()` | 获取框架共享服务 | 模块 `Initialize` 或更晚 |
+
+`Run()` 默认读取工作目录的 `config.yaml`；`Run("custom.yaml")` 指定默认路径。命令行 `--config` / `-c` 优先于函数参数：
 
 ```sh
-go run . -c config.dev.yaml
-go run . --config config.prod.yaml --server.port 9000
+go run . --config config.production.yaml
+go run . -c config.production.yaml --server.port 8081
 ```
 
-命令行配置文件优先于代码参数。YAML 填写数据库、Redis、监听端口等环境参数；业务配置在后台维护。完整 YAML 和前后端启动步骤见模板 README。
+配置路径不会改变工作目录，`dist/` 仍相对于进程工作目录。一个进程只调用一次 `Run`，启动失败后也不要原地再次调用。
 
-数据库统一使用 `database` 配置，业务仍通过 `admin.DB()` 查询：
+实际启动顺序：
 
-```yaml
-database:
-  driver: mysql # mysql / postgres
-  host: 127.0.0.1
-  port: "3306" # PostgreSQL 使用 5432；省略时按 driver 选择
-  name: go_admin
-  username: your_user
-  password: your_password
-  sslmode: disable # 仅 PostgreSQL 使用，可按服务端要求配置 require/verify-full
-```
+1. 读取环境配置，初始化数据库、缓存、计划任务服务。
+2. 注册系统模块；系统模块排在业务模块前。
+3. 初始化业务配置：解析默认值、执行初始化、补建数据库中缺失的配置。
+4. 按顺序调用模块 `Initialize()`；系统模块先执行，业务模块按注册顺序执行。
+5. 收集模块菜单，补充缺失菜单。
+6. 创建 `gin.Default()`，依次执行 `ConfigureEngine` 回调。
+7. 挂载静态资源，注册所有 `AdminRouter`，记录受保护路由，再注册 `PublicRouter`。
+8. 同步新增 API，启动节点上报、计划任务调度和权限重新同步任务。
+9. 启动 HTTP 服务并阻塞；正常返回时执行框架已注册的后台服务清理。
 
-已有配置需将 `mysql` 节点改为 `database`，其中 `database` 字段改名为 `name`，并添加 `driver`。这只切换连接，不会将原数据库的数据搬迁到另一种数据库。环境变量使用 `MYAPP_DATABASE_DRIVER`、`MYAPP_DATABASE_HOST`、`MYAPP_DATABASE_PORT`、`MYAPP_DATABASE_NAME` 等。
+Go 的 `init()` 负责“声明和注册”，模块的 `Initialize()` 负责“依赖已经就绪后的初始化”。不要在包级变量或 `init()` 中调用数据库、缓存或读取配置值。框架当前没有公开的模块关闭回调，也没有通用登录事件钩子。
 
-缓存、分布式锁和权限通知的命名空间包含数据库类型、主机、端口及库名；同一部署的实例应使用一致的连接标识。升级后旧命名空间缓存不再读取，由现有过期机制清理。
+## 编写业务模块
 
-## 注册业务模块
-
-模块需要实现四个方法：
+模块实现 `admin.Module`：
 
 ```go
 type Module interface {
@@ -109,220 +96,220 @@ type Module interface {
 }
 ```
 
-| 方法 | 应该放什么 |
-| --- | --- |
-| `Name()` | 模块名称 |
-| `Initialize()` | 表迁移、任务处理函数注册等启动操作 |
-| `AdminRouter()` | 需要登录和角色权限的接口 |
-| `PublicRouter()` | 公开接口 |
-
-在模板的 `modules/enter.go` 注册，业务 import 路径按项目 module 调整：
+例如创建 `modules/product/enter.go`：
 
 ```go
-package modules
+package product
 
 import (
     admin "github.com/Gary-Yez/go-admin"
-    "example.com/app/modules/order"
+    "github.com/Gary-Yez/go-admin/response"
+    "github.com/gin-gonic/gin"
 )
 
-func init() {
-    admin.MustRegister("order", new(order.Mounter))
+type Mounter struct{}
+
+func (*Mounter) Name() string { return "商品管理" }
+func (*Mounter) Initialize() error { return nil }
+
+func (*Mounter) AdminRouter(group *gin.RouterGroup) {
+    group.GET("ping", func(ctx *gin.Context) {
+        response.Success(ctx, gin.H{"message": "商品模块已就绪"})
+    })
+}
+
+func (*Mounter) PublicRouter(group *gin.RouterGroup) {}
+
+func Register() {
+    admin.MustRegister("product", &Mounter{})
 }
 ```
 
-主程序匿名导入 modules 即可自动注册。包 `init()` 只注册；数据库和缓存相关操作放在 `Initialize()`，此时框架依赖已经就绪。
+在 main 中 `Run()` 前调用 `product.Register()`，或者由业务 `modules` 包的 `init()` 统一注册，再让 main 空白导入该包。
 
-例如模块 Key 为 order，在 AdminRouter 中注册 `group.POST("list", Controller.List)`，默认完整地址就是 `/api/order/list`。
+以上接口路径为 `/api/product/ping`：
 
-### 声明默认菜单
+- `AdminRouter` 自动经过 JWT / API Token 身份校验和 Casbin 权限校验，并参与 API 同步。
+- `PublicRouter` 不自动附加上述校验，也不参与受保护 API 同步。需要登录的业务接口通常放在 `AdminRouter`。
+- `Name()` 用于模块展示和 API 分组，填写面向用户的中文名称。
+- 新增路由进入 API 管理不等于普通角色自动获得权限；仍需分配权限。
+- API 权限只控制接口访问。租户、数据归属等行级权限需要业务查询自行限制。
 
-模块可额外实现 `Menus()`：
+### 声明菜单
+
+模块额外实现 `admin.MenuProvider` 即可：
 
 ```go
 func (*Mounter) Menus() []admin.MenuDefinition {
     return []admin.MenuDefinition{{
-        Key: "order", Name: "订单管理",
-        Icon: "iconoir:page", Path: "order",
-        Component: "../views/order/index.vue", Sort: 10,
+        Key: "product", Name: "商品管理", Path: "product",
+        Icon: "iconoir:box", Component: "../views/product/index.vue", Sort: 10,
     }}
 }
 ```
 
-父菜单填写 `ParentKey`。框架按 Key 补建菜单，保留后台对已有菜单的修改。生成器可以自动生成这个方法。普通角色仍需要分别授权菜单和 API。
+`MenuDefinition` 字段为 `Key、Name、ParentKey、Icon、Path、Component、Sort、Hidden`。菜单 Key 全局唯一；父子菜单通过 `ParentKey` 关联。业务组件 Key 对应前端注册的 Vue 文件，不是浏览器 URL。
 
-## 使用业务配置
+启动只补齐缺失菜单，不覆盖后台已经修改的名称、图标和排序。只要代码中保留定义，删除数据库菜单后，下次启动会重新补齐。菜单可见性与后端接口权限分别配置。
 
-模板已经生成配置项并自动注册，业务直接导入本地 settings 包：
+## 数据库、请求与响应
+
+`admin.DB()` 返回共享 `*gorm.DB`。在 `Initialize()` 中建业务表，在请求中使用 `WithContext(ctx.Request.Context())`。事务内的所有数据库操作都使用回调传入的 `tx`，不要重新调用 `admin.DB()`。
+
+`request` 包提供：
+
+| 接口或类型 | 作用 |
+| --- | --- |
+| `GetReq(ctx)` / `Req.WithQuery(db)` | 绑定单个 `id`，添加主键条件 |
+| `GetReqIds(ctx)` / `ReqIds.WithQuery(db)` | 绑定 `ids`，校验正整数并去重，添加批量条件 |
+| `GetReqList(ctx)` / `ReqList.Validate()` | 绑定并校验分页、筛选、排序 |
+| `ReqList.WithFilter(db, allowFields)` | 仅允许白名单字段筛选 |
+| `ReqList.WithSort(db, allowFields)` | 仅允许白名单字段排序 |
+| `ReqList.WithPagination(db)` | Page > 0 时分页；Limit 默认 10，最大 100 |
+| `DefaultSortFields(extra ...string)` | 返回 id、created_at、updated_at，再追加业务字段 |
+| `GetAuthUser(ctx)` | 获取已认证身份，可读取 UserId、RoleId；失败返回错误 |
+| `SetAuthUser(ctx, user)` | 写入上下文身份；本身不验证令牌，不应用于绕过鉴权 |
+
+批量 ID 不限制数量，但非空且均需大于零。Page 为零不分页；列表接口如需始终分页，应主动设为 1。
+
+列表控制器示例（`Product` 为业务模型）：
 
 ```go
-name, err := settings.BaseConfig.SiteName.Get() // string, error
-minutes := settings.BaseConfig.JwtExpireMinutes.MustGet() // int
-text := settings.Test.MustGet() // 模板当前的示例 string 配置
+func List(ctx *gin.Context) {
+    req, err := request.GetReqList(ctx)
+    if err != nil {
+        response.Error(ctx, err, 400)
+        return
+    }
+    if req.Page == 0 { req.Page = 1 }
+    db := req.WithFilter(admin.DB().WithContext(ctx.Request.Context()).
+        Model(&Product{}), []string{"name"})
+    var total int64
+    if err := db.Count(&total).Error; err != nil {
+        response.Error(ctx, err)
+        return
+    }
+    var rows []Product
+    db = req.WithSort(db, request.DefaultSortFields())
+    if err := req.WithPagination(db).Order("id DESC").Find(&rows).Error; err != nil {
+        response.Error(ctx, err)
+        return
+    }
+    response.List(ctx, rows, total)
+}
 ```
 
-内置配置通过 `settings.BaseConfig` 访问，用户配置直接通过 `settings.字段名` 访问。每次只读取对应 Key；返回类型由字段定义确定，不需要类型断言。
+筛选支持 `=、!=、>、<、>=、<=、like、in、between`；排序使用 `asc / desc`。字段白名单必须由服务端定义，不要接收客户端提供的白名单。默认排序列表也不会自动为模型添加时间字段。
 
-| 方法 | 行为 |
-| --- | --- |
-| `Get()` | 返回具体类型的值和错误 |
-| `MustGet()` | 返回具体类型的值，读取失败时 panic |
+`response` 包的响应约定：
 
-配置支持 string、bool、int、float64、[]string。读取优先缓存，未命中时查询数据库；在配置管理页面修改实际值。
+- `Success(ctx, data)`：`{code:200,message:"success",data:...}`。如果 data 是字符串，它作为 message；需要返回字符串数据时用对象包装。
+- `List(ctx, rows, total)`：`{code:200,message:"success",data:{list:...,total:...}}`。
+- `Error(ctx, err, code...)`：默认业务 code 为 500，可指定 400 / 401 / 403 等；**HTTP 状态仍为 200**，客户端需要检查 JSON code。
+- `Success`、`Error` 会 Abort Gin 后续处理链，但不会替当前 Go 函数执行 return；错误分支仍要显式 return。
 
-配置定义页面支持拖拽业务分组和组内配置项，预览确认后按字段声明顺序保存到代码。配置管理按保存顺序展示；换数据库部署时也会按代码恢复顺序。内置配置及其分组保持 BaseConfig 声明顺序。
+## 带类型的业务配置
 
-### 动态初始值
-
-在开发工具添加 `order.timeout`（int）后，可在模板的 `settings/init.go` 中填写：
+环境连接信息放在 `config.yaml`；网站名称、登录有效期等业务值由数据库保存，配置管理页面负责修改。对业务公开的是读取接口，不是内部配置存储包。
 
 ```go
 package settings
 
 import admin "github.com/Gary-Yez/go-admin"
 
+type config struct {
+    admin.BaseConfig
+    OrderTimeout admin.ConfigItem[int] `config:"order.timeout" label:"订单超时" group:"订单设置" default:"30" description:"订单未付款超时分钟数"`
+}
+
+var current config
+var (
+    BaseConfig = &current.BaseConfig
+    OrderTimeout = &current.OrderTimeout
+)
+
+func init() {
+    if err := admin.RegisterConfig(&current); err != nil { panic(err) }
+}
+
 func (c *config) Init() error {
+    // 可用环境变量或计算结果填充动态初始值。
     c.OrderTimeout = admin.ConfigDefault(60)
     return nil
 }
 ```
 
-固定默认值直接在配置定义页面填写。动态初始值由 Init 构造，只补建缺失配置，不覆盖数据库已有值。框架内置配置自动初始化，用户不需要手动调用。此方法中不要通过 Get/MustGet 读取配置。
+业务使用 `settings.OrderTimeout.Get()` 获取 `(int, error)`，或 `settings.BaseConfig.SiteName.Get()` 获取 `(string, error)`。`MustGet()` 返回同样的具体类型，但错误时 panic；请求处理优先使用 Get 并处理错误。
 
-JWT 签名密钥位于启动配置 `jwt.secret`，生成配置文件时自动随机填写，也可通过 `MYAPP_JWT_SECRET` 环境变量覆盖。密钥至少 32 字节，多实例须配置一致；修改后重启，旧 JWT 失效。真实密钥不要提交到仓库。登录有效期保留在配置管理，默认 10080 分钟，仅影响新签发的令牌。
+支持 `string、bool、int、float64、[]string`。配置结构只注册一次；字段 Key 应稳定。默认值来自标签，动态初始值在 `Init()` 中填充。Init 每次启动执行，但已有数据库值不被默认值覆盖。不要在 Init 内使用 Get/MustGet，亦不需要手动调用框架 BaseConfig 初始化。
 
-## 数据库与请求参数
+每次 Get 读取指定 Key；命中缓存不查数据库，未命中按项查询并回填，缓存异常时可回源数据库。配置默认缓存 30 分钟，普通读取不会自动续期。数据库更新与缓存更新不是跨存储原子事务；缓存写入失败会尝试移除旧值并返回错误。
 
-### 数据库
+## 缓存与锁
 
-`admin.DB()` 返回 `*gorm.DB`，使用 GORM 原有方法操作：
+`admin.Cache()` 返回内存或 Redis 的统一接口；显式声明类型可用 `admin.CacheStore` 和 `admin.CacheLock`。
+
+- 写入：`Set(key, value, ttl)`、`SetJSON(key, value, ttl)`；ttl 为 0 永不过期。
+- 读取：`Get`、`GetBool`、`GetInt`、`GetJSON(key, &target)`。
+- 管理：`Exists(key)`、`Del(key)`，未命中可用 `errors.Is(err, admin.ErrCacheNotFound)` 判断。
+- `MustGet / MustGetBool / MustGetInt` 忽略读取错误；**不同于配置项 MustGet 的 panic 语义**。
+- `Lock(ctx, key, expiration, extendInterval)` 尝试一次；`WaitForLock(...)` 等待并重试，务必给 ctx 设置超时。
+- 获取成功后调用 `Unlock()`；自动续期不能保证网络故障下业务绝不重叠。
 
 ```go
-// 模块 Initialize 中迁移业务表。
-return admin.DB().AutoMigrate(&Order{})
+store := admin.Cache()
+if err := store.Set("product:featured", "42", 30*time.Minute); err != nil {
+    return err
+}
+value, err := store.Get("product:featured")
 ```
 
-### 当前身份
+框架按数据库驱动、地址、端口、数据库名的 MD5 建立命名空间，再区分缓存、锁等用途；业务只传 `模块:用途:标识`。`Client()` 返回原始客户端，不自动加命名空间，应优先使用抽象接口。
 
-在控制器中：
+## 注册计划任务处理函数
 
-```go
-authUser, err := request.GetAuthUser(ctx)
-if err != nil {
-    response.Error(ctx, err, 401)
-    return
-}
-// authUser.UserId：当前用户 ID
-// authUser.RoleId：本次请求的角色 ID
-```
-
-### 列表查询
-
-以下片段放在使用 `Order` 模型的列表控制器中：
+在模块 `Initialize()` 中注册处理函数，随后在计划任务页面创建任务实例、填写执行周期和参数：
 
 ```go
-req, err := request.GetReqList(ctx)
-if err != nil {
-    response.Error(ctx, err)
-    return
-}
-
-db := req.WithFilter(admin.DB().Model(&Order{}), []string{"status"})
-var total int64
-if err := db.Count(&total).Error; err != nil {
-    response.Error(ctx, err)
-    return
-}
-var list []Order
-err = req.WithPagination(req.WithSort(db, []string{"id"})).Find(&list).Error
-if err != nil {
-    response.Error(ctx, err)
-    return
-}
-response.List(ctx, list, total)
-```
-
-`WithFilter` 和 `WithSort` 的字段列表是白名单。非法字段或条件会返回查询错误，不能忽略 GORM Error。分页包含 page、limit，limit 最多 100；filters 支持比较、like、in、between，sorts 使用 field 和 order。
-
-批量操作使用 `request.GetReqIds(ctx)`，通过 `req.WithQuery(admin.DB())` 生成 ID 查询条件。ID 要求非空正整数，自动去重，不限制数量。单个 ID 使用 `request.GetReq(ctx)`。
-
-### 返回结果
-
-```go
-response.Success(ctx)                         // 成功
-response.Success(ctx, "保存成功")             // 自定义 message
-response.Success(ctx, gin.H{"id": 1})        // 返回 data，需要导入 gin
-response.List(ctx, list, total)                // data: {list, total}
-response.Error(ctx, err)                       // 错误
-response.Error(ctx, "没有权限", 403)           // 指定业务错误码
-```
-
-响应包含 code、message 和可选 data。当前统一响应使用 HTTP 200，调用方应检查 JSON `code`，成功值为 200。
-
-## 使用缓存
-
-通过 `admin.Cache()` 调用，无需区分内存和 Redis：
-
-键只需填写 `模块:具体键`。框架根据数据库地址、端口和库名计算命名空间，普通缓存实际为 `go-admin:<数据库哈希>:cache:<业务键>`，锁为 `go-admin:<数据库哈希>:lock:<业务键>`。同一系统的多实例应使用一致的数据库连接地址。通过 `Client()` 直接调用原始客户端时，不会自动添加这些前缀。
-
-```go
-// 片段需要导入 time、errors，并处理各操作的 err。
-err := admin.Cache().Set("order:last_id", "123", time.Minute)
-value, err := admin.Cache().Get("order:last_id")
-if errors.Is(err, admin.ErrCacheNotFound) {
-    // 缓存不存在，按业务需要回查数据库。
-}
-```
-
-| 方法 | 用途 |
-| --- | --- |
-| `Set(key, value, ttl)` / `Get(key)` | 写入值、读取字符串 |
-| `SetJSON(key, value, ttl)` / `GetJSON(key, &value)` | 结构体序列化读写 |
-| `GetInt(key)` / `GetBool(key)` | 读取整数或布尔值 |
-| `Exists(key)` / `Del(key)` | 检查或删除缓存 |
-| `Lock(key, expiration, extendInterval)` | 获取锁，使用后调用返回对象的 Unlock |
-
-TTL 为 0 表示不过期。单实例可使用内存缓存，多实例配置共享 Redis。推荐处理返回错误；缓存的 MustGet 系列会忽略错误，与配置项 MustGet 的 panic 行为不同。
-
-## 注册定时任务
-
-在模块 `Initialize()` 中注册处理函数，随后在后台创建任务并选择它。以下为方法体示例，需要导入 context：
-
-```go
-return admin.Scheduler().RegisterHandler("order.cleanup", &admin.HandlerOption{
-    Name: "清理过期订单",
-    Handler: func(ctx context.Context, params []byte) error {
-        if err := ctx.Err(); err != nil {
-            return err
-        }
-        // 执行清理逻辑；有参数时将 params 按 JSON 解码。
+return admin.Scheduler().RegisterHandler("product.cleanup", &admin.HandlerOption{
+    Name: "清理过期商品",
+    Params: admin.HandlerParams{
+        &admin.HandlerParam{
+            Name: "保留天数", Key: "days", Type: admin.IntParams, Required: true,
+        },
+    },
+    Handler: func(ctx context.Context, raw []byte) error {
+        var params struct { Days int `json:"days"` }
+        if err := json.Unmarshal(raw, &params); err != nil { return err }
+        // 校验参数并执行业务；通过 ctx 响应取消。
         return nil
     },
 })
 ```
 
-`HandlerOption.Params` 可声明参数，使用 `admin.HandlerParams`、`admin.HandlerParam`，类型有 `admin.StringParams`、`admin.IntParams`、`admin.BoolParams`。处理函数 Key 必须唯一。
+参数类型为 `StringParams、IntParams、BoolParams`，处理函数仍应验证业务范围。`GetHandlers()` 可读取已注册处理函数。注册处理函数不会自动创建计划任务记录。
 
-后台 Cron 使用五段格式，例如 `*/5 * * * *` 每五分钟执行。默认 UTC，也可填写 `CRON_TZ=Asia/Shanghai 0 2 * * *`。任务执行结果在后台查看，业务处理函数应响应 context 并保证业务幂等。
+默认时区为北京时间；五段 Cron 示例 `0 3 * * *` 表示每天 03:00。框架负责 StartScheduler/StopScheduler，业务不要再次启动调度器。多实例使用数据库任务领取和共享缓存锁协调，业务任务仍需幂等，不能依赖“绝对只执行一次”。
 
-## 配置全局 Gin 服务
+## 全局 Gin 配置
 
-在 `main()` 中、`admin.Run()` 前调用 `admin.ConfigureEngine(func(*gin.Engine) error)`。可以注册多个回调，按顺序在路由注册前执行；回调报错则停止启动。服务启动后不能再注册。可用于设置可信代理、添加全局中间件等。
+```go
+err := admin.ConfigureEngine(func(engine *gin.Engine) error {
+    // 例如 engine.Use(cors.New(...))，参数由业务部署环境决定。
+    return engine.SetTrustedProxies([]string{"127.0.0.1"})
+})
+if err != nil { log.Fatal(err) }
+// 然后 admin.Run()
+```
 
-框架不再自动安装 CORS；模板 `server/main.go` 使用此回调配置 CORS（包含 Authorization 请求头），开发者可以在那里调整允许的来源。回调直接注册的路由不会自动获得框架鉴权，也不参与 API 同步，业务接口应继续通过模块的 `AdminRouter` / `PublicRouter` 注册。
+回调在模块初始化完成后、框架路由注册前执行。它适合全局中间件和代理配置；直接在 engine 注册的接口不自动参与框架鉴权及 API 同步。返回错误会中止启动。
 
-## 节点监控
+## 部署与升级注意事项
 
-“系统运维 → 节点监控”展示各实例的资源和 Go Runtime 数据。每 5 秒采集，超过 20 秒没有上报标记离线，Redis 中保留最后快照 10 分钟。单实例使用内存，多实例按现有部署约定共用 Redis 及数据库命名空间；节点目录使用 Redis Hash + Sorted Set 原子更新，不扫描全库、不写 MySQL。
+- 单实例可使用内存缓存；多实例必须使用同一数据库、共享 Redis，并保持数据库命名空间参数和 JWT 密钥一致。
+- 密码变更、管理员状态及角色关系通过框架接口修改，才能同步维护身份缓存和会话失效；直接写表不会触发这些逻辑。
+- Casbin 在各进程维护权限，Redis 用于变更通知，后台重新同步用于恢复；不要把它理解为每次请求都读权限表。
+- 生产关闭 dev，初始化后修改默认账号密码；代理部署时设置可信代理。
+- 升级使用 `go get github.com/Gary-Yez/go-admin@vX.Y.Z`，随后 `go mod tidy` 并构建。配套前端使用对应发行版本，升级前检查发布说明与数据库变更。
 
-`server.node_name`（或 `MYAPP_SERVER_NODE_NAME`）设置显示名称，留空使用主机名；实例 ID 每次启动随机生成，避免同一主机多进程相互覆盖。重启后旧实例暂时显示离线，10 分钟后移除。节点时钟应同步；Redis 在线状态以 Redis 时间计算。
-
-机器指标是操作系统可见资源，不代表容器 CPU/内存配额；磁盘展示运行目录所在卷。进程 CPU 按单核 100% 计算，可超过 100%。采集不支持或失败显示不可用，首次 CPU 和 GC 增量需要等待下一次采样。Go 堆内存不等同于进程 RSS。
-
-监控接口 `GET /sys_monitor/list` 属于受保护路由，需要单独分配角色权限；不提供 pprof、环境变量、密钥或连接凭据。Redis 故障时不会伪装成单机列表，上报会持续重试，页面展示读取失败。页面支持节点详情和当前页面内的短趋势，离开页面不再轮询，不保存历史监控数据。
-
-## 框架维护与发布
-
-维护环境通过 maintain.ps1 release 统一 go-admin 与 go-admin-web 的版本，并推送同名 vX.Y.Z Tag。本仓库的 .github/workflows/release.yml 在 Tag 推送后独立执行 go test ./...，通过后自动创建 GitHub Release。Go 模块仍通过 Git Tag 提供版本，业务项目不需要 GitHub CLI。
-
-公共前端由 go-admin-web 仓库的 Tag 工作流发布 npm。两个工作流各自运行，失败时在 Actions 重跑；已有 Tag 不覆盖。两边发布完成且 npm 版本可用后，再运行 maintain.ps1 update-template 更新模板正式依赖。
+公共 API 以根包 `admin`、`request`、`response` 为入口。`internal/` 是框架实现，不应复制或直接依赖其中的系统模块与服务。
