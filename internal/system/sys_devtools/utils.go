@@ -171,7 +171,12 @@ func getModuleEnterContent(moduleName string, source []byte) (string, string, er
 	if err = format.Node(&buf, fileSet, f); err != nil {
 		return "", "", err
 	}
-	return buf.String(), filePath, nil
+	// 新增 AST 节点还没有源码位置，重新解析格式化后统一 import 排序。
+	content, err := format.Source(buf.Bytes())
+	if err != nil {
+		return "", "", err
+	}
+	return string(content), filePath, nil
 }
 
 // 复用已有别名，补回删除最后一个模块时移除的导入。

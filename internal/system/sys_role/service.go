@@ -1,11 +1,14 @@
 package sys_role
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"github.com/Gary-Yez/go-admin/internal/permissions"
 	"github.com/Gary-Yez/go-admin/internal/state"
 	"github.com/Gary-Yez/go-admin/internal/system/sys_menu"
 	"github.com/Gary-Yez/go-admin/internal/utils"
+	gormadapter "github.com/casbin/gorm-adapter/v3"
 
 	request2 "github.com/Gary-Yez/go-admin/request"
 	"gorm.io/gorm"
@@ -117,45 +120,64 @@ func (s *serviceStruck) DeleteByIds(req *request2.ReqIds) error {
 	})
 }
 
-func (s *serviceStruck) UpdatePermission(data *SysRole) (err error) {
+func (s *serviceStruck) UpdatePermission(data *SysRole) error {
+	if data == nil || data.Id == 0 {
+		return errors.New("请选择角色")
+	}
+	roleId := strconv.Itoa(int(data.Id))
+	var rules [][]string
+	seen := make(map[[2]string]bool)
 	for _, api := range data.Apis {
-		if api == nil {
+		if api == nil || api.Path == "" || api.Method == "" {
 			return errors.New("API权限配置无效")
 		}
 		if permissions.IsAuthenticatedAPI(api.Method, api.Path) {
 			return errors.New("登录后的基础接口由所有角色共享，无需配置")
 		}
+		key := [2]string{api.Path, api.Method}
+		if !seen[key] {
+			seen[key] = true
+			rules = append(rules, []string{roleId, api.Path, api.Method})
+		}
 	}
-	roleId := strconv.Itoa(int(data.Id))
-	err = s.DeletePolicy(0, roleId)
+	adapter, ok := Enforcer.GetAdapter().(*gormadapter.Adapter)
+	if !ok {
+		return errors.New("角色权限存储未就绪")
+	}
+	transaction, err := adapter.BeginTransaction(context.Background())
 	if err != nil {
 		return err
 	}
-	var rules [][]string
-	//做权限去重处理
-	deduplicateMap := make(map[string]bool)
-	for _, v := range data.Apis {
-		key := roleId + v.Path + v.Method
-		if _, ok := deduplicateMap[key]; !ok {
-			deduplicateMap[key] = true
-			rules = append(rules, []string{roleId, v.Path, v.Method})
+	defer transaction.Rollback()
+	txAdapter := transaction.GetAdapter().(*gormadapter.Adapter)
+	// 策略、菜单关联和默认首页共用事务；角色行锁串行化同一角色的权限修改。
+	tx := txAdapter.GetDb().Session(&gorm.Session{NewDB: true})
+	var role SysRole
+	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&role, data.Id).Error; err != nil {
+		return err
+	}
+	if err := txAdapter.RemoveFilteredPolicy("p", "p", 0, roleId); err != nil {
+		return err
+	}
+	if len(rules) > 0 {
+		if err := txAdapter.AddPolicies("p", "p", rules); err != nil {
+			return err
 		}
 	}
-	if len(rules) != 0 {
-		success, err := Enforcer.AddPolicies(rules)
-		if err != nil {
-			return err
-		}
-		if !success {
-			return errors.New("API权限修改失败")
-		}
-	} // 设置空权限无需调用 AddPolicies 方法
-	return state.DB().Transaction(func(tx *gorm.DB) error {
-		if err := tx.Omit("Menus.*").Model(data).Association("Menus").Replace(data.Menus); err != nil {
-			return err
-		}
-		return tx.Model(data).Update("default_menu", data.DefaultMenu).Error
-	})
+	if err := tx.Omit("Menus.*").Model(&role).Association("Menus").Replace(data.Menus); err != nil {
+		return err
+	}
+	if err := tx.Model(&role).Update("default_menu", data.DefaultMenu).Error; err != nil {
+		return err
+	}
+	if err := transaction.Commit(); err != nil {
+		return err
+	}
+	// 提交后再刷新本机缓存并通知其他实例，避免重复写库或提前公布未提交权限。
+	if err := s.ReloadPolicy(); err != nil {
+		return fmt.Errorf("角色权限已保存，但权限缓存更新失败：%w", err)
+	}
+	return nil
 }
 
 func (s *serviceStruck) DeletePolicy(fieldIndex int, fieldValues ...string) error {
