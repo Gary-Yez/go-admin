@@ -113,19 +113,17 @@
 </template>
 
 <script setup lang="ts">
-import ColumnTable from "../../components/core/ColumnTable.vue";
+import {ColumnTable} from "@gary-yez/go-admin-web";
 {{- if .CanDelete}}
-import {confirmDelete} from "../../utils/confirmDelete";
+import {confirmDelete} from "@gary-yez/go-admin-web";
 {{- end}}
-import PageHeader from "../../components/core/PageHeader.vue";
-import TableTime from "../../components/core/TableTime.vue";
-import {defaultSortFields} from "../../utils/sort";
+import {PageHeader, TableTime, defaultSortFields} from "@gary-yez/go-admin-web";
 import { {{.ModelName}}Api } from "../../apis/{{.ModuleName}}";
 {{- if or .CanCreate .CanEdit .CanDelete}}
 import { ElMessage } from "element-plus";
 {{- end}}
 {{- if or .CanCreate .CanEdit}}
-import FormDialog from "../../components/core/FormDialog.vue";
+import {FormDialog} from "@gary-yez/go-admin-web";
 {{- end}}
 import {onMounted, onBeforeUnmount, ref, watch} from "vue";
 
