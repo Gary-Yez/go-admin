@@ -13,8 +13,8 @@ func InitData() error {
 	}
 	if count == 0 {
 		data := SysRole{
-			Name:    "超级管理员",
-			Default: true,
+			Name:         "超级管理员",
+			IsSuperAdmin: true,
 		}
 		if err := db.Create(&data).Error; err != nil {
 			return err

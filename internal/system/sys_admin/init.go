@@ -13,7 +13,7 @@ func InitData() error {
 	}
 	if count == 0 {
 		defaultRole := sys_role.SysRole{
-			Default: true,
+			IsSuperAdmin: true,
 		}
 		if err := state.DB().Model(sys_role.SysRole{}).Where(defaultRole).First(&defaultRole).Error; err != nil {
 			panic(err)
@@ -27,7 +27,7 @@ func InitData() error {
 				Avatar:       "/img/user.png",
 				PasswordHash: "$2a$10$PVIcAuZXvnP4sHLzGe/7se7F9Sakeu99ZwGqtlanUbFXgDHrxImQe",
 				Default:      true,
-				Role:         &defaultRole,
+				Roles:        []*sys_role.SysRole{&defaultRole},
 				RoleId:       defaultRole.Id,
 			},
 		}

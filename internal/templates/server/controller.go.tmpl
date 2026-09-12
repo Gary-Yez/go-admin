@@ -8,19 +8,6 @@ import (
 
 type controllerStruct struct{}
 {{if .CreateCURD}}
-func (_ *controllerStruct) Get(ctx *gin.Context) {
-	req, err := request.GetReq(ctx)
-	if err != nil {
-		response.Error(ctx, err.Error())
-		return
-	}
-	get, err := Service.Get(req)
-    if err != nil {
-    	return
-    }
-	response.Success(ctx, get)
-}
-
 func (_ *controllerStruct) List(ctx *gin.Context) {
 	req, err := request.GetReqList(ctx)
 	if err != nil {
@@ -36,13 +23,15 @@ func (_ *controllerStruct) List(ctx *gin.Context) {
 
 }
 
+{{if .CanCreate}}
 func (_ *controllerStruct) Create(ctx *gin.Context) {
-	data := new({{.ModelName}})
-	err := ctx.ShouldBindJSON(data)
+	input := new({{.ModelName}}Input)
+	err := ctx.ShouldBindJSON(input)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
 	}
+	data := input.ToModel()
 	err = Service.Create(data)
 	if err != nil {
 		response.Error(ctx, err.Error())
@@ -51,6 +40,8 @@ func (_ *controllerStruct) Create(ctx *gin.Context) {
 	response.Success(ctx, data)
 }
 
+{{end}}
+{{if .CanDelete}}
 func (_ *controllerStruct) Delete(ctx *gin.Context) {
 	req, err := request.GetReqIds(ctx)
 	if err != nil {
@@ -65,13 +56,16 @@ func (_ *controllerStruct) Delete(ctx *gin.Context) {
 	response.Success(ctx, "success")
 }
 
+{{end}}
+{{if .CanEdit}}
 func (_ *controllerStruct) Edit(ctx *gin.Context) {
-    data := new({{.ModelName}})
-	err := ctx.ShouldBindJSON(data)
+	input := new({{.ModelName}}Input)
+	err := ctx.ShouldBindJSON(input)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
 	}
+	data := input.ToModel()
 	err = Service.Update(data)
 	if err != nil {
 		response.Error(ctx, err.Error())
@@ -79,6 +73,7 @@ func (_ *controllerStruct) Edit(ctx *gin.Context) {
 	}
 	response.Success(ctx, data)
 }
+{{end}}
 {{else}}
 func (c *controllerStruct) Test(ctx *gin.Context) {
 	_, err := request.GetReq(ctx)

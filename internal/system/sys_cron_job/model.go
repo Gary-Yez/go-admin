@@ -1,8 +1,6 @@
 package sys_cron_job
 
 import (
-	"github.com/Gary-Yez/go-admin/internal/state"
-	"gorm.io/gorm/clause"
 	"strconv"
 	"time"
 )
@@ -41,13 +39,6 @@ func (j *SysCronJob) GetID() string {
 	return strconv.Itoa(int(j.Id))
 }
 
-func (j *SysCronJob) GetLastRunTime() time.Time {
-	if j.LastRunTime != nil {
-		return *j.LastRunTime
-	}
-	return time.Time{}
-}
-
 func (j *SysCronJob) GetNextRunTime() time.Time {
 	if j.NextRunTime != nil {
 		return *j.NextRunTime
@@ -55,31 +46,16 @@ func (j *SysCronJob) GetNextRunTime() time.Time {
 	return time.Time{}
 }
 
-func (j *SysCronJob) AfterRun(startTime time.Time, endTime time.Time, nextRunTime time.Time, err error) {
-	state.DB().Model(j).UpdateColumns(map[string]interface{}{
-		"last_run_time": startTime,
-		"next_run_time": nextRunTime,
-	})
-	var errMsg string
-	if err != nil {
-		errMsg = err.Error()
-	}
-	log := &SysCronJobLog{
-		StartTime: startTime,
-		EndTime:   endTime,
-		Error:     errMsg,
-		JobId:     j.Id,
-	}
-	state.DB().Omit(clause.Associations).Create(log)
-}
-
 type SysCronJobLog struct {
-	Id        uint        `gorm:"primary_key;AUTO_INCREMENT" json:"id"`
-	CreatedAt time.Time   `json:"created_at" gorm:"comment:创建时间"`
-	UpdatedAt time.Time   `json:"updated_at" gorm:"comment:更新时间"`
-	StartTime time.Time   `json:"start_time"`
-	EndTime   time.Time   `json:"end_time"`
-	Error     string      `json:"error"`
-	JobId     uint        `json:"job_id"`
-	Job       *SysCronJob `json:"job" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Id          uint        `gorm:"primary_key;AUTO_INCREMENT" json:"id"`
+	CreatedAt   time.Time   `json:"created_at" gorm:"comment:创建时间"`
+	UpdatedAt   time.Time   `json:"updated_at" gorm:"comment:更新时间"`
+	StartTime   time.Time   `json:"start_time"`
+	EndTime     *time.Time  `json:"end_time"`
+	ScheduledAt time.Time   `json:"scheduled_at" gorm:"uniqueIndex:idx_cron_job_batch"`
+	Status      string      `json:"status" gorm:"index"`
+	Instance    string      `json:"instance"`
+	Error       string      `json:"error"`
+	JobId       uint        `json:"job_id" gorm:"uniqueIndex:idx_cron_job_batch"`
+	Job         *SysCronJob `json:"job" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }

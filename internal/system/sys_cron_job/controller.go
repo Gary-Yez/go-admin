@@ -27,19 +27,6 @@ func (_ *controllerStruct) GetLogs(ctx *gin.Context) {
 	response.List(ctx, list, total)
 }
 
-func (_ *controllerStruct) Get(ctx *gin.Context) {
-	req, err := request.GetReq(ctx)
-	if err != nil {
-		response.Error(ctx, err.Error())
-		return
-	}
-	get, err := Service.Get(req)
-	if err != nil {
-		return
-	}
-	response.Success(ctx, get)
-}
-
 func (_ *controllerStruct) List(ctx *gin.Context) {
 	req, err := request.GetReqList(ctx)
 	if err != nil {

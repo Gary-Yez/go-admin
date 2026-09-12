@@ -2,6 +2,7 @@ package sys_devtools
 
 import (
 	"github.com/Gary-Yez/go-admin/internal/state"
+	"github.com/Gary-Yez/go-admin/internal/system/sys_menu"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,10 +10,7 @@ import (
 var Controller = new(controllerStruct)
 var Service = new(serviceStruct)
 
-type Mounter struct {
-	name      string
-	routePath string
-}
+type Mounter struct{}
 
 func (m *Mounter) Name() string {
 	return "核心服务-开发工具"
@@ -26,13 +24,17 @@ func (_ *Mounter) Initialize() error {
 	return nil
 }
 
-func (_ *Mounter) AdminRouter(adminAuthGroup *gin.RouterGroup) {
-	adminAuthGroup.POST("generate", Controller.Generate)
-	adminAuthGroup.POST("preview", Controller.Preview)
-	adminAuthGroup.GET("history", Controller.History)
-	adminAuthGroup.POST("delete_history", Controller.DeleteHistory)
-}
+func (_ *Mounter) AdminRouter(_ *gin.RouterGroup) {}
 
 func (_ *Mounter) PublicRouter(publicGroup *gin.RouterGroup) {
-
+	if state.Config() == nil || !state.Config().IsDev() {
+		return
+	}
+	publicGroup.POST("generate", Controller.Generate)
+	publicGroup.GET("menu_options", sys_menu.Controller.List)
+	publicGroup.POST("preview", Controller.Preview)
+	publicGroup.GET("history", Controller.History)
+	publicGroup.GET("get_history", Controller.GetHistory)
+	publicGroup.POST("delete_history", Controller.DeleteHistory)
+	publicGroup.POST("preview_delete_history", Controller.PreviewDeleteHistory)
 }

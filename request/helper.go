@@ -10,11 +10,17 @@ func GetReq(ctx *gin.Context) (*Req, error) {
 func GetReqIds(ctx *gin.Context) (*ReqIds, error) {
 	var ids = new(ReqIds)
 	err := ctx.ShouldBind(ids)
+	if err == nil {
+		err = ids.Validate()
+	}
 	return ids, err
 }
 
 func GetReqList(ctx *gin.Context) (*ReqList, error) {
 	var list = new(ReqList)
 	err := ctx.ShouldBind(list)
+	if err == nil {
+		err = list.Validate()
+	}
 	return list, err
 }

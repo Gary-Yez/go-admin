@@ -1,114 +1,239 @@
 <template>
-  <el-card class="container" shadow="never" v-loading="pageLoading">
-    <div class="mb-[10px] ">
-      <el-button v-if="multipleSelection.length <= 0" type="primary" icon="Refresh" :loading="pageLoading" @click="getPageData">刷新</el-button>
-      <el-button v-if="multipleSelection.length <= 0" type="primary" icon="Plus" @click="()=>handleShowFormDialog(initForm())">新增</el-button>
-      <el-button v-if="multipleSelection.length > 0" type="danger" icon="Delete" @click="()=>handleDelete(multipleSelection)">批量删除</el-button>
+  <el-card class="container" shadow="never">
+    <PageHeader title="{{.ChineseModuleName}}" description="查看与管理数据{{if .QueryFields}}，支持按条件筛选{{end}}" />
+{{- if .QueryFields}}
+    <el-form class="search-form" :model="searchForm" @submit.prevent="handleSearch">
+{{- range .QueryFields}}
+      <el-form-item>
+{{- if eq .Type "bool"}}
+        <el-select size="large" v-model="searchForm.{{.Name}}" placeholder="全部{{if .ChineseName}}{{.ChineseName}}{{else}}{{.Name}}{{end}}" aria-label="{{if .ChineseName}}{{.ChineseName}}{{else}}{{.Name}}{{end}}" clearable @change="handleSearch">
+          <el-option label="开启" :value="true" />
+          <el-option label="关闭" :value="false" />
+        </el-select>
+{{- else if eq .Type "string"}}
+        <el-input size="large" v-model="searchForm.{{.Name}}" placeholder="请输入{{if .ChineseName}}{{.ChineseName}}{{else}}{{.Name}}{{end}}" aria-label="{{if .ChineseName}}{{.ChineseName}}{{else}}{{.Name}}{{end}}" clearable @blur="handleSearch" />
+{{- else if eq .Type "time.Time"}}
+        <el-date-picker size="large" v-model="searchForm.{{.Name}}" type="datetimerange" value-format="YYYY-MM-DDTHH:mm:ssZ" range-separator="至" start-placeholder="开始时间" end-placeholder="结束时间" aria-label="{{if .ChineseName}}{{.ChineseName}}{{else}}{{.Name}}{{end}}" clearable @change="handleSearch" />
+{{- else}}
+        <el-input-number size="large" v-model="searchForm.{{.Name}}" :min="{{.NumberMin}}" :max="{{.NumberMax}}"{{if .IsInteger}} :precision="0"{{else}} :step="0.1"{{end}} :value-on-clear="undefined" :controls="false" placeholder="请输入{{if .ChineseName}}{{.ChineseName}}{{else}}{{.Name}}{{end}}" aria-label="{{if .ChineseName}}{{.ChineseName}}{{else}}{{.Name}}{{end}}" @blur="handleSearch" />
+{{- end}}
+      </el-form-item>
+{{- end}}
+      <el-button icon="RefreshLeft" @click="handleResetSearch">重置</el-button>
+    </el-form>
+{{- end}}
+    <div v-if="listError" class="mb-[12px]">
+      <el-alert :title="listError" type="error" :closable="false" show-icon />
     </div>
-    <el-table :data="tableData"  @selection-change="handleSelectionChange">
+    <ColumnTable storage-key="module:{{.ModuleName}}:list" size="large" v-loading="pageLoading" :data="tableData" @sort-change="handleSortChange"{{if .CanDelete}} @selection-change="handleSelectionChange"{{end}}>
+      <template #toolbar>
+        <el-button{{if .CanDelete}} v-if="multipleSelection.length <= 0"{{end}} icon="Refresh" :loading="pageLoading" @click="getPageData">刷新</el-button>
+{{- if .CanCreate}}
+        <el-button{{if .CanDelete}} v-if="multipleSelection.length <= 0"{{end}} type="primary" icon="Plus" @click="()=>handleShowFormDialog(initForm())">新增</el-button>
+{{- end}}
+{{- if .CanDelete}}
+        <el-button v-if="multipleSelection.length > 0" type="danger" icon="Delete" @click="()=>handleDelete(multipleSelection)">批量删除</el-button>
+{{- end}}
+      </template>
+{{- if .CanDelete}}
       <el-table-column type="selection"></el-table-column>
-      <el-table-column label="编号" prop="id" :width="100"></el-table-column>
+{{- end}}
+      {{- range .BuiltinFields}}{{if .TableShow}}
+      <el-table-column label="{{.ChineseName}}" prop="{{.Name}}"{{if .Sortable}} sortable="custom"{{end}}{{if eq .Name "id"}} :width="100"{{else}} min-width="150"{{end}}>
+        {{- if eq .Type "time.Time"}}
+        <template #default="{ row }"><TableTime :value="row.{{.Name}}" /></template>
+        {{- end}}
+      </el-table-column>
+      {{- end}}{{end}}
       {{- range .Fields}}
       {{- if .TableShow }}
       {{- if eq .Type "bool"}}
-      <el-table-column label="{{if .ChineseName}}{{.ChineseName}}{{else}}{{.Name}}{{end}}" prop="{{.Name}}">
-          <template #default="{ row }">
-            <el-tag v-if="row.{{.Name}}" type="success">开启</el-tag>
-            <el-tag v-else type="danger">关闭</el-tag>
-          </template>
-      </el-table-column>
-      {{- else}}
-      <el-table-column label="{{if .ChineseName}}{{.ChineseName}}{{else}}{{.Name}}{{end}}" prop="{{.Name}}"></el-table-column>
-      {{- end}}
-      {{- end}}
-      {{- end}}
-      <el-table-column label="操作" :width="160">
+      <el-table-column label="{{if .ChineseName}}{{.ChineseName}}{{else}}{{.Name}}{{end}}" prop="{{.Name}}"{{if .Sortable}} sortable="custom"{{end}}>
         <template #default="{ row }">
-          <el-button-group class="table-btn-group">
-            <el-button type="primary" icon="Edit" text @click="()=>handleShowFormDialog(row)">修改</el-button>
-            <el-button type="danger" icon="Delete" text @click="()=>handleDelete([row.id])">删除</el-button>
-          </el-button-group>
+          <el-tag v-if="row.{{.Name}}" type="success">开启</el-tag>
+          <el-tag v-else type="danger">关闭</el-tag>
         </template>
       </el-table-column>
-    </el-table>
-    <div class="mt-[15px] flex justify-center">
+      {{- else if eq .Type "time.Time"}}
+      <el-table-column label="{{if .ChineseName}}{{.ChineseName}}{{else}}{{.Name}}{{end}}" prop="{{.Name}}"{{if .Sortable}} sortable="custom"{{end}} min-width="150">
+        <template #default="{ row }"><TableTime :value="row.{{.Name}}" /></template>
+      </el-table-column>
+      {{- else}}
+      <el-table-column label="{{if .ChineseName}}{{.ChineseName}}{{else}}{{.Name}}{{end}}" prop="{{.Name}}"{{if .Sortable}} sortable="custom"{{end}}></el-table-column>
+      {{- end}}
+      {{- end}}
+      {{- end}}
+{{- if or .CanEdit .CanDelete}}
+      <el-table-column label="操作" :width="{{if and .CanEdit .CanDelete}}190{{else}}100{{end}}" fixed="right" align="center">
+        <template #default="{ row }">
+          <div class="table-btn-group">
+{{- if .CanEdit}}
+            <el-button type="primary" icon="Edit" plain size="small" @click="()=>handleShowFormDialog(row)">修改</el-button>
+{{- end}}
+{{- if .CanDelete}}
+            <el-button type="danger" icon="Delete" plain size="small" @click="()=>handleDelete([row.id])">删除</el-button>
+{{- end}}
+          </div>
+        </template>
+      </el-table-column>
+{{- end}}
+      <template #empty><el-empty v-if="!pageLoading" :description="listError ? '加载失败，请刷新重试' : {{if .QueryFields}}queryForm.filters.length ? '没有匹配的数据' : {{end}}'暂无数据'" :image-size="70" /></template>
+    </ColumnTable>
+    <div class="table-pagination">
       <el-pagination
-          v-model:current-page="queryForm.page"
-          v-model:page-size="queryForm.limit"
-          :page-sizes="[10, 30, 50, 100]"
-          background
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-          @change="getPageData"
+        v-model:current-page="queryForm.page"
+        v-model:page-size="queryForm.limit"
+        :page-sizes="[10, 30, 50, 100]"
+        background
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+
       />
     </div>
-    <FormDialog v-model="dialogOpen" v-model:form="submitForm" :title="`${ submitForm.id ? '修改' : '新增' }{{ .ChineseModuleName }}`" :on-confirm="handleSubmit">
+{{- if or .CanCreate .CanEdit}}
+    <FormDialog v-model="dialogOpen" v-model:form="submitForm" :title="`${ submitForm.id ? '修改' : '新增' }{{ .ChineseModuleName }}`" description="填写{{.ChineseModuleName}}信息，确认后保存。" note-icon="EditPen" :on-confirm="handleSubmit">
       {{- range .Fields}}
       {{- if .Editable}}
       <el-form-item label="{{if .ChineseName}}{{.ChineseName}}{{else}}{{.Name}}{{end}}" prop="{{.Name}}"{{- if .Required}} :rules="[{required:true,message:'{{if .ChineseName}}{{.ChineseName}}{{else}}{{.Name}}字段{{end}}不能为空'}]"{{end}}>
-        {{- if eq .Type "int"}}
-        <el-input-number v-model="submitForm.{{.Name}}" :value-on-clear="0"></el-input-number>
+        {{- if .IsNumber}}
+        <el-input-number size="large" v-model="submitForm.{{.Name}}" :min="{{.NumberMin}}" :max="{{.NumberMax}}"{{if .IsInteger}} :precision="0"{{else}} :step="0.1"{{end}} :value-on-clear="0" controls-position="right" style="width:100%"></el-input-number>
         {{- else if eq .Type "bool"}}
         <el-switch v-model="submitForm.{{.Name}}" :active-value="true" :inactive-value="false"></el-switch>
+        {{- else if eq .Type "time.Time"}}
+        <el-date-picker size="large" v-model="submitForm.{{.Name}}" type="datetime" value-format="YYYY-MM-DDTHH:mm:ssZ" placeholder="请选择{{if .ChineseName}}{{.ChineseName}}{{else}}{{.Name}}{{end}}" style="width:100%" />
         {{- else}}
-        <el-input v-model="submitForm.{{.Name}}" placeholder="请输入{{if .ChineseName}}{{.ChineseName}}{{else}}{{.Name}}字段{{end}}"></el-input>
+        <el-input size="large" v-model="submitForm.{{.Name}}" placeholder="请输入{{if .ChineseName}}{{.ChineseName}}{{else}}{{.Name}}字段{{end}}"></el-input>
         {{- end}}
       </el-form-item>
       {{- end}}
       {{- end}}
     </FormDialog>
+{{- end}}
   </el-card>
 </template>
 
 <script setup lang="ts">
+import ColumnTable from "../../components/core/ColumnTable.vue";
+{{- if .CanDelete}}
+import {confirmDelete} from "../../utils/confirmDelete";
+{{- end}}
+import PageHeader from "../../components/core/PageHeader.vue";
+import TableTime from "../../components/core/TableTime.vue";
+import {defaultSortFields} from "../../utils/sort";
 import { {{.ModelName}}Api } from "../../apis/{{.ModuleName}}";
-import { ElMessage,ElMessageBox } from "element-plus";
+{{- if or .CanCreate .CanEdit .CanDelete}}
+import { ElMessage } from "element-plus";
+{{- end}}
+{{- if or .CanCreate .CanEdit}}
 import FormDialog from "../../components/core/FormDialog.vue";
-import {onMounted, ref} from "vue";
+{{- end}}
+import {onMounted, onBeforeUnmount, ref, watch} from "vue";
 
+{{- if or .CanCreate .CanEdit}}
 const dialogOpen = ref(false)
+{{- end}}
 const queryForm = ref({
   page:1,
+  sorts: [] as Array<{field:string;order:string}>,
+{{- if .QueryFields}}
+  filters: [] as Array<{ field:string; operator:string; value:unknown }>,
+{{- end}}
   limit:10
 })
+const sortFields = defaultSortFields({
+{{- range .Fields}}{{if .Sortable}}
+  "{{.Name}}":"{{columnName .}}",
+{{- end}}{{end}}
+})
+const handleSortChange = ({prop,order}:{prop:string;order:'ascending'|'descending'|null})=>{
+  listRequest++
+  const field = sortFields[prop]
+  queryForm.value.sorts = field && order ? [{field,order:order === 'ascending' ? 'asc' : 'desc'}] : []
+  queryForm.value.page = 1
+}
+{{- if .QueryFields}}
+const searchForm = ref<Record<string, any>>({})
+const handleSearch = ()=>{
+  listRequest++
+  const filters:Array<{ field:string; operator:string; value:unknown }> = []
+{{- range .QueryFields}}
+  if (searchForm.value.{{.Name}} !== undefined && searchForm.value.{{.Name}} !== null && searchForm.value.{{.Name}} !== '') {
+    filters.push({ field:"{{columnName .}}", operator:"{{if eq .Type "time.Time"}}between{{else}}{{.QueryType}}{{end}}", value:searchForm.value.{{.Name}} })
+  }
+{{- end}}
+  queryForm.value.filters = filters
+  queryForm.value.page = 1
+}
+const handleResetSearch = ()=>{
+  searchForm.value = {}
+  handleSearch()
+}
+{{- end}}
+{{- if or .CanCreate .CanEdit}}
 // 初始化form数据
 const initForm = ()=>{
-    return {
-        {{- range .Fields}}
-        {{- if eq .Type "int"}}
-        {{.Name}}:0,
-        {{- else if eq .Type "bool"}}
-        {{.Name}}:false,
-        {{- else}}
-        {{.Name}}:"",
-        {{- end}}
-        {{- end }}
-    }
+  return {
+    {{- range .Fields}}
+    {{- if .IsNumber}}
+    {{.Name}}:0,
+    {{- else if eq .Type "bool"}}
+    {{.Name}}:false,
+    {{- else if eq .Type "time.Time"}}
+    {{.Name}}:null,
+    {{- else}}
+    {{.Name}}:"",
+    {{- end}}
+    {{- end }}
+  }
 }
+{{- end}}
 const pageLoading = ref(true)
+const listError = ref('')
+let listRequest = 0
 const total = ref(0)
+{{- if .CanDelete}}
 const multipleSelection:any = ref([])
+{{- end}}
 const tableData = ref([])
+{{- if or .CanCreate .CanEdit}}
 const submitForm:any = ref(initForm())
+{{- end}}
 
 const getPageData = async () => {
+  const request = ++listRequest
   pageLoading.value = true
+  listError.value = ''
+{{- if .CanDelete}}
   multipleSelection.value = []
+{{- end}}
   try {
-    const response = await {{.ModelName}}Api.List(queryForm.value)
-    tableData.value = response.data.list
+    const response = await {{.ModelName}}Api.List({ ...queryForm.value })
+    if (request !== listRequest) return
+    tableData.value = response.data.list ?? []
     total.value = response.data.total
   }catch (e) {
+    if (request !== listRequest) return
+    tableData.value = []
+    total.value = 0
+    listError.value = '列表加载失败，请点击刷新重试'
     console.log(e)
+  }finally {
+    if (request === listRequest) pageLoading.value = false
   }
-  pageLoading.value = false
 }
+// 筛选、排序和页码同时变化时，合并触发一次查询。
+watch(queryForm, ()=>{ getPageData() }, { deep:true })
+onBeforeUnmount(()=>{
+  listRequest++
+})
 
-
+{{- if .CanDelete}}
 const handleSelectionChange = (val:Array<any>) => {
   multipleSelection.value = val.map(item=>item.id)
 }
 
+{{- end}}
+{{- if or .CanCreate .CanEdit}}
 const handleShowFormDialog = (defaultForm:any)=>{
   submitForm.value = {
     ...defaultForm
@@ -116,29 +241,23 @@ const handleShowFormDialog = (defaultForm:any)=>{
   dialogOpen.value = true
 }
 
-const handleDelete = (ids:Array<any>) => {
-  ElMessageBox.confirm("您确认要删除选中的数据吗？","删除提示",{
-    type:"error",
-    beforeClose:async (action, instance, done)=>{
-      if (action === "confirm") {
-        instance.confirmButtonLoading = true
-        try {
-          await {{.ModelName}}Api.Delete(ids)
-          ElMessage.success("删除成功")
-          getPageData()
-        }catch (e){
-          console.log(e)
-        }
-        done()
-        instance.confirmButtonLoading = false
-      } else if (!instance.confirmButtonLoading) {
-        done()
-      }
-    }
-  })
-}
+{{- end}}
+{{- if .CanDelete}}
+const handleDelete = (ids:Array<any>) => confirmDelete({
+  subject:"{{.ChineseModuleName}}",
+  count:ids.length,
+  description:"删除后无法在此页面恢复，请确认所选记录。",
+  onConfirm:async ()=>{
+    await {{.ModelName}}Api.Delete(ids)
+    ElMessage.success("删除成功")
+    await getPageData()
+  },
+})
 
+{{- end}}
+{{- if or .CanCreate .CanEdit}}
 const handleSubmit = async ()=>{
+{{- if and .CanCreate .CanEdit}}
   if (!submitForm.value.id){
     await {{.ModelName}}Api.Create(submitForm.value)
     ElMessage.success("创建成功")
@@ -146,15 +265,18 @@ const handleSubmit = async ()=>{
     await {{.ModelName}}Api.Edit(submitForm.value)
     ElMessage.success("修改成功")
   }
+{{- else if .CanCreate}}
+  await {{.ModelName}}Api.Create(submitForm.value)
+  ElMessage.success("创建成功")
+{{- else}}
+  await {{.ModelName}}Api.Edit(submitForm.value)
+  ElMessage.success("修改成功")
+{{- end}}
   getPageData()
 }
 
+{{- end}}
 onMounted(()=>{
   getPageData()
 })
 </script>
-
-
-<style scoped>
-
-</style>

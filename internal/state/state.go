@@ -3,20 +3,20 @@ package state
 import (
 	"sync"
 
-	"github.com/Gary-Yez/go-admin/cache"
-	"github.com/Gary-Yez/go-admin/config"
-	"github.com/Gary-Yez/go-admin/scheduler"
+	"github.com/Gary-Yez/go-admin/internal/cache"
+	"github.com/Gary-Yez/go-admin/internal/config"
+	"github.com/Gary-Yez/go-admin/internal/scheduler"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
 var current struct {
 	sync.RWMutex
-	config    *config.Config
-	db        *gorm.DB
-	cache     cache.Cache
-	scheduler scheduler.Scheduler
-	routes    gin.RoutesInfo
+	config      *config.Config
+	db          *gorm.DB
+	cache       cache.Cache
+	scheduler   scheduler.Scheduler
+	adminRoutes gin.RoutesInfo
 }
 
 func Configure(cfg *config.Config, db *gorm.DB, store cache.Cache, jobs scheduler.Scheduler) {
@@ -37,14 +37,14 @@ func Scheduler() scheduler.Scheduler {
 	return current.scheduler
 }
 
-func SetRoutes(routes gin.RoutesInfo) {
+func SetAdminRoutes(routes gin.RoutesInfo) {
 	current.Lock()
 	defer current.Unlock()
-	current.routes = routes
+	current.adminRoutes = append(gin.RoutesInfo(nil), routes...)
 }
 
-func Routes() gin.RoutesInfo {
+func AdminRoutes() gin.RoutesInfo {
 	current.RLock()
 	defer current.RUnlock()
-	return append(gin.RoutesInfo(nil), current.routes...)
+	return append(gin.RoutesInfo(nil), current.adminRoutes...)
 }

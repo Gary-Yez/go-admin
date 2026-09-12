@@ -8,6 +8,20 @@ import (
 
 type controllerStruct struct{}
 
+func (_ *controllerStruct) Copy(ctx *gin.Context) {
+	body := new(CopyBody)
+	if err := ctx.ShouldBindJSON(body); err != nil {
+		response.Error(ctx, err)
+		return
+	}
+	role, err := Service.Copy(body)
+	if err != nil {
+		response.Error(ctx, err)
+		return
+	}
+	response.Success(ctx, role)
+}
+
 func (_ *controllerStruct) Get(ctx *gin.Context) {
 	req, err := request.GetReq(ctx)
 	if err != nil {
@@ -23,13 +37,27 @@ func (_ *controllerStruct) Get(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) List(ctx *gin.Context) {
-	list, total, err := Service.List()
+	req, err := request.GetReqList(ctx)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
 	}
-	response.List(ctx, list, total)
-
+	list, total, err := Service.List(req)
+	if err != nil {
+		response.Error(ctx, err.Error())
+		return
+	}
+	menus, apis, err := Service.PermissionOptions()
+	if err != nil {
+		response.Error(ctx, err.Error())
+		return
+	}
+	response.Success(ctx, gin.H{
+		"list":         list,
+		"total":        total,
+		"menu_options": menus,
+		"api_options":  apis,
+	})
 }
 
 func (_ *controllerStruct) Create(ctx *gin.Context) {

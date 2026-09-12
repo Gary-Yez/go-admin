@@ -4,7 +4,9 @@
 package {{.ModuleName}}
 
 import (
+	{{- if .CreateCURD}}
 	"github.com/Gary-Yez/go-admin"
+	{{- end}}
     "github.com/gin-gonic/gin"
 )
 
@@ -19,6 +21,16 @@ type Mounter struct {
 func (_ *Mounter) Name() string {
 	return "{{.ChineseModuleName}}"
 }
+
+{{- if .MenuDefinitions}}
+func (_ *Mounter) Menus() []admin.MenuDefinition {
+	return []admin.MenuDefinition{
+{{- range .MenuDefinitions}}
+		{Key: {{printf "%q" .Key}}, Name: {{printf "%q" .Name}}, ParentKey: {{printf "%q" .ParentKey}}, Icon: {{printf "%q" .Icon}}, Path: {{printf "%q" .Path}}, Component: {{printf "%q" .Component}}, Sort: {{.Sort}}, Hidden: {{.Hidden}}},
+{{- end}}
+	}
+}
+{{- end}}
 
 func (_ *Mounter) Initialize() error {
     // 这里执行一些初始化操作
@@ -35,11 +47,16 @@ func (_ *Mounter) Initialize() error {
 func (_ *Mounter) AdminRouter(adminGroup *gin.RouterGroup) {
 	// 这里注册需要管理权限的路由
     {{- if .CreateCURD}}
-	adminGroup.GET("get", Controller.Get)
 	adminGroup.POST("list", Controller.List)
+    {{if .CanCreate}}
 	adminGroup.POST("create", Controller.Create)
+    {{end}}
+    {{if .CanDelete}}
 	adminGroup.POST("delete", Controller.Delete)
+    {{end}}
+    {{if .CanEdit}}
 	adminGroup.POST("edit", Controller.Edit)
+    {{end}}
 	{{- else}}
 	adminGroup.GET("/test", Controller.Test)
 	{{- end}}

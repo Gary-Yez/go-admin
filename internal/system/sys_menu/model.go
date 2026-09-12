@@ -1,6 +1,18 @@
 package sys_menu
 
-import "time"
+import (
+	"time"
+)
+
+type SortBody struct {
+	Id             uint   `json:"id" binding:"required,gt=0"`
+	TargetId       uint   `json:"target_id" binding:"required,gt=0"`
+	Position       string `json:"position" binding:"required,oneof=before after inside"`
+	SourceParentId *uint  `json:"source_parent_id"`
+	TargetParentId *uint  `json:"target_parent_id"`
+	SourceIds      []uint `json:"source_ids" binding:"required,min=1,dive,gt=0"`
+	TargetIds      []uint `json:"target_ids" binding:"omitempty,dive,gt=0"`
+}
 
 type SysMenu struct {
 	Id        uint       `gorm:"primary_key;AUTO_INCREMENT" json:"id"`

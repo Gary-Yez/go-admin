@@ -2,9 +2,9 @@ package initialization
 
 import (
 	"context"
-	"github.com/Gary-Yez/go-admin/cache"
+	"github.com/Gary-Yez/go-admin/internal/cache"
+	"github.com/Gary-Yez/go-admin/internal/scheduler"
 	"github.com/Gary-Yez/go-admin/internal/system/sys_cron_job"
-	"github.com/Gary-Yez/go-admin/scheduler"
 	"github.com/go-co-op/gocron/v2"
 	"time"
 )
@@ -14,33 +14,25 @@ type cacheLock struct {
 }
 
 func (l *cacheLock) Unlock(_ context.Context) error {
-	err := l.lock.Unlock()
-	return err
+	return l.lock.Unlock()
 }
 
 type cacheLocker struct {
 	cache cache.Cache
 }
 
-func (r *cacheLocker) Lock(_ context.Context, key string) (gocron.Lock, error) {
-	lock, err := r.cache.Lock("core:cron:"+key, time.Second*10, time.Second*5)
+func (r *cacheLocker) Lock(ctx context.Context, key string) (gocron.Lock, error) {
+	lock, err := r.cache.Lock(ctx, "cron:"+key, time.Second*10, time.Second*5)
 	if err != nil {
 		return nil, err
 	}
-	l := &cacheLock{
-		lock: lock,
-	}
-	return l, nil
+	return &cacheLock{lock: lock}, nil
 }
 
 func initTaskManager(cacheStore cache.Cache) (scheduler.Scheduler, error) {
-	t, err := scheduler.NewManager(scheduler.SchedulerOption{
+	return scheduler.NewManager(scheduler.SchedulerOption{
 		JobSyncer:         sys_cron_job.Service,
 		DistributedLocker: &cacheLocker{cache: cacheStore},
-		Location:          time.UTC,
+		Location:          scheduler.DefaultLocation,
 	})
-	if err != nil {
-		return nil, err
-	}
-	return t, nil
 }

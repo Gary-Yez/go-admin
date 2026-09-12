@@ -3,9 +3,10 @@ package sys_cron_job
 import (
 	"errors"
 	"github.com/Gary-Yez/go-admin/internal/state"
+	"time"
 
+	"github.com/Gary-Yez/go-admin/internal/scheduler"
 	request2 "github.com/Gary-Yez/go-admin/request"
-	"github.com/Gary-Yez/go-admin/scheduler"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -15,14 +16,12 @@ type serviceStruct struct {
 
 func (s *serviceStruct) Sync() ([]scheduler.Job, error) {
 	var list []*SysCronJob
-	if err := state.DB().Model(SysCronJob{}).Find(&list).Error; err != nil {
+	if err := state.DB().Model(SysCronJob{}).Where("enable = ?", true).Find(&list).Error; err != nil {
 		return nil, err
 	}
 	var jobs []scheduler.Job
 	for _, task := range list {
-		if task.Enable {
-			jobs = append(jobs, task)
-		}
+		jobs = append(jobs, task)
 	}
 	return jobs, nil
 }
@@ -37,23 +36,22 @@ func (s *serviceStruct) GetLogs(req *request2.ReqList) (list []*SysCronJobLog, t
 	return
 }
 
-func (s *serviceStruct) Get(req *request2.Req) (data *SysCronJob, err error) {
-	data = &SysCronJob{}
-	err = req.WithQuery(state.DB().Model(SysCronJob{})).First(data).Error
-	return
-}
-
 func (s *serviceStruct) List(req *request2.ReqList) (list []*SysCronJob, total int64, err error) {
 	db := req.WithFilter(state.DB().Model(SysCronJob{}), nil)
 	err = db.Count(&total).Error
 	if err != nil {
 		return nil, 0, err
 	}
-	err = req.WithPagination(req.WithSort(db, nil)).Find(&list).Error
+	err = req.WithPagination(req.WithSort(db, []string{"id"})).Find(&list).Error
 	return
 }
 
 func (s *serviceStruct) Create(data *SysCronJob) (err error) {
+	next, err := nextRun(data.Cron, time.Now())
+	if err != nil {
+		return err
+	}
+	data.NextRunTime, data.LastRunTime, data.Version = &next, nil, 1
 	err = state.DB().
 		Omit(clause.Associations).
 		Create(data).Error
@@ -64,6 +62,10 @@ func (s *serviceStruct) Update(data *SysCronJob) (err error) {
 	if data.Id == 0 {
 		return errors.New("id不能为空")
 	}
+	next, err := nextRun(data.Cron, time.Now())
+	if err != nil {
+		return err
+	}
 	updates := map[string]interface{}{
 		"version":       gorm.Expr("version + 1"),
 		"name":          data.Name,
@@ -71,7 +73,7 @@ func (s *serviceStruct) Update(data *SysCronJob) (err error) {
 		"params":        data.Params,
 		"cron":          data.Cron,
 		"enable":        data.Enable,
-		"next_run_time": nil,
+		"next_run_time": next,
 	}
 	err = state.DB().Model(data).Where("id = ?", data.Id).Updates(updates).Error
 	if err != nil {

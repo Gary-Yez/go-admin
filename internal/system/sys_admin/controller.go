@@ -10,22 +10,12 @@ import (
 
 type controllerStruct struct{}
 
-func (_ *controllerStruct) Get(ctx *gin.Context) {
-	req, err := request2.GetReq(ctx)
-	if err != nil {
-		response.Error(ctx, err.Error())
-		return
-	}
-	get, err := Service.Get(req)
-	if err != nil {
-		response.Error(ctx, err.Error())
-		return
-	}
-	response.Success(ctx, get)
-}
-
 func (_ *controllerStruct) List(ctx *gin.Context) {
-	req, err := request2.GetReqList(ctx)
+	req := new(AdminListQuery)
+	err := ctx.ShouldBind(req)
+	if err == nil {
+		err = req.Validate()
+	}
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
@@ -35,8 +25,16 @@ func (_ *controllerStruct) List(ctx *gin.Context) {
 		response.Error(ctx, err.Error())
 		return
 	}
-	response.List(ctx, list, total)
-
+	options, err := Service.RoleOptions()
+	if err != nil {
+		response.Error(ctx, err.Error())
+		return
+	}
+	response.Success(ctx, gin.H{
+		"list":         list,
+		"total":        total,
+		"role_options": options,
+	})
 }
 
 func (_ *controllerStruct) Create(ctx *gin.Context) {
@@ -60,7 +58,11 @@ func (_ *controllerStruct) Delete(ctx *gin.Context) {
 		response.Error(ctx, err.Error())
 		return
 	}
-	authUser := request2.GetAuthUser(ctx)
+	authUser, err := request2.GetAuthUser(ctx)
+	if err != nil {
+		response.Error(ctx, err.Error(), 401)
+		return
+	}
 	if slices.Contains(req.Ids, authUser.UserId) {
 		response.Error(ctx, errors.New("不可以自己删除自己"))
 		return
@@ -78,6 +80,15 @@ func (_ *controllerStruct) Edit(ctx *gin.Context) {
 	err := ctx.ShouldBindJSON(data)
 	if err != nil {
 		response.Error(ctx, err.Error())
+		return
+	}
+	authUser, err := request2.GetAuthUser(ctx)
+	if err != nil {
+		response.Error(ctx, err.Error(), 401)
+		return
+	}
+	if data.Id == authUser.UserId && data.Status != 1 {
+		response.Error(ctx, "不能禁用当前登录账号")
 		return
 	}
 	err = Service.Update(data)

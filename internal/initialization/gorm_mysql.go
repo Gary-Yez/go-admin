@@ -1,7 +1,7 @@
 package initialization
 
 import (
-	"github.com/Gary-Yez/go-admin/config"
+	"github.com/Gary-Yez/go-admin/internal/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

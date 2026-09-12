@@ -15,11 +15,6 @@ func (_ *controllerStruct) Generate(ctx *gin.Context) {
 		response.Error(ctx, err.Error())
 		return
 	}
-	err = Service.SaveHistory(data)
-	if err != nil {
-		response.Error(ctx, err.Error())
-		return
-	}
 	err = Service.Generate(data)
 	if err != nil {
 		response.Error(ctx, err.Error())
@@ -44,9 +39,10 @@ func (_ *controllerStruct) Preview(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) History(ctx *gin.Context) {
-	req, err := request.GetReqList(ctx)
+	req := &HistoryQuery{Page: 1, Limit: 10}
+	err := ctx.ShouldBindQuery(req)
 	if err != nil {
-		response.Error(ctx, err)
+		response.Error(ctx, err.Error())
 		return
 	}
 	list, total, err := Service.History(req)
@@ -57,16 +53,45 @@ func (_ *controllerStruct) History(ctx *gin.Context) {
 	response.List(ctx, list, total)
 }
 
-func (_ *controllerStruct) DeleteHistory(ctx *gin.Context) {
-	req, err := request.GetReqIds(ctx)
+func (_ *controllerStruct) GetHistory(ctx *gin.Context) {
+	req, err := request.GetReq(ctx)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
 	}
-	err = Service.DeleteByIds(req)
+	history, err := Service.GetHistory(req)
+	if err != nil {
+		response.Error(ctx, err.Error())
+		return
+	}
+	response.Success(ctx, history)
+}
+
+func (_ *controllerStruct) DeleteHistory(ctx *gin.Context) {
+	req := new(DeleteHistoryBody)
+	err := ctx.ShouldBindJSON(req)
+	if err != nil {
+		response.Error(ctx, err.Error())
+		return
+	}
+	err = Service.DeleteHistory(req)
 	if err != nil {
 		response.Error(ctx, err.Error())
 		return
 	}
 	response.Success(ctx, "success")
+}
+
+func (_ *controllerStruct) PreviewDeleteHistory(ctx *gin.Context) {
+	req := new(DeleteHistoryBody)
+	if err := ctx.ShouldBindJSON(req); err != nil {
+		response.Error(ctx, err.Error())
+		return
+	}
+	plan, err := Service.PreviewDeleteHistory(req.Ids)
+	if err != nil {
+		response.Error(ctx, err.Error())
+		return
+	}
+	response.Success(ctx, plan)
 }

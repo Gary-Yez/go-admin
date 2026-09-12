@@ -18,7 +18,36 @@ type {{.ModelName}} struct {
     DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index;comment:删除时间"`
 	{{- end}}
 	{{- range .Fields}}
-	{{.Key}} {{.Type}} `json:"{{if .Hidden}}-{{else}}{{.Name}}{{end}}"{{if .IndexType}} gorm:"{{.IndexType}};"{{end}}{{if .Required }} binding:"required"{{end}}`
+	{{.Key}} {{.Type}} `json:"{{.Name}}"{{if .IndexType}} gorm:"{{.IndexType}};"{{end}}`
 	{{- end}}
 }
 
+{{if or .CanCreate .CanEdit}}
+// Input keeps request validation separate from database field types.
+// Required numbers and booleans use pointers to distinguish missing/null from 0/false.
+type {{.ModelName}}Input struct {
+	Id uint `json:"id"`
+	{{- range .Fields}}
+	{{- if .Editable}}
+	{{.Key}} {{if requiredPointer .}}*{{end}}{{.Type}} `json:"{{.Name}}"{{if .Required}} binding:"required"{{end}}`
+	{{- end}}
+	{{- end}}
+}
+
+func (input *{{.ModelName}}Input) ToModel() *{{.ModelName}} {
+	data := &{{.ModelName}}{Id: input.Id}
+	{{- range .Fields}}
+	{{- if .Editable}}
+	{{- if requiredPointer .}}
+	if input.{{.Key}} != nil {
+		data.{{.Key}} = *input.{{.Key}}
+	}
+	{{- else}}
+	data.{{.Key}} = input.{{.Key}}
+	{{- end}}
+	{{- end}}
+	{{- end}}
+	return data
+}
+
+{{end}}

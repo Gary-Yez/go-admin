@@ -2,30 +2,11 @@ package initialization
 
 import (
 	"errors"
-	"github.com/Gary-Yez/go-admin/cache"
-	"github.com/Gary-Yez/go-admin/config"
-	"github.com/Gary-Yez/go-admin/scheduler"
-	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
+	"github.com/Gary-Yez/go-admin/internal/cache"
+	"github.com/Gary-Yez/go-admin/internal/config"
+	"github.com/Gary-Yez/go-admin/internal/scheduler"
 	"gorm.io/gorm"
 )
-
-func InitConfig(flag *pflag.FlagSet, configFile string) (*config.Config, error) {
-	cfg := &config.Config{}
-	viper.SetEnvPrefix("MYAPP")
-	viper.AutomaticEnv()
-	_ = viper.BindPFlag("server.host", flag.Lookup("server.host"))
-	_ = viper.BindPFlag("server.port", flag.Lookup("server.port"))
-	viper.SetConfigFile(configFile)
-	// 读取配置文件
-	if err := viper.ReadInConfig(); err != nil {
-		return nil, err
-	}
-	if err := viper.Unmarshal(cfg); err != nil {
-		return nil, err
-	}
-	return cfg, nil
-}
 
 type Dependencies struct {
 	DB        *gorm.DB

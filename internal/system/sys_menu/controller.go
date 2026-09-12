@@ -8,18 +8,17 @@ import (
 
 type controllerStruct struct{}
 
-func (_ *controllerStruct) Get(ctx *gin.Context) {
-	req, err := request.GetReq(ctx)
-	if err != nil {
+func (_ *controllerStruct) Sort(ctx *gin.Context) {
+	req := new(SortBody)
+	if err := ctx.ShouldBindJSON(req); err != nil {
 		response.Error(ctx, err.Error())
 		return
 	}
-	get, err := Service.Get(req)
-	if err != nil {
+	if err := Service.Sort(req); err != nil {
 		response.Error(ctx, err.Error())
 		return
 	}
-	response.Success(ctx, get)
+	response.Success(ctx, "排序已保存")
 }
 
 func (_ *controllerStruct) List(ctx *gin.Context) {

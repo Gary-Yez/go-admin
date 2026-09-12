@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"go/ast"
+	"go/format"
 	"go/parser"
-	"go/printer"
 	"go/token"
 	"os"
 	"path/filepath"
@@ -55,7 +55,10 @@ func init() {
 func getTemplateContent(templatePath string, data *GenerateBody) (string, error) {
 	// 打开模板文件
 	var buffer bytes.Buffer
-	tmpl, err := template.ParseFS(adminTemplates.FS, templatePath)
+	tmpl, err := template.New(filepath.Base(templatePath)).Funcs(template.FuncMap{
+		"requiredPointer": requiredPointer,
+		"columnName":      columnName,
+	}).ParseFS(adminTemplates.FS, templatePath)
 	if err != nil {
 		return "", err
 	}
@@ -63,10 +66,17 @@ func getTemplateContent(templatePath string, data *GenerateBody) (string, error)
 	if err != nil {
 		return "", err
 	}
+	if strings.HasSuffix(templatePath, ".go.tmpl") {
+		content, err := format.Source(buffer.Bytes())
+		if err != nil {
+			return "", fmt.Errorf("格式化模板 %s 失败: %w", templatePath, err)
+		}
+		return string(content), nil
+	}
 	return buffer.String(), nil
 }
 
-func getModuleEnterContent(moduleName string) (string, string, error) {
+func getModuleEnterContent(moduleName string, source []byte) (string, string, error) {
 	// 配置文件和位置
 	fileSet := token.NewFileSet()
 	filePath := filepath.Join(ServerPath, "./modules/enter.go")
@@ -76,63 +86,26 @@ func getModuleEnterContent(moduleName string) (string, string, error) {
 	}
 	targetImportPath := strings.TrimSuffix(hostModule, "/") + "/modules/" + moduleName
 	// 解析源代码文件
-	f, err := parser.ParseFile(fileSet, filePath, nil, parser.ParseComments)
+	f, err := parser.ParseFile(fileSet, filePath, source, parser.ParseComments)
 	if err != nil {
 		return "", "", err
 	}
-	// 1. 先处理导入
-	importAdded := false
-	for _, decl := range f.Decls {
-		genDecl, ok := decl.(*ast.GenDecl)
-		if !ok || genDecl.Tok != token.IMPORT {
-			continue
-		}
-		// 检查是否已经存在该导入
-		for _, spec := range genDecl.Specs {
-			importSpec := spec.(*ast.ImportSpec)
-			if importSpec.Path.Value == strconv.Quote(targetImportPath) {
-				importAdded = true
-				break
-			}
-		}
-
-		// 添加新导入
-		if !importAdded {
-			newImport := &ast.ImportSpec{
-				Path: &ast.BasicLit{
-					Kind:  token.STRING,
-					Value: strconv.Quote(targetImportPath),
-				},
-			}
-			genDecl.Specs = append(genDecl.Specs, newImport)
-			importAdded = true
-		}
+	adminAlias, err := ensureModuleImport(f, "github.com/Gary-Yez/go-admin", "admin")
+	if err != nil {
+		return "", "", err
 	}
-	// 如果没有找到import声明，创建新的
-	if !importAdded {
-		newImportDecl := &ast.GenDecl{
-			Tok: token.IMPORT,
-			Specs: []ast.Spec{
-				&ast.ImportSpec{
-					Path: &ast.BasicLit{
-						Kind:  token.STRING,
-						Value: strconv.Quote(targetImportPath),
-					},
-				},
-			},
-		}
-
-		// 将新的import声明插入到文件最前面
-		newDecls := make([]ast.Decl, 0, len(f.Decls)+1)
-		newDecls = append(newDecls, newImportDecl)
-		f.Decls = append(newDecls, f.Decls...)
+	moduleAlias, err := ensureModuleImport(f, targetImportPath, moduleName)
+	if err != nil {
+		return "", "", err
 	}
-	// 查找目标Init函数
+	// 查找模块自动注册的 init 函数。
+	foundInit := false
 	ast.Inspect(f, func(n ast.Node) bool {
 		fn, ok := n.(*ast.FuncDecl)
-		if !ok || fn.Name.Name != "Init" {
+		if !ok || fn.Name.Name != "init" || fn.Recv != nil || fn.Body == nil {
 			return true
 		}
+		foundInit = true
 		moduleLit := &ast.BasicLit{
 			Kind:  token.STRING,
 			Value: `"` + moduleName + `"`,
@@ -155,7 +128,7 @@ func getModuleEnterContent(moduleName string) (string, string, error) {
 				continue
 			}
 			xIdent, ok := sel.X.(*ast.Ident)
-			if !ok || xIdent.Name != "admin" {
+			if !ok || xIdent.Name != adminAlias {
 				continue
 			}
 			if len(callExpr.Args) > 0 {
@@ -170,7 +143,7 @@ func getModuleEnterContent(moduleName string) (string, string, error) {
 		// 构造 admin.MustRegister("模块名", new(模块名.Mounter))
 		newCall := &ast.CallExpr{
 			Fun: &ast.SelectorExpr{
-				X:   ast.NewIdent("admin"),
+				X:   ast.NewIdent(adminAlias),
 				Sel: ast.NewIdent("MustRegister"),
 			},
 			Args: []ast.Expr{
@@ -178,7 +151,7 @@ func getModuleEnterContent(moduleName string) (string, string, error) {
 				&ast.CallExpr{
 					Fun: ast.NewIdent("new"),
 					Args: []ast.Expr{&ast.SelectorExpr{
-						X:   ast.NewIdent(moduleName),
+						X:   ast.NewIdent(moduleAlias),
 						Sel: ast.NewIdent("Mounter"),
 					}},
 				},
@@ -190,12 +163,55 @@ func getModuleEnterContent(moduleName string) (string, string, error) {
 
 		return false
 	})
+	if !foundInit {
+		return "", "", fmt.Errorf("模块入口缺少 init 函数，无法自动注册")
+	}
 	// 将修改后的AST写回文件
 	var buf bytes.Buffer
-	if err = printer.Fprint(&buf, fileSet, f); err != nil {
+	if err = format.Node(&buf, fileSet, f); err != nil {
 		return "", "", err
 	}
 	return buf.String(), filePath, nil
+}
+
+// 复用已有别名，补回删除最后一个模块时移除的导入。
+func ensureModuleImport(file *ast.File, path, preferred string) (string, error) {
+	used := make(map[string]bool)
+	for _, spec := range file.Imports {
+		importPath, err := strconv.Unquote(spec.Path.Value)
+		if err != nil {
+			return "", err
+		}
+		alias := filepath.Base(importPath)
+		if importPath == "github.com/Gary-Yez/go-admin" {
+			alias = "admin"
+		}
+		if spec.Name != nil {
+			alias = spec.Name.Name
+		}
+		if importPath == path {
+			if alias == "." || alias == "_" {
+				return "", fmt.Errorf("导入 %s 使用特殊别名，请先手动调整", path)
+			}
+			return alias, nil
+		}
+		used[alias] = true
+	}
+	alias := preferred
+	for suffix := 2; used[alias]; suffix++ {
+		alias = fmt.Sprintf("%s%d", preferred, suffix)
+	}
+	spec := &ast.ImportSpec{Name: ast.NewIdent(alias), Path: &ast.BasicLit{Kind: token.STRING, Value: strconv.Quote(path)}}
+	for _, decl := range file.Decls {
+		if group, ok := decl.(*ast.GenDecl); ok && group.Tok == token.IMPORT {
+			group.Specs = append(group.Specs, spec)
+			file.Imports = append(file.Imports, spec)
+			return alias, nil
+		}
+	}
+	file.Decls = append([]ast.Decl{&ast.GenDecl{Tok: token.IMPORT, Specs: []ast.Spec{spec}}}, file.Decls...)
+	file.Imports = append(file.Imports, spec)
+	return alias, nil
 }
 
 func readModulePath(goModPath string) (string, error) {
@@ -210,29 +226,4 @@ func readModulePath(goModPath string) (string, error) {
 		}
 	}
 	return "", fmt.Errorf("module directive not found in %s", goModPath)
-}
-
-func getFileName(filePath string) string {
-	for i := len(filePath) - 1; i >= 0; i-- {
-		if filePath[i] == '/' || filePath[i] == '\\' {
-			return filePath[i+1:]
-		}
-	}
-	return filePath
-}
-
-func writeFile(filePath, fileContent string) error {
-	// 获取文件的目录部分
-	dir := filePath[:len(filePath)-len("/"+getFileName(filePath))]
-	// 使用 os.MkdirAll 创建目录，如果目录已经存在不会报错
-	err := os.MkdirAll(dir, os.ModePerm)
-	if err != nil {
-		return err
-	}
-	// 写入文件内容
-	err = os.WriteFile(filePath, []byte(fileContent), 0644)
-	if err != nil {
-		return err
-	}
-	return nil
 }

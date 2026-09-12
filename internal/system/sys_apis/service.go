@@ -1,11 +1,15 @@
 package sys_apis
 
 import (
+	"context"
 	"errors"
+	"fmt"
+	"github.com/Gary-Yez/go-admin/internal/permissions"
 	"github.com/Gary-Yez/go-admin/internal/state"
 
 	"github.com/Gary-Yez/go-admin/internal/system/sys_role"
 	request2 "github.com/Gary-Yez/go-admin/request"
+	gormadapter "github.com/casbin/gorm-adapter/v3"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"strings"
@@ -14,16 +18,51 @@ import (
 type serviceStruct struct {
 }
 
-func (s *serviceStruct) SyncApi() (newApis, deleteApis, ignoreApis []*SysApi, err error) {
+func (s *serviceStruct) GetInvalidAPIs() ([]*SysApi, error) {
+	_, apis, err := s.syncApi(state.DB())
+	return apis, err
+}
+
+// 启动时只补录新增接口，不覆盖已有信息、不删除接口或修改角色授权。
+func (s *serviceStruct) SyncNewAPIs(moduleNames map[string]string) error {
+	return state.DB().Transaction(func(tx *gorm.DB) error {
+		newApis, _, err := s.syncApi(tx)
+		if err != nil {
+			return err
+		}
+		if len(newApis) == 0 {
+			return nil
+		}
+		defaults := make(map[string]SysApi)
+		for _, api := range defaultAPIs() {
+			defaults[api.Method+" "+api.Path] = api
+		}
+		for _, api := range newApis {
+			if definition, exists := defaults[api.Method+" "+api.Path]; exists {
+				api.Group, api.Description = definition.Group, definition.Description
+				continue
+			}
+			module, _, _ := strings.Cut(strings.TrimPrefix(api.Path, "/"), "/")
+			name := strings.TrimSpace(moduleNames[module])
+			if name == "" {
+				name = module
+			}
+			api.Group = "业务模块-" + name
+			if strings.HasPrefix(module, "sys_") {
+				api.Group = name
+			}
+			api.Description = api.Method + " " + api.Path
+		}
+		// 多实例同时启动时，由方法和路径的唯一索引避免重复录入。
+		return tx.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(newApis, 100).Error
+	})
+}
+
+func (s *serviceStruct) syncApi(db *gorm.DB) (newApis, deleteApis []*SysApi, err error) {
 	newApis = make([]*SysApi, 0)
 	deleteApis = make([]*SysApi, 0)
-	ignoreApis = make([]*SysApi, 0)
 	var apis []*SysApi
-	if err = state.DB().Find(&apis).Error; err != nil {
-		return
-	}
-	var ignores []*SysIgnoreApi
-	if err = state.DB().Find(&ignores).Error; err != nil {
+	if err = db.Find(&apis).Error; err != nil {
 		return
 	}
 	// 数据库中所有的API Map
@@ -32,29 +71,20 @@ func (s *serviceStruct) SyncApi() (newApis, deleteApis, ignoreApis []*SysApi, er
 		key := api.Method + "_" + api.Path
 		apisMap[key] = true
 	}
-	// 数据库中所有忽略的API Map
-	var ignoresMap = make(map[string]bool)
-	for _, ignore := range ignores {
-		key := ignore.Method + "_" + ignore.Path
-		ignoresMap[key] = true
-	}
-	// 实际注册的路由API map
+	// 只同步 AdminRouter 注册的路由，公共接口不进入同步清单。
 	var routeMap = make(map[string]bool)
-	for _, route := range state.Routes() {
+	for _, route := range state.AdminRoutes() {
 		path := strings.TrimPrefix(route.Path, state.Config().Server.ApiPrefix)
-		key := route.Method + "_" + path
-		routeMap[key] = true
-		// api被忽略则跳出循环
-		if ignoresMap[key] {
+		if permissions.IsAuthenticatedAPI(route.Method, path) {
 			continue
 		}
+		key := route.Method + "_" + path
+		routeMap[key] = true
 		// 判断需要添加的新API
 		if !apisMap[key] {
 			newApis = append(newApis, &SysApi{
-				Group:       "",
-				Description: "",
-				Method:      route.Method,
-				Path:        path,
+				Method: route.Method,
+				Path:   path,
 			})
 		}
 	}
@@ -64,24 +94,7 @@ func (s *serviceStruct) SyncApi() (newApis, deleteApis, ignoreApis []*SysApi, er
 			deleteApis = append(deleteApis, api)
 		}
 	}
-	// 需要删除的忽略API
-	needDeleteIgnoreIds := make([]uint, 0)
-	for _, ignore := range ignores {
-		if !routeMap[ignore.Method+"_"+ignore.Path] {
-			//需要删除的忽略API
-			needDeleteIgnoreIds = append(needDeleteIgnoreIds, ignore.Id)
-		} else {
-			ignoreApis = append(ignoreApis, &SysApi{
-				Method:      ignore.Method,
-				Path:        ignore.Path,
-				Group:       "",
-				Description: "",
-			})
-		}
-	}
-	if len(needDeleteIgnoreIds) > 0 {
-		err = state.DB().Delete(&SysIgnoreApi{}, needDeleteIgnoreIds).Error
-	}
+
 	return
 }
 
@@ -91,59 +104,66 @@ func (s *serviceStruct) GetGroups() (groups []string, err error) {
 	return
 }
 
-func (s *serviceStruct) Get(req *request2.Req) (data *SysApi, err error) {
-	data = &SysApi{}
-	err = req.WithQuery(state.DB().Model(SysApi{})).First(data).Error
-	return
-}
-
-func (s *serviceStruct) List(req *request2.ReqList) (list []*SysApi, total int64, err error) {
+func (s *serviceStruct) List(req *ApiListQuery) (list []*SysApi, total int64, err error) {
 	db := req.WithFilter(state.DB().Model(SysApi{}), nil)
+	if keyword := strings.TrimSpace(req.Keyword); keyword != "" {
+		keyword = "%" + strings.NewReplacer("!", "!!", "%", "!%", "_", "!_").Replace(keyword) + "%"
+		db = db.Where("(path LIKE ? ESCAPE '!' OR description LIKE ? ESCAPE '!')", keyword, keyword)
+	}
+	if req.Method != "" {
+		db = db.Where(clause.Eq{Column: "method", Value: req.Method})
+	}
+	if req.Group != "" {
+		db = db.Where(clause.Eq{Column: "group", Value: req.Group})
+	}
 	err = db.Count(&total).Error
 	if err != nil {
 		return nil, 0, err
 	}
-	err = req.WithPagination(req.WithSort(db, nil)).Find(&list).Error
+	err = req.WithPagination(req.WithSort(db, []string{"id"})).Order("id DESC").Find(&list).Error
 	return
 }
 
-func (s *serviceStruct) CreateOrUpdate(data *SysApi) (err error) {
-	return state.DB().Create(data).Error
-}
-
-func (s *serviceStruct) Update(data *SysApi) (err error) {
+func (s *serviceStruct) Update(data *ApiEditBody) error {
 	if data.Id == 0 {
 		return errors.New("id不能为空")
 	}
-	return state.DB().Select("*").
-		Omit(clause.Associations).
-		Omit("Id", "CreatedAt", "UpdatedAt").
-		Where("id = ?", data.Id).Updates(data).Error
-}
-
-func (s *serviceStruct) UpdateIgnore(api *SysIgnoreApi) (err error) {
-	if api.Ignore {
-		return state.DB().Create(api).Error
-	} else {
-		return state.DB().Where("`path` = ? AND method = ?", api.Path, api.Method).Delete(api).Error
-	}
+	return state.DB().Model(&SysApi{}).Where("id = ?", data.Id).
+		Updates(map[string]interface{}{"group": data.Group, "description": data.Description}).Error
 }
 
 func (s *serviceStruct) DeleteByIds(req *request2.ReqIds) error {
-	return state.DB().Transaction(func(tx *gorm.DB) error {
-		var list []*SysApi
-		if err := req.WithQuery(state.DB()).Find(&list).Error; err != nil {
-			return err
-		}
-		if err := req.WithQuery(state.DB()).Delete(&SysApi{}).Error; err != nil {
-			return err
-		}
-		for _, sysApi := range list {
-			err := sys_role.Service.DeletePolicy(1, sysApi.Path, sysApi.Method)
-			if err != nil {
-				return err
-			}
-		}
+	adapter, ok := sys_role.Enforcer.GetAdapter().(*gormadapter.Adapter)
+	if !ok {
+		return errors.New("角色权限存储未就绪")
+	}
+	transaction, err := adapter.BeginTransaction(context.Background())
+	if err != nil {
+		return err
+	}
+	defer transaction.Rollback()
+	txAdapter := transaction.GetAdapter().(*gormadapter.Adapter)
+	tx := txAdapter.GetDb().Session(&gorm.Session{NewDB: true})
+	var list []*SysApi
+	if err := req.WithQuery(tx).Clauses(clause.Locking{Strength: "UPDATE"}).Find(&list).Error; err != nil {
+		return err
+	}
+	if len(list) == 0 {
 		return nil
-	})
+	}
+	if err := req.WithQuery(tx).Delete(&SysApi{}).Error; err != nil {
+		return err
+	}
+	for _, api := range list {
+		if err := txAdapter.RemoveFilteredPolicy("p", "p", 1, api.Path, api.Method); err != nil {
+			return err
+		}
+	}
+	if err := transaction.Commit(); err != nil {
+		return err
+	}
+	if err := sys_role.Service.ReloadPolicy(); err != nil {
+		return fmt.Errorf("API及关联权限已删除，但权限缓存更新失败：%w", err)
+	}
+	return nil
 }

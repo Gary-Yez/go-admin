@@ -1,6 +1,7 @@
 package sys_auth
 
 import (
+	"github.com/Gary-Yez/go-admin/response"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,9 +21,15 @@ func (_ *Mounter) Initialize() error {
 
 func (_ *Mounter) AdminRouter(adminAuthGroup *gin.RouterGroup) {
 	adminAuthGroup.GET("me", Controller.GetMe)
+	adminAuthGroup.GET("password_policy", Controller.PasswordPolicy)
+	adminAuthGroup.Use(func(ctx *gin.Context) {
+		if ctx.GetBool("api_token_auth") {
+			response.Error(ctx, "请使用登录会话管理个人账号", 403)
+		}
+	})
+	adminAuthGroup.POST("switch_role", Controller.SwitchRole)
 	adminAuthGroup.POST("change_info", Controller.ChangeInfo)
 	adminAuthGroup.POST("change_password", Controller.ChangePassword)
-	adminAuthGroup.POST("reset_api_token", Controller.ResetApiToken)
 }
 
 func (_ *Mounter) PublicRouter(publicGroup *gin.RouterGroup) {

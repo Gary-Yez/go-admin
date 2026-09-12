@@ -1,29 +1,22 @@
 package initialization
 
 import (
-	cacher2 "github.com/Gary-Yez/go-admin/cache"
-	"github.com/Gary-Yez/go-admin/config"
-	"github.com/redis/go-redis/v9"
+	"github.com/Gary-Yez/go-admin/internal/cache"
+	"github.com/Gary-Yez/go-admin/internal/config"
 	"time"
 )
 
-func initCache(cfg *config.Config) (cacher2.Cache, error) {
+func initCache(cfg *config.Config) (cache.Cache, error) {
+	var store cache.Cache
+	var err error
 	if cfg.Redis.IsNotEmpty() {
-		r, err := cacher2.NewRedisCache(&redis.Options{
-			Addr:     cfg.Redis.Host + ":" + cfg.Redis.Port,
-			Username: cfg.Redis.Username,
-			Password: cfg.Redis.Password,
-			DB:       cfg.Redis.DB,
-		})
-		if err != nil {
-			return nil, err
-		}
-		return r, nil
+		store, err = cache.NewRedisCache(cfg.Redis.Option())
 	} else {
-		c, err := cacher2.NewMemoryCache(time.Minute)
-		if err != nil {
-			return nil, err
-		}
-		return c, nil
+		store, err = cache.NewMemoryCache(time.Minute)
 	}
+	if err != nil {
+		return nil, err
+	}
+	namespace := cache.DatabaseNamespace(cfg.Mysql.Host, cfg.Mysql.Port, cfg.Mysql.Database)
+	return cache.WithNamespace(store, namespace), nil
 }
