@@ -16,7 +16,7 @@ func setRoleIds(data *SysAdmin) {
 	}
 }
 
-func prepareRoles(tx *gorm.DB, data *SysAdmin, existing *SysAdmin) error {
+func prepareRoles(tx *gorm.DB, data *SysAdmin) error {
 	ids := data.RoleIds
 	unique := make([]uint, 0, len(ids))
 	for _, id := range ids {
@@ -36,12 +36,6 @@ func prepareRoles(tx *gorm.DB, data *SysAdmin, existing *SysAdmin) error {
 	}
 	if len(roles) != len(unique) {
 		return errors.New("所选角色不存在，请刷新后重试")
-	}
-	if existing != nil {
-		data.Default = existing.Default
-		if existing.Default && !slices.ContainsFunc(roles, func(role *sys_role.SysRole) bool { return role.IsSuperAdmin }) {
-			return errors.New("默认管理员必须保留超级管理员角色")
-		}
 	}
 	if !slices.Contains(unique, data.RoleId) {
 		return errors.New("请选择已绑定的角色作为默认角色")

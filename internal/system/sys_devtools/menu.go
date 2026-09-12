@@ -21,7 +21,7 @@ func prepareMenus(data *GenerateBody) error {
 	}
 	leaf := sys_menu.Definition{Key: data.ModuleName, Name: name, ParentKey: data.MenuParentKey, Icon: data.MenuIcon, Path: data.ModuleName, Component: "../views/" + data.ModuleName + "/index.vue"}
 	var existing sys_menu.SysMenu
-	if err := state.DB().Where("`key` = ?", leaf.Key).Limit(1).Find(&existing).Error; err != nil {
+	if err := state.DB().Where(map[string]interface{}{"key": leaf.Key}).Limit(1).Find(&existing).Error; err != nil {
 		return err
 	}
 	if existing.Id != 0 && existing.Component != leaf.Component {
@@ -36,7 +36,7 @@ func prepareMenus(data *GenerateBody) error {
 		}
 		seen[key] = true
 		var parent sys_menu.SysMenu
-		if err := state.DB().Where("`key` = ?", key).First(&parent).Error; err != nil {
+		if err := state.DB().Where(map[string]interface{}{"key": key}).First(&parent).Error; err != nil {
 			return fmt.Errorf("读取父菜单 %s：%w", key, err)
 		}
 		definition := sys_menu.Definition{Key: parent.Key, Name: parent.Name, Icon: parent.Icon, Path: parent.Path, Component: parent.Component, Sort: parent.Sort, Hidden: parent.Hidden}

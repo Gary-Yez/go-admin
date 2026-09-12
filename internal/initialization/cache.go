@@ -17,6 +17,6 @@ func initCache(cfg *config.Config) (cache.Cache, error) {
 	if err != nil {
 		return nil, err
 	}
-	namespace := cache.DatabaseNamespace(cfg.Mysql.Host, cfg.Mysql.Port, cfg.Mysql.Database)
+	namespace := cache.DatabaseNamespace(cfg.Database.Driver, cfg.Database.Host, cfg.Database.Port, cfg.Database.Name)
 	return cache.WithNamespace(store, namespace), nil
 }

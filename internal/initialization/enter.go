@@ -15,7 +15,7 @@ type Dependencies struct {
 }
 
 func InitDependencies(cfg *config.Config) (*Dependencies, error) {
-	db, err := initGormMysql(cfg)
+	db, err := initDatabase(cfg)
 	if err != nil {
 		return nil, errors.New("数据库初始化失败：" + err.Error())
 	}

@@ -57,9 +57,8 @@ func (s *serviceStruct) Create(data *SysAdmin) (err error) {
 	if err != nil {
 		return err
 	}
-	data.Default = false
 	return state.DB().Transaction(func(tx *gorm.DB) error {
-		if err := prepareRoles(tx, data, nil); err != nil {
+		if err := prepareRoles(tx, data); err != nil {
 			return err
 		}
 		if err := tx.Omit(clause.Associations).Create(data).Error; err != nil {
@@ -86,6 +85,10 @@ func (s *serviceStruct) Update(data *SysAdmin) (err error) {
 	}
 	defer lock.Unlock()
 	return state.DB().Transaction(func(tx *gorm.DB) error {
+		superRoleIds, err := lockSuperAdminRoles(tx)
+		if err != nil {
+			return err
+		}
 		var existing SysAdmin
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&existing, data.Id).Error; err != nil {
 			return err
@@ -98,9 +101,8 @@ func (s *serviceStruct) Update(data *SysAdmin) (err error) {
 		slices.Sort(data.RoleIds)
 		data.RoleIds = slices.Compact(data.RoleIds)
 		rolesChanged := !slices.Equal(roleIds, data.RoleIds)
-		data.Default = existing.Default
 		if rolesChanged {
-			if err := prepareRoles(tx, data, &existing); err != nil {
+			if err := prepareRoles(tx, data); err != nil {
 				return err
 			}
 		} else if !slices.Contains(roleIds, data.RoleId) {
@@ -123,7 +125,12 @@ func (s *serviceStruct) Update(data *SysAdmin) (err error) {
 			return err
 		}
 		if rolesChanged {
-			return replaceRoles(tx, data)
+			if err := replaceRoles(tx, data); err != nil {
+				return err
+			}
+		}
+		if existing.Status != data.Status || rolesChanged {
+			return ensureSuperAdmin(tx, superRoleIds)
 		}
 		return nil
 	})
@@ -134,17 +141,17 @@ func (s *serviceStruct) DeleteByIds(req *request2.ReqIds) (err error) {
 		return err
 	}
 	return changeIdentity(req.Ids, func(tx *gorm.DB) error {
-		var ids []uint
-		if err := req.WithQuery(tx.Model(&SysAdmin{})).Where("`default` = ?", false).Pluck("id", &ids).Error; err != nil {
+		superRoleIds, err := lockSuperAdminRoles(tx)
+		if err != nil {
 			return err
 		}
-		if len(ids) == 0 {
-			return nil
-		}
-		if err := tx.Where("admin_id IN ?", ids).Delete(&SysAdminRole{}).Error; err != nil {
+		if err := tx.Where("admin_id IN ?", req.Ids).Delete(&SysAdminRole{}).Error; err != nil {
 			return err
 		}
-		return tx.Where("id IN ?", ids).Delete(&SysAdmin{}).Error
+		if err := req.WithQuery(tx).Delete(&SysAdmin{}).Error; err != nil {
+			return err
+		}
+		return ensureSuperAdmin(tx, superRoleIds)
 	})
 }
 

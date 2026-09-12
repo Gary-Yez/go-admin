@@ -56,7 +56,7 @@ import (
 
 ## 启动服务
 
-当前项目使用 Go 1.25.5。准备 MySQL 数据库后，在业务项目中调用：
+当前项目使用 Go 1.25.5。准备 MySQL 或 PostgreSQL 数据库后，在业务项目中调用：
 
 ```go
 func main() {
@@ -78,6 +78,23 @@ go run . --config config.prod.yaml --server.port 9000
 ```
 
 命令行配置文件优先于代码参数。YAML 填写数据库、Redis、监听端口等环境参数；业务配置在后台维护。完整 YAML 和前后端启动步骤见模板 README。
+
+数据库统一使用 `database` 配置，业务仍通过 `admin.DB()` 查询：
+
+```yaml
+database:
+  driver: mysql # mysql / postgres
+  host: 127.0.0.1
+  port: "3306" # PostgreSQL 使用 5432；省略时按 driver 选择
+  name: go_admin
+  username: your_user
+  password: your_password
+  sslmode: disable # 仅 PostgreSQL 使用，可按服务端要求配置 require/verify-full
+```
+
+已有配置需将 `mysql` 节点改为 `database`，其中 `database` 字段改名为 `name`，并添加 `driver`。这只切换连接，不会将原数据库的数据搬迁到另一种数据库。环境变量使用 `MYAPP_DATABASE_DRIVER`、`MYAPP_DATABASE_HOST`、`MYAPP_DATABASE_PORT`、`MYAPP_DATABASE_NAME` 等。
+
+缓存、分布式锁和权限通知的命名空间包含数据库类型、主机、端口及库名；同一部署的实例应使用一致的连接标识。升级后旧命名空间缓存不再读取，由现有过期机制清理。
 
 ## 注册业务模块
 

@@ -9,8 +9,8 @@ import (
 
 // DatabaseNamespace 为缓存、锁和通知频道生成相同的数据库命名空间。
 // MD5 仅用于生成数据库标识，不用于安全认证或完整性校验。
-func DatabaseNamespace(host, port, database string) string {
-	identity := fmt.Sprintf("%s:%s/%s", host, port, database)
+func DatabaseNamespace(driver, host, port, database string) string {
+	identity := fmt.Sprintf("%s://%s:%s/%s", driver, host, port, database)
 	return fmt.Sprintf("go-admin:%x:", md5.Sum([]byte(identity)))
 }
 

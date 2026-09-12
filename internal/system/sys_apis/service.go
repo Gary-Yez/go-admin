@@ -100,7 +100,7 @@ func (s *serviceStruct) syncApi(db *gorm.DB) (newApis, deleteApis []*SysApi, err
 
 func (s *serviceStruct) GetGroups() (groups []string, err error) {
 	groups = make([]string, 0)
-	err = state.DB().Model(&SysApi{}).Where("`group` != ''").Distinct("`group`").Pluck("`group`", &groups).Error
+	err = state.DB().Model(&SysApi{}).Where(clause.Neq{Column: "group", Value: ""}).Distinct("group").Pluck("group", &groups).Error
 	return
 }
 

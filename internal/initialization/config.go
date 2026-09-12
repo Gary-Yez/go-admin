@@ -23,12 +23,14 @@ server:
   api_prefix: "/api"
 jwt:
   secret: "%s" # 自动随机生成；多实例须使用相同密钥，修改后重启生效
-mysql:
+database:
+  driver: "mysql" # mysql / postgres
   host: "127.0.0.1"
   port: "3306"
   username: ""
   password: ""
-  database: ""
+  name: ""
+  sslmode: "disable" # PostgreSQL TLS 模式；MySQL 忽略
 redis:
   host: "" # 留空时使用内存缓存
   port: "6379"
@@ -60,6 +62,14 @@ func InitConfig(flags *pflag.FlagSet, configFile string) (*config.Config, error)
 	if err := v.BindEnv("jwt.secret"); err != nil {
 		return nil, err
 	}
+	v.SetDefault("database.driver", "mysql")
+	v.SetDefault("database.port", "")
+	v.SetDefault("database.sslmode", "disable")
+	for _, key := range []string{"database.host", "database.name", "database.username", "database.password"} {
+		if err := v.BindEnv(key); err != nil {
+			return nil, err
+		}
+	}
 	v.SetDefault("server.dev", false)
 	v.SetDefault("server.host", "0.0.0.0")
 	v.SetDefault("server.port", "8080")
@@ -79,6 +89,9 @@ func InitConfig(flags *pflag.FlagSet, configFile string) (*config.Config, error)
 	}
 	if len(strings.TrimSpace(cfg.JWT.Secret)) < 32 {
 		return nil, errors.New("配置 jwt.secret 至少需要 32 字节，请填写随机签名密钥后重新启动")
+	}
+	if err := cfg.Database.Normalize(); err != nil {
+		return nil, err
 	}
 	return cfg, nil
 }

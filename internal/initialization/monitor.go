@@ -19,7 +19,7 @@ func StartMonitor() func() {
 	if cfg.Redis.IsNotEmpty() {
 		client = state.Cache().Client().(*redis.Client)
 	}
-	store := monitor.NewStore(client, cache.DatabaseNamespace(cfg.Mysql.Host, cfg.Mysql.Port, cfg.Mysql.Database))
+	store := monitor.NewStore(client, cache.DatabaseNamespace(cfg.Database.Driver, cfg.Database.Host, cfg.Database.Port, cfg.Database.Name))
 	sys_monitor.SetStore(store)
 	collector := monitor.NewCollector(cfg.Server.NodeName)
 	ctx, cancel := context.WithCancel(context.Background())

@@ -18,7 +18,6 @@ type SysAdmin struct {
 	Password     string              `json:"password" gorm:"-"`
 	PasswordHash string              `json:"-"`
 	Status       uint                `json:"status" gorm:"default:1;comment:状态"`
-	Default      bool                `json:"is_default"`
 	RoleId       uint                `json:"role_id"`
 	Role         *sys_role.SysRole   `json:"role" gorm:"foreignKey:role_id;"`
 	Roles        []*sys_role.SysRole `json:"roles" gorm:"many2many:sys_admin_role;joinForeignKey:AdminId;joinReferences:RoleId;"`

@@ -24,7 +24,7 @@ func Sync(definitions []Definition) error {
 					return fmt.Errorf("菜单配置无效：%s", item.Key)
 				}
 				var existing SysMenu
-				if err := tx.Where("`key` = ?", item.Key).Limit(1).Find(&existing).Error; err != nil {
+				if err := tx.Where(map[string]interface{}{"key": item.Key}).Limit(1).Find(&existing).Error; err != nil {
 					return err
 				}
 				if existing.Id != 0 {
@@ -33,7 +33,7 @@ func Sync(definitions []Definition) error {
 				menu := SysMenu{Key: item.Key, Name: item.Name, Icon: item.Icon, Path: item.Path, Component: item.Component, Sort: item.Sort, Hidden: item.Hidden}
 				if item.ParentKey != "" {
 					var parent SysMenu
-					if err := tx.Where("`key` = ?", item.ParentKey).Limit(1).Find(&parent).Error; err != nil {
+					if err := tx.Where(map[string]interface{}{"key": item.ParentKey}).Limit(1).Find(&parent).Error; err != nil {
 						return err
 					}
 					if parent.Id == 0 {

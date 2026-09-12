@@ -65,6 +65,7 @@ func (s *serviceStruck) List(req *request2.ReqList) (list []*SysRole, total int6
 }
 
 func (s *serviceStruck) Create(data *SysRole) (err error) {
+	data.IsSuperAdmin = false
 	err = state.DB().Omit("Menus.*").Create(data).Error
 	return
 }
@@ -75,7 +76,7 @@ func (s *serviceStruck) Update(data *SysRole) (err error) {
 	}
 	return state.DB().Select("*").
 		Omit(clause.Associations).
-		Omit("Id", "CreatedAt", "UpdatedAt", "DefaultMenu").
+		Omit("Id", "CreatedAt", "UpdatedAt", "DefaultMenu", "IsSuperAdmin").
 		Where("id = ?", data.Id).Updates(data).Error
 }
 

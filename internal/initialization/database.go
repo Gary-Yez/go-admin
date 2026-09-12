@@ -1,8 +1,10 @@
 package initialization
 
 import (
+	"fmt"
 	"github.com/Gary-Yez/go-admin/internal/config"
 	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"log"
@@ -10,9 +12,21 @@ import (
 	"time"
 )
 
-func initGormMysql(cfg *config.Config) (*gorm.DB, error) {
-	// 配置数据库
-	db, err := gorm.Open(mysql.Open(cfg.Mysql.ToString()), &gorm.Config{
+func initDatabase(cfg *config.Config) (*gorm.DB, error) {
+	if err := cfg.Database.Normalize(); err != nil {
+		return nil, err
+	}
+	var dialector gorm.Dialector
+	switch cfg.Database.Driver {
+	case "mysql":
+		dialector = mysql.Open(cfg.Database.DSN())
+	case "postgres":
+		dialector = postgres.Open(cfg.Database.DSN())
+	default:
+		return nil, fmt.Errorf("不支持的数据库类型 %q", cfg.Database.Driver)
+	}
+	db, err := gorm.Open(dialector, &gorm.Config{
+		TranslateError: true,
 		Logger: logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
 			SlowThreshold:             200 * time.Millisecond,
 			LogLevel:                  logger.Warn,

@@ -46,7 +46,7 @@ func startPolicyRefresh(enforcer *casbin.SyncedCachedEnforcer, interval time.Dur
 }
 
 func policyChannel(cfg *config.Config) string {
-	return cache.DatabaseNamespace(cfg.Mysql.Host, cfg.Mysql.Port, cfg.Mysql.Database) + "channel:casbin"
+	return cache.DatabaseNamespace(cfg.Database.Driver, cfg.Database.Host, cfg.Database.Port, cfg.Database.Name) + "channel:casbin"
 }
 
 func newPolicyWatcher(enforcer *casbin.SyncedCachedEnforcer, cfg *config.Config) (persist.Watcher, error) {

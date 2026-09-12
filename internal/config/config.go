@@ -5,10 +5,10 @@ type JWT struct {
 }
 
 type Config struct {
-	JWT    JWT    `mapstructure:"jwt"`
-	Server Server `mapstructure:"server"`
-	Mysql  Mysql  `mapstructure:"mysql"`
-	Redis  Redis  `mapstructure:"redis"`
+	JWT      JWT      `mapstructure:"jwt"`
+	Server   Server   `mapstructure:"server"`
+	Database Database `mapstructure:"database"`
+	Redis    Redis    `mapstructure:"redis"`
 }
 
 func (c *Config) IsDev() bool {

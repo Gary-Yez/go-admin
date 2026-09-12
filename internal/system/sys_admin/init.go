@@ -26,7 +26,6 @@ func InitData() error {
 				Phone:        "18888888888",
 				Avatar:       "/img/user.png",
 				PasswordHash: "$2a$10$PVIcAuZXvnP4sHLzGe/7se7F9Sakeu99ZwGqtlanUbFXgDHrxImQe",
-				Default:      true,
 				Roles:        []*sys_role.SysRole{&defaultRole},
 				RoleId:       defaultRole.Id,
 			},
