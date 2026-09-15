@@ -22,6 +22,23 @@ func InitData() error {
 // defaultAPIs 同时用于首次填充和启动时补录新接口的分组、说明。
 func defaultAPIs() []SysApi {
 	return []SysApi{
+		{Method: http.MethodPost, Path: "/sys_storage/list", Group: "文件管理-存储管理", Description: "存储列表"},
+		{Method: http.MethodGet, Path: "/sys_storage/get", Group: "文件管理-存储管理", Description: "存储详情"},
+		{Method: http.MethodPost, Path: "/sys_storage/save", Group: "文件管理-存储管理", Description: "保存存储账号"},
+		{Method: http.MethodPost, Path: "/sys_storage/default", Group: "文件管理-存储管理", Description: "设置默认存储"},
+		{Method: http.MethodPost, Path: "/sys_storage/enabled", Group: "文件管理-存储管理", Description: "切换存储启用状态"},
+		{Method: http.MethodPost, Path: "/sys_storage/delete", Group: "文件管理-存储管理", Description: "删除存储账号"},
+		{Method: http.MethodPost, Path: "/sys_file/list", Group: "文件管理-文件列表", Description: "文件列表"},
+		{Method: http.MethodGet, Path: "/sys_file/options", Group: "文件管理-文件列表", Description: "上传配置及存储选项"},
+		{Method: http.MethodPost, Path: "/sys_file/upload", Group: "文件管理-文件列表", Description: "普通文件上传"},
+		{Method: http.MethodPost, Path: "/sys_file/begin", Group: "文件管理-文件列表", Description: "开始分片上传"},
+		{Method: http.MethodGet, Path: "/sys_file/session", Group: "文件管理-文件列表", Description: "查询本人上传会话"},
+		{Method: http.MethodPost, Path: "/sys_file/part", Group: "文件管理-文件列表", Description: "上传文件分片"},
+		{Method: http.MethodPost, Path: "/sys_file/complete", Group: "文件管理-文件列表", Description: "合并文件分片"},
+		{Method: http.MethodPost, Path: "/sys_file/abort", Group: "文件管理-文件列表", Description: "取消本人上传"},
+		{Method: http.MethodPost, Path: "/sys_file/delete", Group: "文件管理-文件列表", Description: "删除文件及存储对象"},
+		{Method: http.MethodPost, Path: "/sys_file/cleanup", Group: "文件管理-文件列表", Description: "清理过期上传"},
+		{Method: http.MethodPost, Path: "/sys_file/link", Group: "文件管理-文件列表", Description: "获取文件下载凭证"},
 		{Method: http.MethodGet, Path: "/sys_config/values", Group: "系统运维-配置管理", Description: "配置项列表"},
 		{Method: http.MethodPost, Path: "/sys_config/update_value", Group: "系统运维-配置管理", Description: "修改配置项"},
 		{Method: http.MethodPost, Path: "/sys_config/reset_value", Group: "系统运维-配置管理", Description: "重置配置项"},

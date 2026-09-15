@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
+	"github.com/Gary-Yez/go-admin/dberror"
 	"github.com/Gary-Yez/go-admin/internal/cache"
 	"github.com/Gary-Yez/go-admin/internal/state"
 	utils2 "github.com/Gary-Yez/go-admin/internal/utils"
@@ -167,4 +168,53 @@ func (s *serviceStruct) VerifyAuthUser(user *utils2.AuthUser) error {
 		return errors.New("当前角色已被移除，请重新登录")
 	}
 	return nil
+}
+
+// ChangeInfo 在一个事务中保存提交的字段，头像校验失败时不写入其他资料。
+func (*serviceStruct) ChangeInfo(ctx context.Context, userId uint, body *ChangeInfoBody) (map[string]any, error) {
+	updates := make(map[string]any)
+	for _, field := range []struct {
+		key, label string
+		value      *string
+	}{
+		{"nickname", "昵称", body.Nickname},
+		{"phone", "手机号", body.Phone},
+		{"email", "邮箱", body.Email},
+	} {
+		if field.value == nil {
+			continue
+		}
+		value := strings.TrimSpace(*field.value)
+		if value == "" {
+			return nil, fmt.Errorf("%s不能为空", field.label)
+		}
+		updates[field.key] = value
+	}
+	if body.AvatarFileId != nil {
+		if *body.AvatarFileId == 0 {
+			return nil, errors.New("请选择已上传的头像")
+		}
+		updates["avatar_file_id"] = *body.AvatarFileId
+	}
+	if len(updates) == 0 {
+		return nil, errors.New("请提交需要修改的资料")
+	}
+	var avatar string
+	err := state.DB().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if body.AvatarFileId != nil {
+			var err error
+			avatar, err = validateAvatar(ctx, tx, userId, *body.AvatarFileId)
+			if err != nil {
+				return err
+			}
+		}
+		return dberror.Unique(tx.Model(&sys_admin.SysAdmin{}).Where("id = ?", userId).Updates(updates).Error, &sys_admin.SysAdmin{})
+	})
+	if err != nil {
+		return nil, err
+	}
+	if body.AvatarFileId != nil {
+		updates["avatar"] = avatar
+	}
+	return updates, nil
 }

@@ -74,6 +74,9 @@ func UpdateValue(ctx context.Context, key string, value json.RawMessage, reset b
 	if err := ValidateValue(row.Type, value); err != nil {
 		return err
 	}
+	if err := ValidateOptionValue(row.definition(), value); err != nil {
+		return err
+	}
 	if err := validateConfigValue(row.Key, value); err != nil {
 		return err
 	}

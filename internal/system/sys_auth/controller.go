@@ -2,9 +2,9 @@ package sys_auth
 
 import (
 	"errors"
-	"github.com/Gary-Yez/go-admin/dberror"
 	"github.com/Gary-Yez/go-admin/internal/state"
 	"github.com/Gary-Yez/go-admin/internal/system/sys_admin"
+	"github.com/Gary-Yez/go-admin/internal/system/sys_file"
 	"github.com/Gary-Yez/go-admin/internal/system/sys_login_log"
 	"github.com/Gary-Yez/go-admin/internal/system/sys_menu"
 	"github.com/Gary-Yez/go-admin/internal/utils"
@@ -79,6 +79,18 @@ func (_ *controllerStruct) GetMe(ctx *gin.Context) {
 		response.Error(ctx, err.Error())
 		return
 	}
+	if user.AvatarFileId != nil {
+		// 头像读取失败不影响身份和菜单加载。
+		user.Avatar = ""
+		var file sys_file.SysFile
+		if err := state.DB().WithContext(ctx.Request.Context()).First(&file, *user.AvatarFileId).Error; err == nil {
+			if url, err := file.PreviewLink(ctx.Request.Context()); err == nil {
+				user.Avatar = url
+			} else {
+				log.Printf("读取用户头像失败：%v", err)
+			}
+		}
+	}
 	// 根据 Sort 字段对切片进行排序
 	sort.Slice(user.Role.Menus, func(i, j int) bool {
 		if user.Role.Menus[i].Sort == user.Role.Menus[j].Sort {
@@ -116,31 +128,22 @@ func (_ *controllerStruct) SwitchRole(ctx *gin.Context) {
 }
 
 func (_ *controllerStruct) ChangeInfo(ctx *gin.Context) {
-	authUser, err := request.GetAuthUser(ctx)
+	user, err := request.GetAuthUser(ctx)
 	if err != nil {
-		response.Error(ctx, err.Error(), 401)
+		response.Error(ctx, err, 401)
 		return
 	}
-	body := struct {
-		Nickname string `json:"nickname" binding:"required"`
-		Phone    string `json:"phone" binding:"required"`
-		Email    string `json:"email" binding:"required"`
-	}{}
+	var body ChangeInfoBody
 	if err := ctx.ShouldBindJSON(&body); err != nil {
-		response.Error(ctx, err.Error())
+		response.Error(ctx, err)
 		return
 	}
-	err = state.DB().Model(sys_admin.SysAdmin{}).Where("id = ?", authUser.UserId).Updates(map[string]interface{}{
-		"nickname": body.Nickname,
-		"phone":    body.Phone,
-		"email":    body.Email,
-	}).Error
+	updated, err := Service.ChangeInfo(ctx.Request.Context(), user.UserId, &body)
 	if err != nil {
-		response.Error(ctx, dberror.Unique(err, &sys_admin.SysAdmin{}))
+		response.Error(ctx, err)
 		return
-	} else {
-		response.Success(ctx)
 	}
+	response.Success(ctx, updated)
 }
 
 func (_ *controllerStruct) ChangePassword(ctx *gin.Context) {

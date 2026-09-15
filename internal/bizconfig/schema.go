@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -78,7 +79,25 @@ func ParseSchema(kind reflect.Type) (*Schema, error) {
 			if label == "" {
 				label = field.Name
 			}
-			schema.Fields = append(schema.Fields, SchemaField{Index: index, Definition: Definition{Key: key, Group: strings.TrimSpace(field.Tag.Get("group")), Label: label, Description: field.Tag.Get("description"), Type: name, Default: raw}})
+			options := []Option{}
+			if text := field.Tag.Get("options"); text != "" {
+				if err := json.Unmarshal([]byte(text), &options); err != nil {
+					return fmt.Errorf("字段 %s 的下拉候选项无效", field.Name)
+				}
+			}
+			rows := 0
+			if text := field.Tag.Get("rows"); text != "" {
+				var err error
+				rows, err = strconv.Atoi(text)
+				if err != nil {
+					return fmt.Errorf("字段 %s 的默认行数无效", field.Name)
+				}
+			}
+			definition := Definition{Key: key, Group: strings.TrimSpace(field.Tag.Get("group")), Label: label, Description: field.Tag.Get("description"), Type: name, Control: field.Tag.Get("control"), Rows: rows, Options: options, Default: raw}
+			if err := ValidateDefinition(definition); err != nil {
+				return fmt.Errorf("字段 %s：%w", field.Name, err)
+			}
+			schema.Fields = append(schema.Fields, SchemaField{Index: index, Definition: definition})
 		}
 		return nil
 	}
@@ -118,10 +137,10 @@ func (schema *Schema) initialDefinitions() ([]Definition, error) {
 		if err != nil {
 			return nil, fmt.Errorf("配置 %s：%w", field.Key, err)
 		}
-		if err := ValidateValue(field.Type, raw); err != nil {
+		definitions[i].Default = raw
+		if err := ValidateDefinition(definitions[i]); err != nil {
 			return nil, fmt.Errorf("配置 %s：%w", field.Key, err)
 		}
-		definitions[i].Default = raw
 	}
 	return definitions, nil
 }

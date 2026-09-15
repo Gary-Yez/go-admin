@@ -1,10 +1,12 @@
 package initialization
 
 import (
+	"encoding/json"
 	"reflect"
 
 	"github.com/Gary-Yez/go-admin/internal/bizconfig"
 	"github.com/Gary-Yez/go-admin/internal/system/sys_config"
+	"github.com/Gary-Yez/go-admin/internal/system/sys_file"
 	"github.com/Gary-Yez/go-admin/internal/utils"
 )
 
@@ -17,7 +19,12 @@ func InitBusinessConfig[T any](schema *bizconfig.Schema) (*bizconfig.Schema, err
 	if schema == nil {
 		schema = base
 	}
-	if err := bizconfig.Initialize(schema, utils.ValidateLoginValue); err != nil {
+	if err := bizconfig.Initialize(schema, func(key string, value json.RawMessage) error {
+		if err := utils.ValidateLoginValue(key, value); err != nil {
+			return err
+		}
+		return sys_file.ValidateConfigValue(key, value)
+	}); err != nil {
 		return nil, err
 	}
 	sys_config.SetBaseSchema(base)

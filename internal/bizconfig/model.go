@@ -12,7 +12,15 @@ type Definition struct {
 	Label       string          `json:"label"`
 	Description string          `json:"description"`
 	Type        string          `json:"type"`
+	Control     string          `json:"control"`
+	Rows        int             `json:"rows"`
+	Options     []Option        `json:"options"`
 	Default     json.RawMessage `json:"default"`
+}
+
+type Option struct {
+	Label string          `json:"label"`
+	Value json.RawMessage `json:"value"`
 }
 
 type SysConfigValue struct {
@@ -22,13 +30,20 @@ type SysConfigValue struct {
 	Label        string    `json:"label" gorm:"size:200"`
 	Description  string    `json:"description" gorm:"type:text"`
 	Type         string    `json:"type" gorm:"size:32"`
+	Control      string    `json:"control" gorm:"size:32"`
+	Rows         int       `json:"rows" gorm:"default:0"`
+	OptionsValue string    `json:"-" gorm:"column:config_options;type:text"`
 	DefaultValue string    `json:"-" gorm:"type:text"`
 	Value        string    `json:"-" gorm:"type:text;not null"`
 	UpdatedAt    time.Time `json:"updated_at"`
 }
 
 func (row SysConfigValue) definition() Definition {
-	return Definition{Sort: row.Sort, Key: row.Key, Group: row.Group, Label: row.Label, Description: row.Description, Type: row.Type, Default: json.RawMessage(row.DefaultValue)}
+	options := []Option{}
+	if row.OptionsValue != "" {
+		_ = json.Unmarshal([]byte(row.OptionsValue), &options)
+	}
+	return Definition{Sort: row.Sort, Key: row.Key, Group: row.Group, Label: row.Label, Description: row.Description, Type: row.Type, Control: row.Control, Rows: row.Rows, Options: options, Default: json.RawMessage(row.DefaultValue)}
 }
 
 type ValueRow struct {

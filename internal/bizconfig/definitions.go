@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"reflect"
 	"strings"
 	"time"
 
@@ -30,6 +31,111 @@ func ValidateValue(kind string, value json.RawMessage) error {
 		return fmt.Errorf("不支持的配置类型：%s", kind)
 	}
 	return decodeStoredValue(kind, value, target)
+}
+
+func ValidateDefinition(definition Definition) error {
+	if err := ValidateValue(definition.Type, definition.Default); err != nil {
+		return err
+	}
+	requiresOptions := false
+	switch definition.Control {
+	case "":
+	case "textarea", "password":
+		if definition.Type != "string" {
+			return fmt.Errorf("%s 控件只支持 string 类型", definition.Control)
+		}
+	case "select":
+		if definition.Type != "string" && definition.Type != "int" && definition.Type != "float64" {
+			return fmt.Errorf("select 控件不支持 %s 类型", definition.Type)
+		}
+		requiresOptions = true
+	case "radio":
+		if definition.Type != "string" && definition.Type != "int" && definition.Type != "float64" {
+			return fmt.Errorf("radio 控件不支持 %s 类型", definition.Type)
+		}
+		requiresOptions = true
+	case "multi-select":
+		if definition.Type != "[]string" {
+			return errors.New("multi-select 控件只支持 []string 类型")
+		}
+		requiresOptions = true
+	default:
+		return fmt.Errorf("不支持的配置控件：%s", definition.Control)
+	}
+	if definition.Control == "textarea" {
+		if definition.Rows < 1 || definition.Rows > 20 {
+			return errors.New("多行文本框默认行数必须在 1 到 20 之间")
+		}
+	} else if definition.Rows != 0 {
+		return errors.New("只有多行文本框可以设置默认行数")
+	}
+	if !requiresOptions {
+		if len(definition.Options) != 0 {
+			return errors.New("当前配置控件不能设置候选项")
+		}
+		return nil
+	}
+	if len(definition.Options) == 0 {
+		return errors.New("选择控件至少需要一个候选项")
+	}
+	optionType := definition.Type
+	if definition.Control == "multi-select" {
+		optionType = "string"
+	}
+	seen := map[string]bool{}
+	for _, option := range definition.Options {
+		if strings.TrimSpace(option.Label) == "" {
+			return errors.New("下拉候选项名称不能为空")
+		}
+		if err := ValidateValue(optionType, option.Value); err != nil {
+			return fmt.Errorf("候选项 %s：%w", option.Label, err)
+		}
+		var decoded any
+		_ = json.Unmarshal(option.Value, &decoded)
+		canonical, _ := json.Marshal(decoded)
+		key := string(canonical)
+		if seen[key] {
+			return errors.New("下拉候选值不能重复")
+		}
+		seen[key] = true
+	}
+	return ValidateOptionValue(definition, definition.Default)
+}
+
+func ValidateOptionValue(definition Definition, value json.RawMessage) error {
+	if definition.Control != "select" && definition.Control != "radio" && definition.Control != "multi-select" {
+		return nil
+	}
+	var actual any
+	if err := json.Unmarshal(value, &actual); err != nil {
+		return err
+	}
+	if definition.Control == "multi-select" {
+		values, ok := actual.([]any)
+		if !ok {
+			return errors.New("多选配置值必须为字符串列表")
+		}
+		for _, value := range values {
+			if !containsOptionValue(definition.Options, value) {
+				return errors.New("配置值包含不在候选项中的内容")
+			}
+		}
+		return nil
+	}
+	if containsOptionValue(definition.Options, actual) {
+		return nil
+	}
+	return errors.New("配置值不在候选项中")
+}
+
+func containsOptionValue(options []Option, actual any) bool {
+	for _, option := range options {
+		var candidate any
+		if json.Unmarshal(option.Value, &candidate) == nil && reflect.DeepEqual(actual, candidate) {
+			return true
+		}
+	}
+	return false
 }
 
 // 直接解码到目标字段，同时校验空值、类型及整数范围。
@@ -59,7 +165,7 @@ func decodeStoredValue(kind string, value json.RawMessage, target any) error {
 // Definitions 读取数据库中的配置定义，供管理页面及生成器使用。
 func Definitions() ([]Definition, error) {
 	var rows []SysConfigValue
-	if err := state.DB().Select("config_key", "config_group", "label", "description", "type", "default_value", "sort").Order("sort, config_key").Find(&rows).Error; err != nil {
+	if err := state.DB().Select("config_key", "config_group", "label", "description", "type", "control", "rows", "config_options", "default_value", "sort").Order("sort, config_key").Find(&rows).Error; err != nil {
 		return nil, err
 	}
 	definitions := make([]Definition, 0, len(rows))
@@ -70,7 +176,8 @@ func Definitions() ([]Definition, error) {
 }
 
 func definitionRow(definition Definition) SysConfigValue {
-	return SysConfigValue{Sort: definition.Sort, Key: definition.Key, Group: definition.Group, Label: definition.Label, Description: definition.Description, Type: definition.Type, DefaultValue: string(definition.Default), Value: string(definition.Default)}
+	options, _ := json.Marshal(definition.Options)
+	return SysConfigValue{Sort: definition.Sort, Key: definition.Key, Group: definition.Group, Label: definition.Label, Description: definition.Description, Type: definition.Type, Control: definition.Control, Rows: definition.Rows, OptionsValue: string(options), DefaultValue: string(definition.Default), Value: string(definition.Default)}
 }
 
 // 代码定义仅用于首次部署补建。已有定义和值不随实例版本变化而覆盖。
@@ -78,7 +185,7 @@ func seedDefinition(definition Definition) error {
 	if strings.TrimSpace(definition.Key) == "" || len(definition.Key) > 191 {
 		return errors.New("配置标识不能为空且不能超过 191 字节")
 	}
-	if err := ValidateValue(definition.Type, definition.Default); err != nil {
+	if err := ValidateDefinition(definition); err != nil {
 		return err
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -142,11 +249,18 @@ func saveDefinitions(tx *gorm.DB, definitions []Definition) error {
 		if row.Type != field.Type {
 			return fmt.Errorf("配置 %s 不允许修改已有类型", key)
 		}
-		if row.Sort == field.Sort && row.Group == field.Group && row.Label == field.Label && row.Description == field.Description && row.DefaultValue == string(field.Default) {
+		if err := ValidateDefinition(field); err != nil {
+			return fmt.Errorf("配置 %s：%w", key, err)
+		}
+		if err := ValidateOptionValue(field, json.RawMessage(row.Value)); err != nil {
+			return fmt.Errorf("配置 %s 的当前值：%w", key, err)
+		}
+		options, _ := json.Marshal(field.Options)
+		if row.Sort == field.Sort && row.Group == field.Group && row.Label == field.Label && row.Description == field.Description && row.Control == field.Control && row.Rows == field.Rows && row.OptionsValue == string(options) && row.DefaultValue == string(field.Default) {
 			continue
 		}
 		result := tx.Model(&SysConfigValue{}).Where("config_key = ?", key).
-			Updates(map[string]any{"sort": field.Sort, "config_group": field.Group, "label": field.Label, "description": field.Description, "default_value": string(field.Default)})
+			Updates(map[string]any{"sort": field.Sort, "config_group": field.Group, "label": field.Label, "description": field.Description, "control": field.Control, "rows": field.Rows, "config_options": string(options), "default_value": string(field.Default)})
 		if result.Error != nil {
 			return result.Error
 		}

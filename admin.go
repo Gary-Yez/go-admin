@@ -15,10 +15,12 @@ import (
 	"github.com/Gary-Yez/go-admin/internal/system/sys_config"
 	"github.com/Gary-Yez/go-admin/internal/system/sys_cron_job"
 	"github.com/Gary-Yez/go-admin/internal/system/sys_devtools"
+	"github.com/Gary-Yez/go-admin/internal/system/sys_file"
 	"github.com/Gary-Yez/go-admin/internal/system/sys_login_log"
 	"github.com/Gary-Yez/go-admin/internal/system/sys_menu"
 	"github.com/Gary-Yez/go-admin/internal/system/sys_monitor"
 	"github.com/Gary-Yez/go-admin/internal/system/sys_role"
+	"github.com/Gary-Yez/go-admin/internal/system/sys_storage"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/pflag"
@@ -232,6 +234,8 @@ func registerBuiltins() error {
 		{key: "sys_admin", Module: new(sys_admin.Mounter)},
 		{key: "sys_login_log", Module: new(sys_login_log.Mounter)},
 		{key: "sys_monitor", Module: new(sys_monitor.Mounter)},
+		{key: "sys_storage", Module: new(sys_storage.Mounter)},
+		{key: "sys_file", Module: new(sys_file.Mounter)},
 		{key: "sys_auth", Module: new(sys_auth.Mounter)},
 		{key: "sys_api_token", Module: new(sys_api_token.Mounter)},
 		{key: "sys_cron_job", Module: new(sys_cron_job.Mounter)},

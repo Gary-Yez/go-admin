@@ -81,7 +81,7 @@ func render(fields []Field, typeName string) ([]byte, error) {
 		if strings.TrimSpace(field.Label) == "" {
 			return nil, errors.New("配置名称不能为空")
 		}
-		if err := bizconfig.ValidateValue(field.Type, field.Default); err != nil {
+		if err := bizconfig.ValidateDefinition(field.Definition); err != nil {
 			return nil, err
 		}
 		names[field.Name], keys[field.Key] = true, true
@@ -94,6 +94,19 @@ func render(fields []Field, typeName string) ([]byte, error) {
 		tag := fmt.Sprintf("config:%q label:%q default:%q description:%q", field.Key, field.Label, value, field.Description)
 		if field.Group != "" {
 			tag += fmt.Sprintf(" group:%q", field.Group)
+		}
+		if field.Control != "" {
+			tag += fmt.Sprintf(" control:%q", field.Control)
+			if len(field.Options) != 0 {
+				options, err := json.Marshal(field.Options)
+				if err != nil {
+					return nil, err
+				}
+				tag += fmt.Sprintf(" options:%q", options)
+			}
+		}
+		if field.Rows != 0 {
+			tag += fmt.Sprintf(" rows:%q", strconv.Itoa(field.Rows))
 		}
 		tagLiteral := strconv.Quote(tag)
 		if !strings.ContainsRune(tag, 96) {
@@ -164,7 +177,20 @@ func parse(content []byte) ([]Field, string, error) {
 				if kind.String() == "string" {
 					value, _ = json.Marshal(tag.Get("default"))
 				}
-				fields = append(fields, Field{Name: field.Names[0].Name, Definition: bizconfig.Definition{Key: tag.Get("config"), Group: tag.Get("group"), Label: tag.Get("label"), Description: tag.Get("description"), Type: kind.String(), Default: value}})
+				options := []bizconfig.Option{}
+				if text := tag.Get("options"); text != "" {
+					if err := json.Unmarshal([]byte(text), &options); err != nil {
+						return nil, "", err
+					}
+				}
+				rows := 0
+				if text := tag.Get("rows"); text != "" {
+					rows, err = strconv.Atoi(text)
+					if err != nil {
+						return nil, "", err
+					}
+				}
+				fields = append(fields, Field{Name: field.Names[0].Name, Definition: bizconfig.Definition{Key: tag.Get("config"), Group: tag.Get("group"), Label: tag.Get("label"), Description: tag.Get("description"), Type: kind.String(), Control: tag.Get("control"), Rows: rows, Options: options, Default: value}})
 			}
 		}
 	}

@@ -1,6 +1,7 @@
 package sys_admin
 
 import (
+	"github.com/Gary-Yez/go-admin/internal/system/sys_file"
 	"github.com/Gary-Yez/go-admin/internal/system/sys_role"
 	"github.com/Gary-Yez/go-admin/request"
 	"time"
@@ -11,7 +12,9 @@ type SysAdmin struct {
 	CreatedAt    time.Time           `json:"created_at" gorm:"comment:创建时间"`
 	UpdatedAt    time.Time           `json:"updated_at" gorm:"comment:更新时间"`
 	Username     string              `json:"username" gorm:"unique;comment:用户名"`
-	Avatar       string              `json:"avatar" gorm:"comment:头像"`
+	Avatar       string              `json:"avatar" gorm:"-"`
+	AvatarFileId *uint               `json:"avatar_file_id" gorm:"index;comment:头像文件ID"`
+	AvatarFile   *sys_file.SysFile   `json:"-" gorm:"foreignKey:AvatarFileId;references:Id;constraint:OnDelete:SET NULL;"`
 	Nickname     string              `json:"nickname" gorm:"comment:昵称"`
 	Email        string              `json:"email" gorm:"unique;comment:邮箱"`
 	Phone        string              `json:"phone" gorm:"unique;comment:手机号"`
