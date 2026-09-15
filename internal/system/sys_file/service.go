@@ -228,7 +228,12 @@ func (*serviceStruct) Cleanup(ctx context.Context) (int, error) {
 		return 0, err
 	}
 	count := 0
+	var failures []error
 	for _, id := range ids {
+		if err := ctx.Err(); err != nil {
+			failures = append(failures, err)
+			break
+		}
 		deleted := false
 		err := locked(ctx, id, 0, func(tx *gorm.DB, row *SysFile) error {
 			// 等待行锁期间上传可能已经完成，取得锁后再次核对，不能误删成品。
@@ -241,12 +246,18 @@ func (*serviceStruct) Cleanup(ctx context.Context) (int, error) {
 			deleted = true
 			return nil
 		})
-		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-			return count, fmt.Errorf("已清理 %d 条，会话 %d 清理失败：%w", count, id, err)
+		if err != nil {
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				failures = append(failures, fmt.Errorf("会话 %d 清理失败：%w", id, err))
+			}
+			continue
 		}
 		if deleted {
 			count++
 		}
+	}
+	if err := errors.Join(failures...); err != nil {
+		return count, fmt.Errorf("已清理 %d 条，部分会话未完成清理：%w", count, err)
 	}
 	return count, nil
 }
